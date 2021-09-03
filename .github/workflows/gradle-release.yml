@@ -12,11 +12,11 @@ jobs:
       packages: write
     env:
       # For stuff need our private packages
-      # USERNAME: ${{ secrets.SERVICE_ID }}
-      # TOKEN: ${{ secrets.SERVICE_PAT }}
+      USERNAME: ${{ secrets.SERVICE_ID }}
+      TOKEN: ${{ secrets.SERVICE_PAT }}
       # For stuff that doesn't need our private packages
-      USERNAME: ${{ github.actor }}
-      TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # USERNAME: ${{ github.actor }}
+      # TOKEN: ${{ secrets.GITHUB_TOKEN }}
       MC_VER: 1.16.5
       PAPER_BUILD: 786
     steps:
