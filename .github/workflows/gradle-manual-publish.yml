@@ -1,0 +1,50 @@
+# DO NOT use it unless you know what are you doing
+# Manual testing prob don't need caching because this workflow is intended to fix bugs
+name: Gradle Package (Manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      pv:
+        description: Maven package version
+        required: true
+        default: 0.0.1
+      mc_ver:
+        description: Minecraft version
+        required: true
+        default: 1.16.5
+      paper_build:
+        description: Paper version
+        required: true
+        default: "786"
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    env:
+      # For stuff need our private packages
+      USERNAME: ${{ secrets.SERVICE_ID }}
+      TOKEN: ${{ secrets.SERVICE_PAT }}
+      # For stuff that doesn't need our private packages
+      # USERNAME: ${{ github.actor }}
+      # TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      VERSION: ${{ github.event.inputs.pv }}
+      MC_VER: 1.16.5
+      PAPER_BUILD: 786
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up JDK 16
+        uses: actions/setup-java@v2
+        with:
+          java-version: '16'
+          distribution: 'adopt'
+          server-id: github
+          settings-path: ${{ github.workspace }}
+      - name: Gradle build
+        run: gradle build
+      - name: Gradle test
+        run: gradle test
+      - name: Publish to GitHub Packages
+        run: gradle publish -PpublishZgpr

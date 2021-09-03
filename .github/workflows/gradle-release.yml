@@ -1,0 +1,51 @@
+name: Gradle Release Package
+on:
+  push:
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    env:
+      # For stuff need our private packages
+      # USERNAME: ${{ secrets.SERVICE_ID }}
+      # TOKEN: ${{ secrets.SERVICE_PAT }}
+      # For stuff that doesn't need our private packages
+      USERNAME: ${{ github.actor }}
+      TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      MC_VER: 1.16.5
+      PAPER_BUILD: 786
+    steps:
+      - name: Set VERSION variable from tag
+        run: echo "VERSION=${GITHUB_REF/refs\/tags\/v/}" >> $GITHUB_ENV
+      - uses: actions/checkout@v2
+      - name: Set up JDK 16
+        uses: actions/setup-java@v2
+        with:
+          java-version: '16'
+          distribution: 'adopt'
+          server-id: github
+          cache: 'gradle'
+          settings-path: ${{ github.workspace }}
+      - name: Cache Paper NMS
+        id: 'nms'
+        uses: "actions/cache@v2"
+        with:
+          path: ~/.m2/repository/com/destroystokyo/paper/paper
+          key: ${{ runner.os }}-nms-${{ env.MC_VER }}-${{ env.PAPER_BUILD }}
+      - name: Include Paper NMS
+        if: steps.nms.outputs.cache-hit != 'true'
+        run: |
+          echo "Downloading paper nms: version: ${MC_VER} build ${PAPER_BUILD}"
+          wget -O paper.jar -q https://papermc.io/api/v2/projects/paper/versions/${MC_VER}/builds/${PAPER_BUILD}/downloads/paper-${MC_VER}-${PAPER_BUILD}.jar
+          java -Dpaperclip.install=true -jar paper.jar
+      - name: Gradle build
+        run: gradle build
+      - name: Gradle test
+        run: gradle test
+      - name: Publish to GitHub Packages
+        run: gradle publish -PpublishZgpr

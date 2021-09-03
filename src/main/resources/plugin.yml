@@ -1,0 +1,13 @@
+name: ${name}
+version: ${version}
+main: ${groupId}.zombies.Zombies
+api-version: 1.16
+depend: [ arena-api, SlimeWorldManager, zap-party ]
+loadbefore: [ MythicMobs ]
+commands:
+  zap:
+    description: "Generic command used by this plugin for various things."
+  mapeditor:
+    description: "Mapeditor command."
+  pu:
+    description: "ZZ"
