@@ -42,6 +42,11 @@ jobs:
           distribution: 'adopt'
           server-id: github
           settings-path: ${{ github.workspace }}
+      - name: Include Paper NMS
+        run: |
+          echo "Downloading paper nms: version: ${MC_VER} build ${PAPER_BUILD}"
+          wget -O paper.jar -q https://papermc.io/api/v2/projects/paper/versions/${MC_VER}/builds/${PAPER_BUILD}/downloads/paper-${MC_VER}-${PAPER_BUILD}.jar
+          java -Dpaperclip.install=true -jar paper.jar
       - name: Gradle build
         run: gradle build
       - name: Gradle test
