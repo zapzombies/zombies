@@ -12,7 +12,15 @@ repositories {
 }
 
 dependencies {
-    compileOnlyApi("io.github.zap:zap-commons:1.0.0")
+    compileOnlyApi("io.github.zap:zap-commons") {
+        version {
+            require("[0.0.0+, ${(project.property("zapCommonsVersion") as String)}]")
+
+            if(project.property("preferLocal") == "true") {
+                prefer("0.0.0-SNAPSHOT")
+            }
+        }
+    }
     paperApi ("1.16.5-R0.1-SNAPSHOT")
 }
 
