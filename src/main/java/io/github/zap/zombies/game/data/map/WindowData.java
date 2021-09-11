@@ -189,7 +189,7 @@ public class WindowData {
         return currentIndexProperty.getValue(accessor) == getVolume() - 1;
     }
 
-    public boolean playerInside(Vector location) {
+    public boolean vectorInside(Vector location) {
         return getInteriorBounds().contains(location) || faceBounds.clone().expand(0.3).expandDirectional(0, -1, 0).contains(location);
     }
 }

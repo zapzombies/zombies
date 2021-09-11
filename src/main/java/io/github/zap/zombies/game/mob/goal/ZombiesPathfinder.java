@@ -11,10 +11,12 @@ import io.github.zap.zombies.Zombies;
 import io.github.zap.zombies.nms.common.ZombiesNMSBridge;
 import lombok.Getter;
 import org.bukkit.entity.Mob;
+import org.bukkit.entity.Skeleton;
 import org.bukkit.metadata.MetadataValue;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * General pathfinding class for Zombies. Supports lazy loading of entity metadata from MythicMobs; subclass pathfinding
@@ -61,9 +63,14 @@ public abstract class ZombiesPathfinder {
             throw new UnsupportedOperationException("Failed to reflect entity navigator!");
         }
 
-        if (!Zombies.getInstance().getNmsBridge().entityBridge().replacePersistentGoals(self)) {
-            Zombies.warning("Failed to replace persistent goals on a " + self.getClass().getName() + " due to a " +
-                    "reflection-related exception.");
+        if(self instanceof Skeleton skeleton) {
+            try {
+                Zombies.getInstance().getNmsBridge().entityBridge().replacePersistentGoals(skeleton);
+            } catch (NoSuchFieldException | IllegalAccessException e) {
+                Zombies.warning("Failed to replace persistent goals on a " + self.getClass().getName() + " due to a " +
+                        "reflection-related exception.");
+                e.printStackTrace();
+            }
         }
 
         for(AttributeValue value : values) {
@@ -105,14 +112,14 @@ public abstract class ZombiesPathfinder {
     public final boolean shouldStart() {
         if(!metadataLoaded) {
             for(String key : metadataKeys) {
-                MetadataValue value = MetadataHelper.getMetadataFor(self, Zombies.getInstance(), key);
-
-                if(value != null) {
+                Optional<MetadataValue> optionalValue = MetadataHelper.getMetadataValue(self, Zombies.getInstance(), key);
+                if(optionalValue.isPresent()) {
+                    MetadataValue value = optionalValue.get();
                     this.metadata.put(key, value.value());
+                    return true;
                 }
-                else {
-                    return false;
-                }
+
+                return false;
             }
 
             metadataLoaded = true;

@@ -19,33 +19,29 @@ public class EntityBridge_v1_16_R3 implements EntityBridge {
     public static final EntityBridge_v1_16_R3 INSTANCE = new EntityBridge_v1_16_R3();
 
     @Override
-    public boolean replacePersistentGoals(@NotNull Mob mob) {
-        if (((CraftMob) mob).getHandle() instanceof EntitySkeletonAbstract skeleton) {
-            try {
-                Field bowShootGoal = EntitySkeletonAbstract.class.getDeclaredField("b");
-                Field meleeAttackGoal = EntitySkeletonAbstract.class.getDeclaredField("c");
+    public void replacePersistentGoals(@NotNull Mob mob) throws NoSuchFieldException, IllegalAccessException {
+        EntityInsentient entityInsentient = ((CraftMob)mob).getHandle();
 
-                bowShootGoal.setAccessible(true);
-                meleeAttackGoal.setAccessible(true);
+        if (entityInsentient instanceof EntitySkeletonAbstract skeleton) {
+            Field bowShootGoal = EntitySkeletonAbstract.class.getDeclaredField("b");
+            Field meleeAttackGoal = EntitySkeletonAbstract.class.getDeclaredField("c");
 
-                bowShootGoal.set(skeleton, new PathfinderGoalBowShoot<>(skeleton, 0, 0, 0) {
-                    @Override
-                    public boolean a() {
-                        return false;
-                    }
-                });
-                meleeAttackGoal.set(skeleton, new PathfinderGoalMeleeAttack(skeleton, 0, false) {
-                    @Override
-                    public boolean a() {
-                        return false;
-                    }
-                });
-            } catch (NoSuchFieldException | IllegalAccessException e) {
-                return false;
-            }
+            bowShootGoal.setAccessible(true);
+            meleeAttackGoal.setAccessible(true);
+
+            bowShootGoal.set(skeleton, new PathfinderGoalBowShoot<>(skeleton, 0, 0, 0) {
+                @Override
+                public boolean a() {
+                    return false;
+                }
+            });
+            meleeAttackGoal.set(skeleton, new PathfinderGoalMeleeAttack(skeleton, 0, false) {
+                @Override
+                public boolean a() {
+                    return false;
+                }
+            });
         }
-
-        return true;
     }
 
     @Override

@@ -22,6 +22,7 @@ import io.github.zap.arenaapi.util.TimeUtil;
 import io.github.zap.arenaapi.util.WorldUtils;
 import io.github.zap.commons.vectors.Vectors;
 import io.github.zap.zombies.ChunkLoadHandler;
+import io.github.zap.zombies.SpawnMetadata;
 import io.github.zap.zombies.Zombies;
 import io.github.zap.zombies.game.corpse.Corpse;
 import io.github.zap.zombies.game.data.equipment.EquipmentData;
@@ -171,9 +172,9 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
                 RoomData roomIn = map.roomAt(vector);
                 if(roomIn != null) {
                     for(WindowData windowData : roomIn.getWindows()) {
-                        if(windowData.playerInside(vector)) {
-                            MetadataHelper.setMetadataFor(spawned.getEntity().getBukkitEntity(),
-                                    Zombies.WINDOW_METADATA_NAME, Zombies.getInstance(), windowData);
+                        if(windowData.vectorInside(vector)) {
+                            MetadataHelper.setFixedMetadata(spawned.getEntity().getBukkitEntity(), Zombies.getInstance(),
+                                    Zombies.SPAWN_METADATA_NAME, new SpawnMetadata(ZombiesArena.this, windowData));
                             break;
                         }
                     }
@@ -212,8 +213,8 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
 
                             if(mob != null) {
                                 spawnedEntities.add(mob);
-                                MetadataHelper.setMetadataFor(mob.getEntity().getBukkitEntity(),
-                                        Zombies.WINDOW_METADATA_NAME, Zombies.getInstance(), context.window);
+                                MetadataHelper.setFixedMetadata(mob.getEntity().getBukkitEntity(), Zombies.getInstance(),
+                                        Zombies.SPAWN_METADATA_NAME, new SpawnMetadata(ZombiesArena.this, context.window));
 
                                 if(updateCount) {
                                     zombiesLeft++;
@@ -258,8 +259,8 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
 
                 if(activeMob != null) {
                     getEntitySet().add(activeMob.getUniqueId());
-                    MetadataHelper.setMetadataFor(activeMob.getEntity().getBukkitEntity(), Zombies.ARENA_METADATA_NAME,
-                            Zombies.getInstance(), ZombiesArena.this);
+                    MetadataHelper.setFixedMetadata(activeMob.getEntity().getBukkitEntity(), Zombies.getInstance(),
+                            Zombies.SPAWN_METADATA_NAME, new SpawnMetadata(ZombiesArena.this, null));
 
                     return activeMob;
                 }
@@ -1271,8 +1272,9 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
                     context.spawnedMobs().addAll(newlySpawned);
 
                     for(ActiveMob activeMob : newlySpawned) {
-                        MetadataHelper.setMetadataFor(activeMob.getEntity().getBukkitEntity(),
-                                Zombies.SPAWNINFO_WAVE_METADATA_NAME, Zombies.getInstance(), wave);
+                        MetadataHelper.setFixedMetadata(activeMob.getEntity().getBukkitEntity(),
+                                Zombies.getInstance(), Zombies.SPAWNINFO_WAVE_METADATA_NAME, wave);
+
                         Entity entity = activeMob.getEntity().getBukkitEntity();
                         if (entity instanceof Mob mob) {
                             AttributeInstance attributeInstance = mob.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED);
