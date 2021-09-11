@@ -12,15 +12,10 @@ repositories {
 }
 
 dependencies {
-    compileOnlyApi("io.github.zap:zap-commons") {
-        version {
-            require("[0.0.0+, ${(project.property("zapCommonsVersion") as String)}]")
+    @Suppress("UNCHECKED_CAST")
+    val selector = rootProject.ext.get("versionSelector") as Action<ExternalModuleDependency>
 
-            if(project.property("preferLocal") == "true") {
-                prefer("0.0.0-SNAPSHOT")
-            }
-        }
-    }
+    compileOnlyApi("io.github.zap:zap-commons", selector)
     paperApi ("1.16.5-R0.1-SNAPSHOT")
 }
 
