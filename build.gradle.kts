@@ -1,13 +1,32 @@
 import io.github.zap.build.gradle.convention.*
 
+/*
+To use the local version for a specific dependency, simply switch "false" to "true" for the required dependency under
+"LOCAL VERSIONS". This will cause Gradle to use the local version (which is typically 0.0.0-SNAPSHOT). If the Pair's
+boolean is false, the version will use the remote snapshot version specified under "REMOTE VERSIONS"
+ */
+
+//LOCAL VERSIONS
+ext["zap-commons-local"] = Pair(false, "0.0.0-SNAPSHOT")
+ext["zap-party-local"] = Pair(false, "0.0.0-SNAPSHOT")
+ext["arena-api-local"] = Pair(false, "0.0.0-SNAPSHOT")
+
+//REMOTE VERSIONS
+ext["zap-commons-version"] = "1.0.0-SNAPSHOT-1631102507"
+ext["zap-party-version"] = "1.0.0-SNAPSHOT-1630956414"
+ext["arena-api-version"] = "1.0.0-SNAPSHOT-1631205468"
+
 ext["versionSelector"] = object : Action<ExternalModuleDependency> {
     override fun execute(emd: ExternalModuleDependency) {
         emd.version {
-            if(project.property("${emd.name}Local") == "true") {
-                require("0.0.0-SNAPSHOT")
+            @Suppress("UNCHECKED_CAST")
+            val local = project.ext["${emd.name}-local"] as Pair<Boolean, String>
+
+            if(local.first) {
+                require(local.second)
             }
             else {
-                require(project.property("${emd.name}Version") as String)
+                require(project.ext["${emd.name}-version"] as String)
             }
         }
     }
