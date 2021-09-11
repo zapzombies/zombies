@@ -16,7 +16,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @MythicAIGoal(name = "breakWindow")
-public class BreakWindowPathfinderGoal extends ZombiesPathfinderGoal<Vector3D> {
+public class BreakWindowGoal extends ZombiesPathfinderGoal<Vector3D> {
     private final double speed;
     private final int breakTicks;
     private final int breakCount;
@@ -25,7 +25,7 @@ public class BreakWindowPathfinderGoal extends ZombiesPathfinderGoal<Vector3D> {
     private boolean completed = false;
     private int breakCounter = 0;
 
-    public BreakWindowPathfinderGoal(@NotNull AbstractEntity entity, @NotNull String line, @NotNull MythicLineConfig mlc) {
+    public BreakWindowGoal(@NotNull AbstractEntity entity, @NotNull String line, @NotNull MythicLineConfig mlc) {
         super(Zombies.getInstance(), entity, line, mlc);
         this.speed = mlc.getDouble("speed", 1.0D);
         this.breakTicks = mlc.getInteger("breakTicks", 20);

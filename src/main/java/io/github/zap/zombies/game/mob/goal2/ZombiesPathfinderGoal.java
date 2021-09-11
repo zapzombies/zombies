@@ -5,14 +5,12 @@ import io.github.zap.arenaapi.nms.common.ArenaNMSBridge;
 import io.github.zap.arenaapi.nms.common.pathfind.MobNavigator;
 import io.github.zap.arenaapi.pathfind.engine.PathfinderEngine;
 import io.github.zap.arenaapi.pathfind.engine.PathfinderEngines;
-import io.github.zap.arenaapi.pathfind.path.PathTarget;
 import io.github.zap.arenaapi.pathfind.util.PathHandler;
 import io.github.zap.arenaapi.util.MetadataHelper;
 import io.github.zap.zombies.SpawnMetadata;
 import io.github.zap.zombies.Zombies;
 import io.github.zap.zombies.game.ZombiesArena;
 import io.github.zap.zombies.game.data.map.WindowData;
-import io.github.zap.zombies.game.player.ZombiesPlayer;
 import io.github.zap.zombies.nms.common.ZombiesNMSBridge;
 import io.lumine.xikage.mythicmobs.adapters.AbstractEntity;
 import io.lumine.xikage.mythicmobs.io.MythicLineConfig;
@@ -21,7 +19,6 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Mob;
-import org.bukkit.entity.Player;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
@@ -146,8 +143,8 @@ public abstract class ZombiesPathfinderGoal<T> extends Pathfinder {
 
     @Override
     public final boolean shouldStart() {
-        return successfulLoad && loadMetadata() && target == null && arena.runAI() &&
-                (target = acquireTarget()) != null && canStart();
+        return successfulLoad && loadMetadata() && target == null && arena.runAI() && (target = acquireTarget()) != null
+                && canStart();
     }
 
     @Override
