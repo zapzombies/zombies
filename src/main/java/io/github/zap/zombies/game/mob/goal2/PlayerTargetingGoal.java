@@ -15,8 +15,6 @@ import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Objects;
-
 public abstract class PlayerTargetingGoal extends ZombiesPathfinderGoal<ZombiesPlayer> {
     private final double speed;
     private final int retargetTicks;
@@ -35,19 +33,21 @@ public abstract class PlayerTargetingGoal extends ZombiesPathfinderGoal<ZombiesP
         Player bukkitPlayer = player.getPlayer();
 
         if(bukkitPlayer != null) {
-            PathOperation operation = new PathOperationBuilder()
-                    .withAgent(mob)
-                    .withDestination(bukkitPlayer, player)
-                    .withRange(getArena().getMapBounds())
-                    .build();
-
-            pathHandler.queueOperation(operation, mob.getWorld());
+            pathHandler.queueOperation(makeOperation(player, bukkitPlayer), mob.getWorld());
             lastLocation = Vectors.asIntFloor(Vectors.of(bukkitPlayer.getLocation()));
         }
     }
 
     private boolean locationChanged() {
         return Vectors.equals(lastLocation, Vectors.asIntFloor(Vectors.of(mob.getLocation())));
+    }
+
+    protected @NotNull PathOperation makeOperation(@NotNull ZombiesPlayer zombiesPlayer, @NotNull Player target) {
+        return new PathOperationBuilder()
+                .withAgent(mob)
+                .withDestination(target, zombiesPlayer)
+                .withRange(getArena().getMapBounds())
+                .build();
     }
 
     @Override
@@ -99,6 +99,7 @@ public abstract class PlayerTargetingGoal extends ZombiesPathfinderGoal<ZombiesP
     public void start() {
         zombiesNMS.entityBridge().setAggressive(mob, true);
         mob.setTarget(getTarget().getPlayer());
+        pathToPlayer(getTarget());
     }
 
     @Override
