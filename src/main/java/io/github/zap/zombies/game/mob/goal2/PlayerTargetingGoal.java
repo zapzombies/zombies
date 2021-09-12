@@ -36,7 +36,7 @@ public abstract class PlayerTargetingGoal extends ZombiesPathfinderGoal<ZombiesP
         this.retargetTicks = mlc.getInteger("retargetTicks", 20);
     }
 
-    private void pathToPlayer(ZombiesPlayer player) {
+    private void calculatePath(ZombiesPlayer player) {
         Player bukkitPlayer = player.getPlayer();
 
         if(bukkitPlayer != null) {
@@ -106,7 +106,7 @@ public abstract class PlayerTargetingGoal extends ZombiesPathfinderGoal<ZombiesP
     public void start() {
         zombiesNMS.entityBridge().setAggressive(mob, true);
         mob.setTarget(getTarget().getPlayer());
-        pathToPlayer(getTarget());
+        calculatePath(getTarget());
     }
 
     @Override
@@ -125,7 +125,7 @@ public abstract class PlayerTargetingGoal extends ZombiesPathfinderGoal<ZombiesP
         }
         else if(currentPath == null || currentPath.hasFinished() ||
                 (locationChanged() && ++recalculateCounter >= RECALCULATE_TICKS)) {
-            pathToPlayer(getTarget());
+            calculatePath(getTarget());
             recalculateCounter = RNG.nextInt(RECALCULATE_TICKS / 2);
         }
 
