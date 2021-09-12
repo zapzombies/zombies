@@ -15,11 +15,18 @@ import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Random;
+
 public abstract class PlayerTargetingGoal extends ZombiesPathfinderGoal<ZombiesPlayer> {
+    protected static final Random RNG = new Random();
+
+    private static final int RECALCULATE_TICKS = 10;
+
     private final double speed;
     private final int retargetTicks;
 
     private int retargetCounter = 0;
+    private int recalculateCounter = 0;
     private Vector3I lastLocation = null;
 
     public PlayerTargetingGoal(@NotNull Plugin plugin, @NotNull AbstractEntity entity, @NotNull String line,
@@ -116,8 +123,10 @@ public abstract class PlayerTargetingGoal extends ZombiesPathfinderGoal<ZombiesP
             reset();
             retargetCounter = 0;
         }
-        else if(currentPath == null || currentPath.hasFinished() || locationChanged()) {
+        else if(currentPath == null || currentPath.hasFinished() ||
+                (locationChanged() && ++recalculateCounter >= RECALCULATE_TICKS)) {
             pathToPlayer(getTarget());
+            recalculateCounter = RNG.nextInt(RECALCULATE_TICKS / 2);
         }
 
         PathResult result = pathHandler.tryTakeResult();

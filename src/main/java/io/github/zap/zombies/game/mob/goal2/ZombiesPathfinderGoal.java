@@ -74,14 +74,10 @@ public abstract class ZombiesPathfinderGoal<T> extends Pathfinder {
                     zombiesNMS.entityBridge().replacePersistentGoals(mob);
 
                     double damage = mythicMob.getConfig().getDouble("Damage", Double.NaN);
-                    if(!Double.isNaN(damage)) {
-                        setAttributeValue(mob, Attribute.GENERIC_ATTACK_DAMAGE, damage);
-                    }
-
                     double knockback = mythicMob.getConfig().getDouble("Knockback", Double.NaN);
-                    if(!Double.isNaN(knockback)) {
-                        setAttributeValue(mob, Attribute.GENERIC_ATTACK_KNOCKBACK, knockback);
-                    }
+
+                    setAttributeValue(mob, Attribute.GENERIC_ATTACK_DAMAGE, damage);
+                    setAttributeValue(mob, Attribute.GENERIC_ATTACK_KNOCKBACK, knockback);
 
                     pathHandler = new PathHandler(PATHFINDER_ENGINE);
                     successfulLoad = true;
@@ -104,18 +100,20 @@ public abstract class ZombiesPathfinderGoal<T> extends Pathfinder {
     }
 
     private void setAttributeValue(Mob mob, Attribute attribute, double baseValue) {
-        AttributeInstance instance = mob.getAttribute(attribute);
+        if(Double.isFinite(baseValue)) {
+            AttributeInstance instance = mob.getAttribute(attribute);
 
-        if(instance == null) {
-            mob.registerAttribute(attribute);
-            instance = mob.getAttribute(attribute);
-        }
+            if(instance == null) {
+                mob.registerAttribute(attribute);
+                instance = mob.getAttribute(attribute);
+            }
 
-        if(instance != null) {
-            instance.setBaseValue(baseValue);
-        }
-        else {
-            throw new IllegalArgumentException("unable to set base value of attribute " + attribute);
+            if(instance != null) {
+                instance.setBaseValue(baseValue);
+            }
+            else {
+                throw new IllegalArgumentException("unable to set base value of attribute " + attribute);
+            }
         }
     }
 
