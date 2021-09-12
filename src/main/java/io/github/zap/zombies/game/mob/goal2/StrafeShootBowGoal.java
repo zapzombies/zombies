@@ -12,10 +12,10 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 @MythicAIGoal(name = "unboundedArrowAttackWithStrafe")
-public class BowStrafeGoal extends PlayerTargetingGoal {
+public class StrafeShootBowGoal extends PlayerTargetingGoal {
     private final RangedEntity rangedMob;
 
-    private final double shootDistanceSquared;
+    private final double shootRangeSquared;
     private final int attackInterval;
 
     private int sightCounter = 0;
@@ -25,10 +25,10 @@ public class BowStrafeGoal extends PlayerTargetingGoal {
     private boolean strafeLeft;
     private boolean strafeBackwards;
 
-    public BowStrafeGoal(@NotNull AbstractEntity entity, @NotNull String line,
-                         @NotNull MythicLineConfig mlc) {
+    public StrafeShootBowGoal(@NotNull AbstractEntity entity, @NotNull String line,
+                              @NotNull MythicLineConfig mlc) {
         super(Zombies.getInstance(), entity, line, mlc);
-        this.shootDistanceSquared = mlc.getDouble("shootDistanceSquared", 225D);
+        this.shootRangeSquared = mlc.getDouble("shootRangeSquared", 225D);
         this.attackInterval = mlc.getInteger("shootInterval", 20);
 
         rangedMob = (RangedEntity) mob;
@@ -39,7 +39,6 @@ public class BowStrafeGoal extends PlayerTargetingGoal {
         super.stop();
 
         this.sightCounter = 0;
-        this.combatCounter = -1;
         this.attackCounter = -1;
         mob.clearActiveItem();
     }
@@ -85,7 +84,7 @@ public class BowStrafeGoal extends PlayerTargetingGoal {
                 sightCounter--;
             }
 
-            if(distanceSquared < shootDistanceSquared && sightCounter >= 20) {
+            if(distanceSquared < shootRangeSquared && sightCounter >= 20) {
                 combatCounter++;
             }
             else {
@@ -105,9 +104,9 @@ public class BowStrafeGoal extends PlayerTargetingGoal {
             }
 
             if(combatCounter > -1) {
-                if (distanceSquared > shootDistanceSquared * 0.75D) {
+                if (distanceSquared > shootRangeSquared * 0.75D) {
                     strafeBackwards = false;
-                } else if (distanceSquared < shootDistanceSquared * 0.25D) {
+                } else if (distanceSquared < shootRangeSquared * 0.25D) {
                     strafeBackwards = true;
                 }
 
@@ -120,7 +119,7 @@ public class BowStrafeGoal extends PlayerTargetingGoal {
                 if(!hasSight && sightCounter < -60) {
                     rangedMob.clearActiveItem();
                 }
-                else if (hasSight && distanceSquared < shootDistanceSquared) {
+                else if (hasSight && distanceSquared < shootRangeSquared) {
                     int itemStage = zombiesNMS.entityBridge().getTicksUsingItem(rangedMob);
                     if (itemStage >= 20) {
                         rangedMob.clearActiveItem();

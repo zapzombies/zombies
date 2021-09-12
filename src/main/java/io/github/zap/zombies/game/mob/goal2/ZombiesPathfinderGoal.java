@@ -80,6 +80,7 @@ public abstract class ZombiesPathfinderGoal<T> extends Pathfinder {
                     setAttributeValue(mob, Attribute.GENERIC_ATTACK_DAMAGE, damage);
                     setAttributeValue(mob, Attribute.GENERIC_ATTACK_KNOCKBACK, knockback);
 
+                    setGoalType(GoalType.MOVE_LOOK);
                     pathHandler = new PathHandler(PATHFINDER_ENGINE);
                     successfulLoad = true;
                 } catch (NoSuchFieldException | IllegalAccessException exception) {
