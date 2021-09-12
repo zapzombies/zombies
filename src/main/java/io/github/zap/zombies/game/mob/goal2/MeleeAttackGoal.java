@@ -8,7 +8,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-@MythicAIGoal(name = "unboundedMeleeAttack")
+@MythicAIGoal(name = "zombiesMeleeAttack")
 public class MeleeAttackGoal extends DeviatingGoal {
     private final int attackInterval;
     private final double attackReachSquared;

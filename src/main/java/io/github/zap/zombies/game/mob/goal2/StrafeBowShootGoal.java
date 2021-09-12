@@ -9,8 +9,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-@MythicAIGoal(name = "unboundedArrowAttackWithStrafe")
-public class StrafeShootBowGoal extends RangedGoal {
+@MythicAIGoal(name = "zombiesStrafeBowShoot")
+public class StrafeBowShootGoal extends RangedGoal {
     private final double shootRangeSquared;
     private final int attackInterval;
 
@@ -21,7 +21,7 @@ public class StrafeShootBowGoal extends RangedGoal {
     private boolean strafeLeft;
     private boolean strafeBackwards;
 
-    public StrafeShootBowGoal(@NotNull AbstractEntity entity, @NotNull String line,
+    public StrafeBowShootGoal(@NotNull AbstractEntity entity, @NotNull String line,
                               @NotNull MythicLineConfig mlc) {
         super(Zombies.getInstance(), entity, line, mlc);
         this.shootRangeSquared = mlc.getDouble("shootRangeSquared", 225D);

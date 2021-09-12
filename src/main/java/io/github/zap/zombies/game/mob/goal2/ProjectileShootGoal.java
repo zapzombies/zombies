@@ -4,9 +4,11 @@ import io.github.zap.zombies.Zombies;
 import io.github.zap.zombies.game.util.MathUtils;
 import io.lumine.xikage.mythicmobs.adapters.AbstractEntity;
 import io.lumine.xikage.mythicmobs.io.MythicLineConfig;
+import io.lumine.xikage.mythicmobs.util.annotations.MythicAIGoal;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+@MythicAIGoal(name = "zombiesProjectileShoot")
 public class ProjectileShootGoal extends RangedGoal {
     private final int minIntervalTicks;
     private final int maxIntervalTicks;

@@ -15,7 +15,7 @@ import org.bukkit.entity.Entity;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-@MythicAIGoal(name = "breakWindow")
+@MythicAIGoal(name = "zombiesBreakWindow")
 public class BreakWindowGoal extends ZombiesPathfinderGoal<Vector3D> {
     private final double speed;
     private final int breakTicks;
