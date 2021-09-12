@@ -30,12 +30,17 @@ public class MeleeAttackGoal extends PlayerTargetingGoal {
 
     @Override
     public void tick() {
-        ZombiesPlayer target = getTarget();
-        Player bukkitPlayer = target.getPlayer();
+        super.tick();
 
-        if(bukkitPlayer != null) {
-            attackTimer--;
-            tryAttack(bukkitPlayer);
+        ZombiesPlayer target = getTarget();
+
+        if(target != null) {
+            Player bukkitPlayer = target.getPlayer();
+
+            if(bukkitPlayer != null) {
+                attackTimer--;
+                tryAttack(bukkitPlayer);
+            }
         }
     }
 
