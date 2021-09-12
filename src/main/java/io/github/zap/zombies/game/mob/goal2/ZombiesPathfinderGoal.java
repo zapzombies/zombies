@@ -12,8 +12,10 @@ import io.github.zap.zombies.Zombies;
 import io.github.zap.zombies.game.ZombiesArena;
 import io.github.zap.zombies.game.data.map.WindowData;
 import io.github.zap.zombies.nms.common.ZombiesNMSBridge;
+import io.lumine.xikage.mythicmobs.MythicMobs;
 import io.lumine.xikage.mythicmobs.adapters.AbstractEntity;
 import io.lumine.xikage.mythicmobs.io.MythicLineConfig;
+import io.lumine.xikage.mythicmobs.mobs.MythicMob;
 import io.lumine.xikage.mythicmobs.mobs.ai.Pathfinder;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
@@ -36,6 +38,7 @@ public abstract class ZombiesPathfinderGoal<T> extends Pathfinder {
     protected final ZombiesNMSBridge zombiesNMS;
 
     protected final Mob mob;
+    protected final MythicMob mythicMob;
     protected final MobNavigator mobNavigator;
     protected final PathHandler pathHandler;
     protected final boolean successfulLoad;
@@ -54,6 +57,7 @@ public abstract class ZombiesPathfinderGoal<T> extends Pathfinder {
         zombiesNMS = Zombies.getInstance().getNmsBridge();
 
         Mob mob = null;
+        MythicMob mythicMob = null;
         MobNavigator mobNavigator = null;
         PathHandler pathHandler = null;
         boolean successfulLoad = false;
@@ -61,6 +65,7 @@ public abstract class ZombiesPathfinderGoal<T> extends Pathfinder {
         Entity bukkitEntity = entity.getBukkitEntity();
         if(bukkitEntity instanceof Mob) {
             mob = (Mob)bukkitEntity;
+            mythicMob = MythicMobs.inst().getAPIHelper().getMythicMob(activeMob.getMobType());
 
             try {
                 mobNavigator = arenaNMS.entityBridge().overrideNavigatorFor(mob);
@@ -68,9 +73,14 @@ public abstract class ZombiesPathfinderGoal<T> extends Pathfinder {
                 try {
                     zombiesNMS.entityBridge().replacePersistentGoals(mob);
 
-                    double damage;
-                    if(!Double.isNaN(damage = mlc.getDouble("Damage", Double.NaN))) {
+                    double damage = mythicMob.getConfig().getDouble("Damage", Double.NaN);
+                    if(!Double.isNaN(damage)) {
                         setAttributeValue(mob, Attribute.GENERIC_ATTACK_DAMAGE, damage);
+                    }
+
+                    double knockback = mythicMob.getConfig().getDouble("Knockback", Double.NaN);
+                    if(!Double.isNaN(knockback)) {
+                        setAttributeValue(mob, Attribute.GENERIC_ATTACK_KNOCKBACK, knockback);
                     }
 
                     pathHandler = new PathHandler(PATHFINDER_ENGINE);
@@ -87,6 +97,7 @@ public abstract class ZombiesPathfinderGoal<T> extends Pathfinder {
         }
 
         this.mob = mob;
+        this.mythicMob = mythicMob;
         this.mobNavigator = mobNavigator;
         this.pathHandler = pathHandler;
         this.successfulLoad = successfulLoad;
