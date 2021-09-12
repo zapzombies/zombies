@@ -103,7 +103,7 @@ public class BreakWindowGoal extends ZombiesPathfinderGoal<Vector3D> {
         }
 
         PathEntityWrapper currentPath = mobNavigator.currentPath();
-        if(currentPath == null || currentPath.hasFinished()) {
+        if(currentPath == null) {
             pathToWindow();
         }
     }

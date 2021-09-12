@@ -27,9 +27,9 @@ public class MeleeAttackGoal extends PlayerTargetingGoal {
         this.targetDeviationSquared = mlc.getDouble("targetDeviationSquared", 0);
     }
 
-    @NotNull
+
     @Override
-    protected PathOperation makeOperation(@NotNull ZombiesPlayer zombiesPlayer, @NotNull Player target) {
+    protected @NotNull PathOperation makeOperation(@NotNull ZombiesPlayer zombiesPlayer, @NotNull Player target) {
         return new PathOperationBuilder()
                 .withAgent(mob)
                 .withDestination(target, zombiesPlayer)

@@ -127,8 +127,7 @@ public abstract class PlayerTargetingGoal extends ZombiesPathfinderGoal<ZombiesP
             reset();
             retargetCounter = 0;
         }
-        else if(currentPath == null || currentPath.hasFinished() ||
-                (locationChanged() && ++recalculateCounter >= RECALCULATE_TICKS)) {
+        else if(currentPath == null || (locationChanged() && ++recalculateCounter >= RECALCULATE_TICKS)) {
             calculatePath(getTarget());
             recalculateCounter = RNG.nextInt(RECALCULATE_TICKS / 2);
         }

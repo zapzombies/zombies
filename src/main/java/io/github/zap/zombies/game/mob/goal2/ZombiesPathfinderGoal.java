@@ -52,6 +52,7 @@ public abstract class ZombiesPathfinderGoal<T> extends Pathfinder {
     public ZombiesPathfinderGoal(@NotNull Plugin plugin, @NotNull AbstractEntity entity, @NotNull String line,
                                  @NotNull MythicLineConfig mlc) {
         super(entity, line, mlc);
+
         this.plugin = plugin;
         arenaNMS = ArenaApi.getInstance().getNmsBridge();
         zombiesNMS = Zombies.getInstance().getNmsBridge();
@@ -150,7 +151,7 @@ public abstract class ZombiesPathfinderGoal<T> extends Pathfinder {
         return target;
     }
 
-    public void reset() {
+    protected void reset() {
         target = null;
     }
 
