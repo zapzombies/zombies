@@ -3,6 +3,9 @@ package io.github.zap.zombies.game.mob.goal2;
 import io.github.zap.arenaapi.nms.common.pathfind.PathEntityWrapper;
 import io.github.zap.arenaapi.pathfind.operation.PathOperation;
 import io.github.zap.arenaapi.pathfind.operation.PathOperationBuilder;
+import io.github.zap.arenaapi.pathfind.path.PathResult;
+import io.github.zap.commons.vectors.Vector3I;
+import io.github.zap.commons.vectors.Vectors;
 import io.github.zap.zombies.game.player.ZombiesPlayer;
 import io.lumine.xikage.mythicmobs.adapters.AbstractEntity;
 import io.lumine.xikage.mythicmobs.io.MythicLineConfig;
@@ -15,13 +18,16 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Objects;
 
 public abstract class PlayerTargetingGoal extends ZombiesPathfinderGoal<ZombiesPlayer> {
+    private final double speed;
     private final int retargetTicks;
 
     private int retargetCounter = 0;
+    private Vector3I lastLocation = null;
 
     public PlayerTargetingGoal(@NotNull Plugin plugin, @NotNull AbstractEntity entity, @NotNull String line,
                                @NotNull MythicLineConfig mlc) {
         super(plugin, entity, line, mlc);
+        this.speed = mlc.getDouble("speed", 1D);
         this.retargetTicks = mlc.getInteger("retargetTicks", 20);
     }
 
@@ -36,7 +42,12 @@ public abstract class PlayerTargetingGoal extends ZombiesPathfinderGoal<ZombiesP
                     .build();
 
             pathHandler.queueOperation(operation, mob.getWorld());
+            lastLocation = Vectors.asIntFloor(Vectors.of(bukkitPlayer.getLocation()));
         }
+    }
+
+    private boolean locationChanged() {
+        return Vectors.equals(lastLocation, Vectors.asIntFloor(Vectors.of(mob.getLocation())));
     }
 
     @Override
@@ -100,9 +111,17 @@ public abstract class PlayerTargetingGoal extends ZombiesPathfinderGoal<ZombiesP
     public void tick() {
         PathEntityWrapper currentPath = mobNavigator.currentPath();
 
-        if(currentPath == null || currentPath.hasFinished() || ++retargetCounter >= retargetTicks) {
+        if(++retargetCounter >= retargetTicks) {
             reset();
             retargetCounter = 0;
+        }
+        else if(currentPath == null || currentPath.hasFinished() || locationChanged()) {
+            pathToPlayer(getTarget());
+        }
+
+        PathResult result = pathHandler.tryTakeResult();
+        if(result != null) {
+            mobNavigator.navigateAlongPath(result.toPathEntity(), speed);
         }
     }
 }
