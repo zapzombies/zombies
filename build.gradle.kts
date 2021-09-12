@@ -18,7 +18,7 @@ repositories {
 
 dependencies {
     paperApi ("1.16.5-R0.1-SNAPSHOT")
-    compileOnlyApi("io.github.zap:zap-commons:1.0.0-SNAPSHOT-1631102507", qs("zap-commons"))
+    compileOnlyApi("io.github.zap:zap-commons:1.0.0-SNAPSHOT-1631102507", qs())
 
     implementation("com.grinderwolf:slimeworldmanager-api:2.6.2-SNAPSHOT")
     shade(project(":nms:nms-common"))
@@ -29,8 +29,8 @@ dependencies {
         exclude("net.kyori", "adventure-api")
     }
 
-    bukkitPlugin("io.github.zap:arena-api:1.0.0-SNAPSHOT-1631416054", qs("arena-api"))
-    bukkitPlugin("io.github.zap:zap-party:1.0.0-SNAPSHOT-1630956414", qs("zap-party"))
+    bukkitPlugin("io.github.zap:arena-api:1.0.0-SNAPSHOT-1631416054", qs())
+    bukkitPlugin("io.github.zap:zap-party:1.0.0-SNAPSHOT-1630956414", qs())
     bukkitPlugin("io.lumine.xikage:MythicMobs:4.12.0")
     bukkitPlugin("com.grinderwolf:slimeworldmanager-plugin:2.6.2-SNAPSHOT")
     bukkitPlugin("com.comphenix.protocol:ProtocolLib:4.7.0")
