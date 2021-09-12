@@ -1,11 +1,6 @@
 package io.github.zap.zombies.game.mob.goal2;
 
-import com.destroystokyo.paper.entity.RangedEntity;
-import io.github.zap.arenaapi.pathfind.calculate.SuccessConditions;
-import io.github.zap.arenaapi.pathfind.operation.PathOperation;
-import io.github.zap.arenaapi.pathfind.operation.PathOperationBuilder;
 import io.github.zap.zombies.Zombies;
-import io.github.zap.zombies.game.player.ZombiesPlayer;
 import io.lumine.xikage.mythicmobs.adapters.AbstractEntity;
 import io.lumine.xikage.mythicmobs.io.MythicLineConfig;
 import io.lumine.xikage.mythicmobs.util.annotations.MythicAIGoal;
@@ -15,12 +10,9 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 @MythicAIGoal(name = "unboundedArrowAttackWithStrafe")
-public class StrafeShootBowGoal extends PlayerTargetingGoal {
-    private final RangedEntity rangedMob;
-
+public class StrafeShootBowGoal extends RangedGoal {
     private final double shootRangeSquared;
     private final int attackInterval;
-    private final double targetDeviation;
 
     private int sightCounter = 0;
     private int combatCounter = 0;
@@ -34,19 +26,6 @@ public class StrafeShootBowGoal extends PlayerTargetingGoal {
         super(Zombies.getInstance(), entity, line, mlc);
         this.shootRangeSquared = mlc.getDouble("shootRangeSquared", 225D);
         this.attackInterval = mlc.getInteger("shootInterval", 20);
-        this.targetDeviation = mlc.getDouble("targetDeviation", 5);
-
-        rangedMob = (RangedEntity) mob;
-    }
-
-    @Override
-    protected @NotNull PathOperation makeOperation(@NotNull ZombiesPlayer zombiesPlayer, @NotNull Player target) {
-        return new PathOperationBuilder()
-                .withAgent(mob)
-                .withDestination(target, zombiesPlayer)
-                .withRange(getArena().getMapBounds())
-                .withSuccessCondition(SuccessConditions.whenWithin(rangedMob.hasLineOfSight(target) ? targetDeviation : 0))
-                .build();
     }
 
     @Override
@@ -60,7 +39,7 @@ public class StrafeShootBowGoal extends PlayerTargetingGoal {
 
     @Override
     protected boolean canStart() {
-        ItemStack activeItem = rangedMob.getActiveItem();
+        ItemStack activeItem = rangedEntity.getActiveItem();
         if(activeItem != null) {
             return super.canStart() && activeItem.getType() == Material.BOW;
         }
@@ -70,7 +49,7 @@ public class StrafeShootBowGoal extends PlayerTargetingGoal {
 
     @Override
     protected boolean canStop() {
-        ItemStack activeItem = rangedMob.getActiveItem();
+        ItemStack activeItem = rangedEntity.getActiveItem();
         if(activeItem != null) {
             return super.canStop() || activeItem.getType() == Material.BOW;
         }
@@ -82,11 +61,10 @@ public class StrafeShootBowGoal extends PlayerTargetingGoal {
     public void tick() {
         super.tick();
 
-        ZombiesPlayer target = getTarget();
-        Player bukkitPlayer;
-        if(target != null && (bukkitPlayer = target.getPlayer()) != null) {
-            double distanceSquared = rangedMob.getLocation().distanceSquared(bukkitPlayer.getLocation());
-            boolean hasSight = rangedMob.hasLineOfSight(bukkitPlayer);
+        Player targetPlayer = getTarget().getPlayer();
+        if(targetPlayer != null) {
+            double distanceSquared = rangedEntity.getLocation().distanceSquared(targetPlayer.getLocation());
+            boolean hasSight = rangedEntity.hasLineOfSight(targetPlayer);
 
             if(hasSight != sightCounter > 0) {
                 sightCounter = 0;
@@ -125,26 +103,26 @@ public class StrafeShootBowGoal extends PlayerTargetingGoal {
                     strafeBackwards = true;
                 }
 
-                zombiesNMS.entityBridge().strafe(rangedMob, strafeBackwards ? -0.5F : 0.5F, strafeLeft ? 0.5F : -0.5F);
+                zombiesNMS.entityBridge().strafe(rangedEntity, strafeBackwards ? -0.5F : 0.5F, strafeLeft ? 0.5F : -0.5F);
             }
 
-            rangedMob.lookAt(bukkitPlayer);
+            rangedEntity.lookAt(targetPlayer);
 
-            if(rangedMob.isHandRaised()) {
+            if(rangedEntity.isHandRaised()) {
                 if(!hasSight && sightCounter < -60) {
-                    rangedMob.clearActiveItem();
+                    rangedEntity.clearActiveItem();
                 }
                 else if (hasSight && distanceSquared < shootRangeSquared) {
-                    int itemStage = zombiesNMS.entityBridge().getTicksUsingItem(rangedMob);
+                    int itemStage = zombiesNMS.entityBridge().getTicksUsingItem(rangedEntity);
                     if (itemStage >= 20) {
-                        rangedMob.clearActiveItem();
-                        rangedMob.rangedAttack(bukkitPlayer, zombiesNMS.entityBridge().getCharge(itemStage));
+                        rangedEntity.clearActiveItem();
+                        rangedEntity.rangedAttack(targetPlayer, zombiesNMS.entityBridge().getCharge(itemStage));
                         attackCounter = attackInterval;
                     }
                 }
             }
             else if(--this.attackCounter <= 0 && sightCounter >= -60) {
-                zombiesNMS.entityBridge().setCurrentHandHoldingBow(rangedMob);
+                zombiesNMS.entityBridge().setCurrentHandHoldingBow(rangedEntity);
             }
         }
     }

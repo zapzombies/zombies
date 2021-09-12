@@ -47,6 +47,7 @@ public abstract class ZombiesPathfinderGoal<T> extends Pathfinder {
     private ZombiesArena arena;
     private WindowData window;
 
+    private boolean resetFlag = false;
     private T target;
 
     public ZombiesPathfinderGoal(@NotNull Plugin plugin, @NotNull AbstractEntity entity, @NotNull String line,
@@ -153,7 +154,7 @@ public abstract class ZombiesPathfinderGoal<T> extends Pathfinder {
     }
 
     protected void reset() {
-        target = null;
+        resetFlag = true;
     }
 
     @Override
@@ -164,13 +165,14 @@ public abstract class ZombiesPathfinderGoal<T> extends Pathfinder {
 
     @Override
     public final boolean shouldEnd() {
-        return target == null || !arena.runAI() || canStop();
+        return resetFlag || target == null || !arena.runAI() || canStop();
     }
 
     @Override
     public final void end() {
-        target = null;
         stop();
+        target = null;
+        resetFlag = false;
     }
 
     protected abstract boolean canStart();

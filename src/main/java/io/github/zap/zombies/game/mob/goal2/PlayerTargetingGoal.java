@@ -49,13 +49,7 @@ public abstract class PlayerTargetingGoal extends ZombiesPathfinderGoal<ZombiesP
         return Vectors.equals(lastLocation, Vectors.asIntFloor(Vectors.of(mob.getLocation())));
     }
 
-    protected @NotNull PathOperation makeOperation(@NotNull ZombiesPlayer zombiesPlayer, @NotNull Player target) {
-        return new PathOperationBuilder()
-                .withAgent(mob)
-                .withDestination(target, zombiesPlayer)
-                .withRange(getArena().getMapBounds())
-                .build();
-    }
+    protected abstract @NotNull PathOperation makeOperation(@NotNull ZombiesPlayer zombiesPlayer, @NotNull Player target);
 
     @Override
     public @Nullable ZombiesPlayer acquireTarget() {

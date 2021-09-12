@@ -1,10 +1,6 @@
 package io.github.zap.zombies.game.mob.goal2;
 
-import io.github.zap.arenaapi.pathfind.calculate.SuccessConditions;
-import io.github.zap.arenaapi.pathfind.operation.PathOperation;
-import io.github.zap.arenaapi.pathfind.operation.PathOperationBuilder;
 import io.github.zap.zombies.Zombies;
-import io.github.zap.zombies.game.player.ZombiesPlayer;
 import io.lumine.xikage.mythicmobs.adapters.AbstractEntity;
 import io.lumine.xikage.mythicmobs.io.MythicLineConfig;
 import io.lumine.xikage.mythicmobs.util.annotations.MythicAIGoal;
@@ -13,10 +9,9 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 @MythicAIGoal(name = "unboundedMeleeAttack")
-public class MeleeAttackGoal extends PlayerTargetingGoal {
+public class MeleeAttackGoal extends DeviatingGoal {
     private final int attackInterval;
     private final double attackReachSquared;
-    private final double targetDeviationSquared;
 
     private int attackTimer;
 
@@ -24,18 +19,6 @@ public class MeleeAttackGoal extends PlayerTargetingGoal {
         super(Zombies.getInstance(), entity, line, mlc);
         this.attackInterval = mlc.getInteger("attackInterval", 10);
         this.attackReachSquared = mlc.getDouble("attackReachSquared", 2);
-        this.targetDeviationSquared = mlc.getDouble("targetDeviationSquared", 0);
-    }
-
-
-    @Override
-    protected @NotNull PathOperation makeOperation(@NotNull ZombiesPlayer zombiesPlayer, @NotNull Player target) {
-        return new PathOperationBuilder()
-                .withAgent(mob)
-                .withDestination(target, zombiesPlayer)
-                .withRange(getArena().getMapBounds())
-                .withSuccessCondition(SuccessConditions.whenWithin(targetDeviationSquared))
-                .build();
     }
 
     @Override
@@ -48,16 +31,11 @@ public class MeleeAttackGoal extends PlayerTargetingGoal {
     public void tick() {
         super.tick();
 
-        ZombiesPlayer target = getTarget();
-
-        if(target != null) {
-            Player bukkitPlayer = target.getPlayer();
-
-            if(bukkitPlayer != null) {
-                attackTimer--;
-                tryAttack(bukkitPlayer);
-                mob.lookAt(bukkitPlayer);
-            }
+        Player targetPlayer = getTarget().getPlayer();
+        if(targetPlayer != null) {
+            attackTimer--;
+            tryAttack(targetPlayer);
+            mob.lookAt(targetPlayer);
         }
     }
 
