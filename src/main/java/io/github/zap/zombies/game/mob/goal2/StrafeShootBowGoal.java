@@ -1,6 +1,9 @@
 package io.github.zap.zombies.game.mob.goal2;
 
 import com.destroystokyo.paper.entity.RangedEntity;
+import io.github.zap.arenaapi.pathfind.calculate.SuccessConditions;
+import io.github.zap.arenaapi.pathfind.operation.PathOperation;
+import io.github.zap.arenaapi.pathfind.operation.PathOperationBuilder;
 import io.github.zap.zombies.Zombies;
 import io.github.zap.zombies.game.player.ZombiesPlayer;
 import io.lumine.xikage.mythicmobs.adapters.AbstractEntity;
@@ -17,6 +20,7 @@ public class StrafeShootBowGoal extends PlayerTargetingGoal {
 
     private final double shootRangeSquared;
     private final int attackInterval;
+    private final double targetDeviation;
 
     private int sightCounter = 0;
     private int combatCounter = 0;
@@ -30,8 +34,19 @@ public class StrafeShootBowGoal extends PlayerTargetingGoal {
         super(Zombies.getInstance(), entity, line, mlc);
         this.shootRangeSquared = mlc.getDouble("shootRangeSquared", 225D);
         this.attackInterval = mlc.getInteger("shootInterval", 20);
+        this.targetDeviation = mlc.getDouble("targetDeviation", 5);
 
         rangedMob = (RangedEntity) mob;
+    }
+
+    @Override
+    protected @NotNull PathOperation makeOperation(@NotNull ZombiesPlayer zombiesPlayer, @NotNull Player target) {
+        return new PathOperationBuilder()
+                .withAgent(mob)
+                .withDestination(target, zombiesPlayer)
+                .withRange(getArena().getMapBounds())
+                .withSuccessCondition(SuccessConditions.whenWithin(rangedMob.hasLineOfSight(target) ? targetDeviation : 0))
+                .build();
     }
 
     @Override

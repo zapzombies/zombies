@@ -1,6 +1,9 @@
 package io.github.zap.zombies.game.mob.goal2;
 
 import com.destroystokyo.paper.entity.RangedEntity;
+import io.github.zap.arenaapi.pathfind.calculate.SuccessConditions;
+import io.github.zap.arenaapi.pathfind.operation.PathOperation;
+import io.github.zap.arenaapi.pathfind.operation.PathOperationBuilder;
 import io.github.zap.zombies.Zombies;
 import io.github.zap.zombies.game.player.ZombiesPlayer;
 import io.github.zap.zombies.game.util.MathUtils;
@@ -15,10 +18,9 @@ public class ProjectileShootGoal extends PlayerTargetingGoal {
     private final int minIntervalTicks;
     private final int maxIntervalTicks;
     private final double maxShootRange;
-    private final double squaredMaxShootRange;
+    private final double targetDeviation;
 
     private int updateCountdownCounter;
-    private int seenTargetCounter;
 
     public ProjectileShootGoal(@NotNull AbstractEntity entity, @NotNull String line, @NotNull MythicLineConfig mlc) {
         super(Zombies.getInstance(), entity, line, mlc);
@@ -26,15 +28,24 @@ public class ProjectileShootGoal extends PlayerTargetingGoal {
 
         this.minIntervalTicks = mlc.getInteger("minIntervalTicks");
         this.maxIntervalTicks = mlc.getInteger("maxIntervalTicks");
-        this.maxShootRange = mlc.getDouble("shootRange", 225D);
-        this.squaredMaxShootRange = maxShootRange * maxShootRange;
+        this.maxShootRange = mlc.getDouble("shootRange", 15D);
+        this.targetDeviation = mlc.getDouble("targetDeviation", 5);
+    }
+
+    @Override
+    protected @NotNull PathOperation makeOperation(@NotNull ZombiesPlayer zombiesPlayer, @NotNull Player target) {
+        return new PathOperationBuilder()
+                .withAgent(mob)
+                .withDestination(target, zombiesPlayer)
+                .withRange(getArena().getMapBounds())
+                .withSuccessCondition(SuccessConditions.whenWithin(rangedMob.hasLineOfSight(target) ? targetDeviation : 0))
+                .build();
     }
 
     @Override
     protected void stop() {
         super.stop();
 
-        seenTargetCounter = 0;
         updateCountdownCounter = -1;
     }
 
@@ -47,13 +58,6 @@ public class ProjectileShootGoal extends PlayerTargetingGoal {
         if(target != null && (bukkitPlayer = target.getPlayer()) != null) {
             double distanceSquared = rangedMob.getLocation().distanceSquared(bukkitPlayer.getLocation());
             boolean canSee = rangedMob.hasLineOfSight(bukkitPlayer);
-
-            if(canSee) {
-                seenTargetCounter++;
-            }
-            else {
-                seenTargetCounter--;
-            }
 
             rangedMob.lookAt(bukkitPlayer);
 
