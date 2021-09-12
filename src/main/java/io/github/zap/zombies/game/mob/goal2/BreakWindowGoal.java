@@ -34,11 +34,15 @@ public class BreakWindowGoal extends ZombiesPathfinderGoal<Vector3D> {
     }
 
     private void pathToWindow() {
-        pathHandler.queueOperation(new PathOperationBuilder()
-                .withAgent(mob)
-                .withDestination(Vectors.asIntFloor(getTarget()))
-                .withRange(3)
-                .build(), mob.getWorld());
+        Vector3D target = getTarget();
+
+        if(target != null) {
+            pathHandler.queueOperation(new PathOperationBuilder()
+                    .withAgent(mob)
+                    .withDestination(Vectors.asIntFloor(target))
+                    .withRange(3)
+                    .build(), mob.getWorld());
+        }
     }
 
     @Override
@@ -59,7 +63,8 @@ public class BreakWindowGoal extends ZombiesPathfinderGoal<Vector3D> {
 
     @Override
     protected boolean canStop() {
-        return Vectors.distanceSquared(Vectors.of(mob.getLocation()), getTarget()) <= 2;
+        Vector3D target = getTarget();
+        return target == null || Vectors.distanceSquared(Vectors.of(mob.getLocation()), target) <= 2;
     }
 
     @Override
@@ -68,7 +73,7 @@ public class BreakWindowGoal extends ZombiesPathfinderGoal<Vector3D> {
         WindowData window = getSpawnWindow();
 
         Entity attackingEntity = window.getAttackingEntityProperty().getValue(arena);
-        if(attackingEntity != null && mob.getUniqueId() == attackingEntity.getUniqueId()) {
+        if(attackingEntity != null && mob.getUniqueId().equals(attackingEntity.getUniqueId())) {
             window.getAttackingEntityProperty().setValue(arena, null);
         }
 

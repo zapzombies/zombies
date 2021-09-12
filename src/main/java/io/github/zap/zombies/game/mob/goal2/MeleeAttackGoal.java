@@ -56,6 +56,7 @@ public class MeleeAttackGoal extends PlayerTargetingGoal {
             if(bukkitPlayer != null) {
                 attackTimer--;
                 tryAttack(bukkitPlayer);
+                mob.lookAt(bukkitPlayer);
             }
         }
     }

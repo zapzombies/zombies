@@ -117,8 +117,12 @@ public abstract class PlayerTargetingGoal extends ZombiesPathfinderGoal<ZombiesP
 
     @Override
     public void tick() {
-        PathEntityWrapper currentPath = mobNavigator.currentPath();
+        PathResult result = pathHandler.tryTakeResult();
+        if(result != null) {
+            mobNavigator.navigateAlongPath(result.toPathEntity(), speed);
+        }
 
+        PathEntityWrapper currentPath = mobNavigator.currentPath();
         if(++retargetCounter >= retargetTicks) {
             reset();
             retargetCounter = 0;
@@ -127,11 +131,6 @@ public abstract class PlayerTargetingGoal extends ZombiesPathfinderGoal<ZombiesP
                 (locationChanged() && ++recalculateCounter >= RECALCULATE_TICKS)) {
             calculatePath(getTarget());
             recalculateCounter = RNG.nextInt(RECALCULATE_TICKS / 2);
-        }
-
-        PathResult result = pathHandler.tryTakeResult();
-        if(result != null) {
-            mobNavigator.navigateAlongPath(result.toPathEntity(), speed);
         }
     }
 }
