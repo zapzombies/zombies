@@ -2,6 +2,7 @@ package io.github.zap.zombies.nms.v1_16_R3.entity;
 
 import io.github.zap.zombies.nms.common.entity.EntityBridge;
 import net.minecraft.server.v1_16_R3.*;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_16_R3.CraftWorld;
 import org.bukkit.craftbukkit.v1_16_R3.entity.CraftEntity;
@@ -134,5 +135,11 @@ public class EntityBridge_v1_16_R3 implements EntityBridge {
         if(craftLivingEntity.getHandle() instanceof IRangedEntity rangedEntity) {
             rangedEntity.a(((CraftLivingEntity)target).getHandle(), idk);
         }
+    }
+
+    @Override
+    public void setCurrentHandHoldingBow(@NotNull LivingEntity livingEntity) {
+        EntityLiving entityLiving = ((CraftLivingEntity)livingEntity).getHandle();
+        entityLiving.c(ProjectileHelper.a(entityLiving, Items.BOW));
     }
 }

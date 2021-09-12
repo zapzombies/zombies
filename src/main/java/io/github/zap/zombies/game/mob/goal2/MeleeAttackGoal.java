@@ -62,12 +62,10 @@ public class MeleeAttackGoal extends PlayerTargetingGoal {
     }
 
     private void tryAttack(LivingEntity target) {
-        if(this.attackTimer <= 0) {
-            if(target.getLocation().distanceSquared(mob.getLocation()) <= checkDistance(target)) {
-                this.attackTimer = attackInterval;
-                mob.swingMainHand();
-                mob.attack(target);
-            }
+        if(this.attackTimer <= 0 && target.getLocation().distanceSquared(mob.getLocation()) <= checkDistance(target)) {
+            this.attackTimer = attackInterval;
+            mob.swingMainHand();
+            mob.attack(target);
         }
     }
 

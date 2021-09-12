@@ -1,5 +1,6 @@
 package io.github.zap.zombies.nms.common.entity;
 
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.*;
 import org.jetbrains.annotations.NotNull;
@@ -71,5 +72,7 @@ public interface EntityBridge {
      */
     void spawnDream(@NotNull Piglin dream, @NotNull World world);
 
-    void shootProjectile(@NotNull LivingEntity livingEntity, @NotNull LivingEntity target, float idk);
+    void shootProjectile(@NotNull LivingEntity livingEntity, @NotNull LivingEntity target, float velocity);
+
+    void setCurrentHandHoldingBow(@NotNull LivingEntity livingEntity);
 }
