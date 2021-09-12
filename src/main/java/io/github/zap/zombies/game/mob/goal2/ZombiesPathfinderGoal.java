@@ -67,28 +67,33 @@ public abstract class ZombiesPathfinderGoal<T> extends Pathfinder {
         Entity bukkitEntity = entity.getBukkitEntity();
         if(bukkitEntity instanceof Mob) {
             mob = (Mob)bukkitEntity;
-            mythicMob = MythicMobs.inst().getAPIHelper().getMythicMob(activeMob.getMobType());
 
-            try {
-                mobNavigator = arenaNMS.entityBridge().overrideNavigatorFor(mob);
+            //activeMob can be null because of a MythicMobs glitch where 2 pathfindergoals are created per mob...
+            //we can't stop this but since the first always has a null activeMob, it doesn't load and will never start
+            if(activeMob != null) {
+                mythicMob = MythicMobs.inst().getAPIHelper().getMythicMob(activeMob.getMobType());
 
                 try {
-                    zombiesNMS.entityBridge().replacePersistentGoals(mob);
+                    mobNavigator = arenaNMS.entityBridge().overrideNavigatorFor(mob);
 
-                    double damage = mythicMob.getConfig().getDouble("Damage", Double.NaN);
-                    double knockback = mythicMob.getConfig().getDouble("Knockback", Double.NaN);
+                    try {
+                        zombiesNMS.entityBridge().replacePersistentGoals(mob);
 
-                    setAttributeValue(mob, Attribute.GENERIC_ATTACK_DAMAGE, damage);
-                    setAttributeValue(mob, Attribute.GENERIC_ATTACK_KNOCKBACK, knockback);
+                        double damage = mythicMob.getConfig().getDouble("Damage", Double.NaN);
+                        double knockback = mythicMob.getConfig().getDouble("Knockback", Double.NaN);
 
-                    setGoalType(GoalType.MOVE_LOOK);
-                    pathHandler = new PathHandler(PATHFINDER_ENGINE);
-                    successfulLoad = true;
+                        setAttributeValue(mob, Attribute.GENERIC_ATTACK_DAMAGE, damage);
+                        setAttributeValue(mob, Attribute.GENERIC_ATTACK_KNOCKBACK, knockback);
+
+                        setGoalType(GoalType.MOVE_LOOK);
+                        pathHandler = new PathHandler(PATHFINDER_ENGINE);
+                        successfulLoad = true;
+                    } catch (NoSuchFieldException | IllegalAccessException exception) {
+                        plugin.getLogger().log(Level.SEVERE, "failed to replace persistent goals", exception);
+                    }
                 } catch (NoSuchFieldException | IllegalAccessException exception) {
-                    plugin.getLogger().log(Level.SEVERE, "failed to replace persistent goals", exception);
+                    plugin.getLogger().log(Level.SEVERE, "failed to create MobNavigator", exception);
                 }
-            } catch (NoSuchFieldException | IllegalAccessException exception) {
-                plugin.getLogger().log(Level.SEVERE, "failed to create MobNavigator", exception);
             }
         }
         else {

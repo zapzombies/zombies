@@ -27,6 +27,7 @@ import io.github.zap.zombies.game.mob.goal.mythicmobs.WrappedMythicArrowAttack;
 import io.github.zap.zombies.game.mob.goal.mythicmobs.WrappedMythicBreakWindow;
 import io.github.zap.zombies.game.mob.goal.mythicmobs.WrappedMythicOptimizedBowAttack;
 import io.github.zap.zombies.game.mob.goal.mythicmobs.WrappedMythicOptimizedMeleeAttack;
+import io.github.zap.zombies.game.mob.goal2.BreakWindowGoal;
 import io.github.zap.zombies.game.mob.mechanic.*;
 import io.github.zap.zombies.game.npc.ZombiesNPC;
 import io.github.zap.zombies.nms.common.ZombiesNMSBridge;
@@ -129,7 +130,7 @@ public final class Zombies extends JavaPlugin implements Listener {
             initBridge();
             initDependencies();
             initConfig();
-            initPathfinding(WrappedMythicBreakWindow.class, WrappedMythicOptimizedMeleeAttack.class,
+            initPathfinding(BreakWindowGoal.class, WrappedMythicOptimizedMeleeAttack.class,
                     WrappedMythicOptimizedBowAttack.class, WrappedMythicArrowAttack.class);
             initMechanics(CobwebMechanic.class, SpawnMobMechanic.class, StealCoinsMechanic.class,
                     SlowFireRateMechanic.class, SummonMountMechanic.class, TeleportBehindTargetMechanic.class);

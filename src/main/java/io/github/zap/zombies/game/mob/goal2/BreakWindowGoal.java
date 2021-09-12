@@ -31,6 +31,8 @@ public class BreakWindowGoal extends ZombiesPathfinderGoal<Vector3D> {
         this.breakTicks = mlc.getInteger("breakTicks", 20);
         this.breakCount = mlc.getInteger("breakCount", 1);
         this.breakReachSquared = mlc.getDouble("breakReachSquared", 9D);
+
+        System.out.println("Instantiated BreakWindowGoal");
     }
 
     private void pathToWindow() {
@@ -64,7 +66,7 @@ public class BreakWindowGoal extends ZombiesPathfinderGoal<Vector3D> {
     @Override
     protected boolean canStop() {
         Vector3D target = getTarget();
-        return target == null || Vectors.distanceSquared(Vectors.of(mob.getLocation()), target) <= 2;
+        return target == null || Vectors.distanceSquared(Vectors.of(mob.getLocation()), target) <= 1.5;
     }
 
     @Override
@@ -103,7 +105,8 @@ public class BreakWindowGoal extends ZombiesPathfinderGoal<Vector3D> {
         }
 
         PathEntityWrapper currentPath = mobNavigator.currentPath();
-        if(currentPath == null) {
+        if(currentPath == null || mobNavigator.shouldRecalculate()) {
+            Zombies.warning(this + " recalculating");
             pathToWindow();
         }
     }

@@ -12,10 +12,7 @@ repositories {
 }
 
 dependencies {
-    @Suppress("UNCHECKED_CAST")
-    val selector = rootProject.ext.get("versionSelector") as Action<ExternalModuleDependency>
-
-    compileOnlyApi("io.github.zap:zap-commons", selector)
+    compileOnlyApi("io.github.zap:zap-commons", qs("zap-commons"))
     paperApi ("1.16.5-R0.1-SNAPSHOT")
 }
 
