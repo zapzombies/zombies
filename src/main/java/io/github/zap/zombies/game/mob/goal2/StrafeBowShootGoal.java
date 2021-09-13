@@ -11,9 +11,6 @@ import org.jetbrains.annotations.NotNull;
 
 @MythicAIGoal(name = "zombiesStrafeBowShoot")
 public class StrafeBowShootGoal extends RangedGoal {
-    private final double shootRangeSquared;
-    private final int attackInterval;
-
     private int sightCounter = 0;
     private int combatCounter = 0;
     private int attackCounter = -1;
@@ -24,8 +21,6 @@ public class StrafeBowShootGoal extends RangedGoal {
     public StrafeBowShootGoal(@NotNull AbstractEntity entity, @NotNull String line,
                               @NotNull MythicLineConfig mlc) {
         super(Zombies.getInstance(), entity, line, mlc);
-        this.shootRangeSquared = mlc.getDouble("shootRangeSquared", 225D);
-        this.attackInterval = mlc.getInteger("shootInterval", 20);
     }
 
     @Override
@@ -117,7 +112,7 @@ public class StrafeBowShootGoal extends RangedGoal {
                     if (itemStage >= 20) {
                         rangedEntity.clearActiveItem();
                         rangedEntity.rangedAttack(targetPlayer, zombiesNMS.entityBridge().getCharge(itemStage));
-                        attackCounter = attackInterval;
+                        attackCounter = shootInterval;
                     }
                 }
             }

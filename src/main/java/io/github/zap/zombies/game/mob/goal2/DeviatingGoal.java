@@ -12,11 +12,13 @@ import org.jetbrains.annotations.NotNull;
 
 public abstract class DeviatingGoal extends PlayerTargetingGoal {
     protected final double targetDeviationSquared;
+    protected final boolean requiresSight;
 
     public DeviatingGoal(@NotNull Plugin plugin, @NotNull AbstractEntity entity, @NotNull String line,
                          @NotNull MythicLineConfig mlc) {
         super(plugin, entity, line, mlc);
         this.targetDeviationSquared = mlc.getDouble("targetDeviationSquared", 0);
+        this.requiresSight = mlc.getBoolean("requiresSight", false);
     }
 
 
@@ -26,8 +28,9 @@ public abstract class DeviatingGoal extends PlayerTargetingGoal {
                 .withAgent(mob)
                 .withDestination(target, zombiesPlayer)
                 .withRange(getArena().getMapBounds())
-                .withSuccessCondition(SuccessConditions.whenWithin(targetDeviationSquared > 1 ?
-                        (mob.hasLineOfSight(target) ? targetDeviationSquared : 0) : 0))
+                .withSuccessCondition(SuccessConditions.whenWithin(targetDeviationSquared > 1 ? (requiresSight ?
+                        (mob.hasLineOfSight(target) ? targetDeviationSquared : 0) : targetDeviationSquared) :
+                        targetDeviationSquared))
                 .build();
     }
 }

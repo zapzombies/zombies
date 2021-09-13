@@ -17,8 +17,7 @@ import org.jetbrains.annotations.Nullable;
 public abstract class PlayerTargetingGoal extends ZombiesPathfinderGoal<ZombiesPlayer> {
     private static final int RECALCULATE_TICKS = 10;
 
-    private final double speed;
-    private final int retargetTicks;
+    private final int retargetInterval;
 
     private int retargetCounter = 0;
     private int recalculateCounter = 0;
@@ -27,8 +26,7 @@ public abstract class PlayerTargetingGoal extends ZombiesPathfinderGoal<ZombiesP
     public PlayerTargetingGoal(@NotNull Plugin plugin, @NotNull AbstractEntity entity, @NotNull String line,
                                @NotNull MythicLineConfig mlc) {
         super(plugin, entity, line, mlc);
-        this.speed = mlc.getDouble("speed", 1D);
-        this.retargetTicks = mlc.getInteger("retargetTicks", 20);
+        this.retargetInterval = mlc.getInteger("retargetInterval", 20);
     }
 
     private void calculatePath(ZombiesPlayer player) {
@@ -111,11 +109,11 @@ public abstract class PlayerTargetingGoal extends ZombiesPathfinderGoal<ZombiesP
     public void tick() {
         PathResult result = pathHandler.tryTakeResult();
         if(result != null) {
-            mobNavigator.navigateAlongPath(result.toPathEntity(), speed);
+            mobNavigator.navigateAlongPath(result.toPathEntity(), 1);
         }
 
         PathEntityWrapper currentPath = mobNavigator.currentPath();
-        if(++retargetCounter >= retargetTicks) {
+        if(++retargetCounter >= retargetInterval) {
             reset();
             retargetCounter = 0;
         }

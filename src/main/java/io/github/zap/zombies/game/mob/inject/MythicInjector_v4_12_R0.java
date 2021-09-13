@@ -73,7 +73,6 @@ class MythicInjector_v4_12_R0 implements MythicInjector {
                     for (String alias : mythicAnnotation.aliases()) {
                         mechanics.put(alias.toUpperCase(), customMechanic);
                     }
-
                 } else {
                     logger.log(Level.WARNING, "Encountered a custom mechanic class not annotated with" +
                             "@MythicMechanic: " + customMechanic.getTypeName());

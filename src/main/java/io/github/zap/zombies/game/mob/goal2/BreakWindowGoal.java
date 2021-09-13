@@ -19,8 +19,7 @@ import org.jetbrains.annotations.Nullable;
 public class BreakWindowGoal extends ZombiesPathfinderGoal<Vector3D> {
     private static final int RECALCULATE_INTERVAL = 20;
 
-    private final double speed;
-    private final int breakTicks;
+    private final int breakInterval;
     private final int breakCount;
     private final double breakReachSquared;
 
@@ -30,8 +29,7 @@ public class BreakWindowGoal extends ZombiesPathfinderGoal<Vector3D> {
 
     public BreakWindowGoal(@NotNull AbstractEntity entity, @NotNull String line, @NotNull MythicLineConfig mlc) {
         super(Zombies.getInstance(), entity, line, mlc);
-        this.speed = mlc.getDouble("speed", 1.0D);
-        this.breakTicks = mlc.getInteger("breakTicks", 20);
+        this.breakInterval = mlc.getInteger("breakInterval", 20);
         this.breakCount = mlc.getInteger("breakCount", 1);
         this.breakReachSquared = mlc.getDouble("breakReachSquared", 9D);
     }
@@ -92,10 +90,10 @@ public class BreakWindowGoal extends ZombiesPathfinderGoal<Vector3D> {
     public void tick() {
         PathResult result = pathHandler.tryTakeResult();
         if(result != null) {
-            mobNavigator.navigateAlongPath(result.toPathEntity(), speed);
+            mobNavigator.navigateAlongPath(result.toPathEntity(), 1);
         }
 
-        if(++breakCounter >= breakTicks) {
+        if(++breakCounter >= breakInterval) {
             WindowData window = getSpawnWindow();
             if(mob.getEyeLocation().toVector().distanceSquared(window.getCenter()) < breakReachSquared) {
                 getArena().tryBreakWindow(mob, window, breakCount);

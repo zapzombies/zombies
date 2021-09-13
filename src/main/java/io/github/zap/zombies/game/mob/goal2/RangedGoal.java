@@ -8,6 +8,8 @@ import org.jetbrains.annotations.NotNull;
 
 public abstract class RangedGoal extends DeviatingGoal {
     protected final RangedEntity rangedEntity;
+    protected final int shootInterval;
+    protected final double shootRangeSquared;
 
     public RangedGoal(@NotNull Plugin plugin, @NotNull AbstractEntity entity, @NotNull String line,
                       @NotNull MythicLineConfig mlc) {
@@ -15,6 +17,8 @@ public abstract class RangedGoal extends DeviatingGoal {
 
         if(mob instanceof RangedEntity rangedEntity) {
             this.rangedEntity = rangedEntity;
+            this.shootInterval = mlc.getInteger("shootInterval", 20);
+            this.shootRangeSquared = mlc.getDouble("shootRangeSquared", 225D);
         }
         else {
             throw new IllegalArgumentException("mob must subclass RangedEntity");

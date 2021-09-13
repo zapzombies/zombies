@@ -10,17 +10,13 @@ import org.jetbrains.annotations.NotNull;
 
 @MythicAIGoal(name = "zombiesProjectileShoot")
 public class ProjectileShootGoal extends RangedGoal {
-    private final int minIntervalTicks;
-    private final int maxIntervalTicks;
-    private final double maxShootRange;
+    private final double shootRange;
 
     private int updateCountdownCounter;
 
     public ProjectileShootGoal(@NotNull AbstractEntity entity, @NotNull String line, @NotNull MythicLineConfig mlc) {
         super(Zombies.getInstance(), entity, line, mlc);
-        this.minIntervalTicks = mlc.getInteger("minIntervalTicks");
-        this.maxIntervalTicks = mlc.getInteger("maxIntervalTicks");
-        this.maxShootRange = mlc.getDouble("shootRange", 15D);
+        shootRange = Math.sqrt(super.shootRangeSquared);
     }
 
     @Override
@@ -37,24 +33,21 @@ public class ProjectileShootGoal extends RangedGoal {
         Player targetPlayer = getTarget().getPlayer();
         if(targetPlayer != null) {
             double distanceSquared = rangedEntity.getLocation().distanceSquared(targetPlayer.getLocation());
-            boolean canSee = rangedEntity.hasLineOfSight(targetPlayer);
-
             rangedEntity.lookAt(targetPlayer);
 
-            double f;
             if(--updateCountdownCounter == 0) {
-                if(!canSee) {
+                if(!rangedEntity.hasLineOfSight(targetPlayer)) {
                     return;
                 }
 
-                f = Math.sqrt(distanceSquared) / maxShootRange;
+                double f = Math.sqrt(distanceSquared) / shootRange;
                 double g = MathUtils.clamp(f, 0.1D, 1.0D);
+
                 rangedEntity.rangedAttack(targetPlayer, (float)g);
-                updateCountdownCounter = (int)Math.floor(f * (maxIntervalTicks - minIntervalTicks) + minIntervalTicks);
+                updateCountdownCounter = (int)Math.floor(f * 5 + shootInterval);
             }
             else if(updateCountdownCounter < 0) {
-                f = Math.sqrt(distanceSquared) / maxShootRange;
-                updateCountdownCounter = (int)Math.floor(f * (maxIntervalTicks - minIntervalTicks) + minIntervalTicks);
+                updateCountdownCounter = (int)Math.floor((Math.sqrt(distanceSquared) / shootRange) * 5 + shootInterval);
             }
         }
     }
