@@ -41,7 +41,7 @@ public abstract class BasicMetadataPathfinder extends ZombiesPathfinder {
                         .withRange(arena.getMapBounds())
                         .build();
 
-                getHandler().queueOperation(operation, self.getWorld());
+                getHandler().giveOperation(operation, self.getWorld());
                 PathResult result = getHandler().tryTakeResult();
 
                 if(result != null) {

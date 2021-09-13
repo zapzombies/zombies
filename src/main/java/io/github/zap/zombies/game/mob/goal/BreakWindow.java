@@ -109,7 +109,7 @@ public class BreakWindow extends BasicMetadataPathfinder {
                         .withRange(2)
                         .build();
 
-                getHandler().queueOperation(operation, arena.getWorld());
+                getHandler().giveOperation(operation, arena.getWorld());
                 navCounter = getArenaNmsBridge().entityBridge().getRandomFor(self).nextInt(retargetTicks / 2);
             }
 

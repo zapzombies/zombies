@@ -16,7 +16,7 @@ public abstract class DeviatingGoal extends PlayerTargetingGoal {
     public DeviatingGoal(@NotNull Plugin plugin, @NotNull AbstractEntity entity, @NotNull String line,
                          @NotNull MythicLineConfig mlc) {
         super(plugin, entity, line, mlc);
-        this.targetDeviationSquared = mlc.getDouble("targetDeviationSquared", 5);
+        this.targetDeviationSquared = mlc.getDouble("targetDeviationSquared", 0);
     }
 
 
@@ -26,8 +26,8 @@ public abstract class DeviatingGoal extends PlayerTargetingGoal {
                 .withAgent(mob)
                 .withDestination(target, zombiesPlayer)
                 .withRange(getArena().getMapBounds())
-                .withSuccessCondition(SuccessConditions.whenWithin(mob.hasLineOfSight(target) ?
-                        targetDeviationSquared : 0))
+                .withSuccessCondition(SuccessConditions.whenWithin(targetDeviationSquared > 1 ?
+                        (mob.hasLineOfSight(target) ? targetDeviationSquared : 0) : 0))
                 .build();
     }
 }

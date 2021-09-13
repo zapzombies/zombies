@@ -17,6 +17,8 @@ import org.jetbrains.annotations.Nullable;
 
 @MythicAIGoal(name = "zombiesBreakWindow")
 public class BreakWindowGoal extends ZombiesPathfinderGoal<Vector3D> {
+    private static final int RECALCULATE_INTERVAL = 20;
+
     private final double speed;
     private final int breakTicks;
     private final int breakCount;
@@ -24,6 +26,7 @@ public class BreakWindowGoal extends ZombiesPathfinderGoal<Vector3D> {
 
     private boolean completed = false;
     private int breakCounter = 0;
+    private int recalculateCounter = 0;
 
     public BreakWindowGoal(@NotNull AbstractEntity entity, @NotNull String line, @NotNull MythicLineConfig mlc) {
         super(Zombies.getInstance(), entity, line, mlc);
@@ -31,15 +34,13 @@ public class BreakWindowGoal extends ZombiesPathfinderGoal<Vector3D> {
         this.breakTicks = mlc.getInteger("breakTicks", 20);
         this.breakCount = mlc.getInteger("breakCount", 1);
         this.breakReachSquared = mlc.getDouble("breakReachSquared", 9D);
-
-        System.out.println("Instantiated BreakWindowGoal");
     }
 
     private void pathToWindow() {
         Vector3D target = getTarget();
 
         if(target != null) {
-            pathHandler.queueOperation(new PathOperationBuilder()
+            pathHandler.giveOperation(new PathOperationBuilder()
                     .withAgent(mob)
                     .withDestination(Vectors.asIntFloor(target))
                     .withRange(3)
@@ -90,7 +91,6 @@ public class BreakWindowGoal extends ZombiesPathfinderGoal<Vector3D> {
     @Override
     public void tick() {
         PathResult result = pathHandler.tryTakeResult();
-
         if(result != null) {
             mobNavigator.navigateAlongPath(result.toPathEntity(), speed);
         }
@@ -105,9 +105,10 @@ public class BreakWindowGoal extends ZombiesPathfinderGoal<Vector3D> {
         }
 
         PathEntityWrapper currentPath = mobNavigator.currentPath();
-        if(currentPath == null || mobNavigator.shouldRecalculate()) {
-            Zombies.warning(this + " recalculating");
+        if(currentPath == null || mobNavigator.shouldRecalculate() ||
+                (mobNavigator.isIdle() && ++recalculateCounter >= RECALCULATE_INTERVAL)) {
             pathToWindow();
+            recalculateCounter = 0;
         }
     }
 }

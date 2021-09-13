@@ -2,7 +2,6 @@ package io.github.zap.zombies.game.mob.goal2;
 
 import io.github.zap.arenaapi.nms.common.pathfind.PathEntityWrapper;
 import io.github.zap.arenaapi.pathfind.operation.PathOperation;
-import io.github.zap.arenaapi.pathfind.operation.PathOperationBuilder;
 import io.github.zap.arenaapi.pathfind.path.PathResult;
 import io.github.zap.commons.vectors.Vector3I;
 import io.github.zap.commons.vectors.Vectors;
@@ -40,7 +39,7 @@ public abstract class PlayerTargetingGoal extends ZombiesPathfinderGoal<ZombiesP
         Player bukkitPlayer = player.getPlayer();
 
         if(bukkitPlayer != null) {
-            pathHandler.queueOperation(makeOperation(player, bukkitPlayer), mob.getWorld());
+            pathHandler.giveOperation(makeOperation(player, bukkitPlayer), mob.getWorld());
             lastLocation = Vectors.asIntFloor(Vectors.of(bukkitPlayer.getLocation()));
         }
     }
@@ -98,6 +97,9 @@ public abstract class PlayerTargetingGoal extends ZombiesPathfinderGoal<ZombiesP
 
     @Override
     public void start() {
+        recalculateCounter = 0;
+        retargetCounter = 0;
+        lastLocation = null;
         zombiesNMS.entityBridge().setAggressive(mob, true);
         mob.setTarget(getTarget().getPlayer());
         calculatePath(getTarget());
@@ -121,7 +123,8 @@ public abstract class PlayerTargetingGoal extends ZombiesPathfinderGoal<ZombiesP
             reset();
             retargetCounter = 0;
         }
-        else if(currentPath == null || (locationChanged() && ++recalculateCounter >= RECALCULATE_TICKS)) {
+        else if(currentPath == null || mobNavigator.shouldRecalculate() ||
+                (locationChanged() && ++recalculateCounter >= RECALCULATE_TICKS)) {
             calculatePath(getTarget());
             recalculateCounter = RNG.nextInt(RECALCULATE_TICKS / 2);
         }
