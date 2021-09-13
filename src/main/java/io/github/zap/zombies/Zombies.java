@@ -9,7 +9,6 @@ import com.grinderwolf.swm.plugin.loaders.file.FileLoader;
 import io.github.regularcommands.commands.CommandManager;
 import io.github.zap.arenaapi.ArenaApi;
 import io.github.zap.arenaapi.LoadFailureException;
-import io.github.zap.arenaapi.game.arena.Arena;
 import io.github.zap.arenaapi.localization.LocalizationManager;
 import io.github.zap.arenaapi.nms.common.ArenaNMSBridge;
 import io.github.zap.arenaapi.playerdata.FilePlayerDataManager;
@@ -23,10 +22,6 @@ import io.github.zap.zombies.command.ZombiesCommand;
 import io.github.zap.zombies.command.mapeditor.ContextManager;
 import io.github.zap.zombies.command.mapeditor.MapeditorCommand;
 import io.github.zap.zombies.game.ZombiesArenaManager;
-import io.github.zap.zombies.game.mob.goal.mythicmobs.WrappedMythicArrowAttack;
-import io.github.zap.zombies.game.mob.goal.mythicmobs.WrappedMythicBreakWindow;
-import io.github.zap.zombies.game.mob.goal.mythicmobs.WrappedMythicOptimizedBowAttack;
-import io.github.zap.zombies.game.mob.goal.mythicmobs.WrappedMythicOptimizedMeleeAttack;
 import io.github.zap.zombies.game.mob.goal2.BreakWindowGoal;
 import io.github.zap.zombies.game.mob.goal2.MeleeAttackGoal;
 import io.github.zap.zombies.game.mob.goal2.ProjectileShootGoal;
@@ -38,14 +33,6 @@ import io.github.zap.zombies.nms.common.ZombiesNMSBridge;
 import io.github.zap.zombies.nms.v1_16_R3.ZombiesNMSBridge_v1_16_R3;
 import io.github.zap.zombies.world.SlimeWorldLoader;
 import io.lumine.xikage.mythicmobs.MythicMobs;
-import io.lumine.xikage.mythicmobs.mobs.ai.PathfinderAdapter;
-import io.lumine.xikage.mythicmobs.skills.SkillManager;
-import io.lumine.xikage.mythicmobs.skills.SkillMechanic;
-import io.lumine.xikage.mythicmobs.util.annotations.MythicAIGoal;
-import io.lumine.xikage.mythicmobs.util.annotations.MythicMechanic;
-import io.lumine.xikage.mythicmobs.util.reflections.Reflections;
-import io.lumine.xikage.mythicmobs.volatilecode.handlers.VolatileAIHandler;
-import io.lumine.xikage.mythicmobs.volatilecode.v1_16_R3.VolatileAIHandler_v1_16_R3;
 import lombok.Getter;
 import org.apache.commons.io.FilenameUtils;
 import org.bukkit.Bukkit;
@@ -59,7 +46,6 @@ import org.bukkit.util.Vector;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
@@ -164,18 +150,21 @@ public final class Zombies extends JavaPlugin implements Listener {
         if (arenaManager != null) {
             DataLoader loader = arenaManager.getMapLoader(); //save map data in case it was edited
 
-            for (File file : loader.getRootDirectory().listFiles()) { //delete map data that shouldn't exist
-                String fileNameWithExtension = file.getName();
+            File[] files = loader.getRootDirectory().listFiles();
+            if(files != null) {
+                for (File file : files) { //delete map data that shouldn't exist
+                    String fileNameWithExtension = file.getName();
 
-                if (fileNameWithExtension.endsWith(arenaManager.getMapLoader().getExtension())) {
-                    String filename = FilenameUtils.getBaseName(fileNameWithExtension);
+                    if (fileNameWithExtension.endsWith(arenaManager.getMapLoader().getExtension())) {
+                        String filename = FilenameUtils.getBaseName(fileNameWithExtension);
 
-                    if (arenaManager.canDelete(filename)) {
-                        try {
-                            Files.delete(file.toPath());
-                            Zombies.info(String.format("Deleted marked map file: '%s'", filename));
-                        } catch (IOException e) {
-                            warning(String.format("Failed to delete map file %s: %s", fileNameWithExtension, e.getMessage()));
+                        if (arenaManager.canDelete(filename)) {
+                            try {
+                                Files.delete(file.toPath());
+                                Zombies.info(String.format("Deleted marked map file: '%s'", filename));
+                            } catch (IOException e) {
+                                warning(String.format("Failed to delete map file %s: %s", fileNameWithExtension, e.getMessage()));
+                            }
                         }
                     }
                 }
@@ -237,7 +226,7 @@ public final class Zombies extends JavaPlugin implements Listener {
         fixAswm();
     }
 
-    @SuppressWarnings("UnusedAssignment") //frick you unintelliJ this is necessary
+    @SuppressWarnings({"UnusedAssignment", "unused"}) //frick you unintelliJ this is necessary
     private void fixAswm() {
         Class<?> clazz;
         try {
