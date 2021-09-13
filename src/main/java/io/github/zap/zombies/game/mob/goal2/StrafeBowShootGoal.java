@@ -85,11 +85,11 @@ public class StrafeBowShootGoal extends RangedGoal {
             }
 
             if(combatCounter >= 20) {
-                if(RNG.nextFloat() < 0.3D) {
+                if(Math.random() < 0.3D) {
                     strafeLeft = !strafeLeft;
                 }
 
-                if(RNG.nextFloat() < 0.3D) {
+                if(Math.random() < 0.3D) {
                     strafeBackwards = !strafeBackwards;
                 }
 

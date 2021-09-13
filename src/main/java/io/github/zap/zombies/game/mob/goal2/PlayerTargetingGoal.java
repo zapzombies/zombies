@@ -14,11 +14,7 @@ import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Random;
-
 public abstract class PlayerTargetingGoal extends ZombiesPathfinderGoal<ZombiesPlayer> {
-    protected static final Random RNG = new Random();
-
     private static final int RECALCULATE_TICKS = 10;
 
     private final double speed;
@@ -57,7 +53,7 @@ public abstract class PlayerTargetingGoal extends ZombiesPathfinderGoal<ZombiesP
         for(ZombiesPlayer player : getArena().getPlayerMap().values()) {
             Player bukkitPlayer = player.getPlayer();
             if(player.isAlive() && player.isInGame() && bukkitPlayer != null) {
-                double distance = mob.getLocation().distance(bukkitPlayer.getLocation());
+                double distance = mob.getLocation().distanceSquared(bukkitPlayer.getLocation());
 
                 if(distance < closestDistance) {
                     closestDistance = distance;
@@ -126,7 +122,7 @@ public abstract class PlayerTargetingGoal extends ZombiesPathfinderGoal<ZombiesP
         else if(currentPath == null || mobNavigator.shouldRecalculate() ||
                 (locationChanged() && ++recalculateCounter >= RECALCULATE_TICKS)) {
             calculatePath(getTarget());
-            recalculateCounter = RNG.nextInt(RECALCULATE_TICKS / 2);
+            recalculateCounter = (int)(Math.random() * (RECALCULATE_TICKS / 2));
         }
     }
 }
