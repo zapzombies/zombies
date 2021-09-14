@@ -15,7 +15,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class PlayerTargetingGoal extends ZombiesPathfinderGoal<ZombiesPlayer> {
-    private static final int RECALCULATE_TICKS = 10;
+    private static final int RECALCULATE_INTERVAL = 10;
 
     private final int retargetInterval;
 
@@ -39,7 +39,13 @@ public abstract class PlayerTargetingGoal extends ZombiesPathfinderGoal<ZombiesP
     }
 
     private boolean locationChanged() {
-        return Vectors.equals(lastLocation, Vectors.asIntFloor(Vectors.of(mob.getLocation())));
+        ZombiesPlayer target = getTarget();
+        Player bukkitPlayer = target.getPlayer();
+        if(bukkitPlayer != null) {
+            return Vectors.equals(lastLocation, Vectors.asIntFloor(Vectors.of(bukkitPlayer.getLocation())));
+        }
+
+        return true;
     }
 
     protected abstract @NotNull PathOperation makeOperation(@NotNull ZombiesPlayer zombiesPlayer, @NotNull Player target);
@@ -118,9 +124,9 @@ public abstract class PlayerTargetingGoal extends ZombiesPathfinderGoal<ZombiesP
             retargetCounter = 0;
         }
         else if(currentPath == null || mobNavigator.shouldRecalculate() ||
-                (locationChanged() && ++recalculateCounter >= RECALCULATE_TICKS)) {
+                (locationChanged() && ++recalculateCounter >= RECALCULATE_INTERVAL)) {
             calculatePath(getTarget());
-            recalculateCounter = (int)(Math.random() * (RECALCULATE_TICKS / 2));
+            recalculateCounter = (int)(Math.random() * (RECALCULATE_INTERVAL / 2));
         }
     }
 }

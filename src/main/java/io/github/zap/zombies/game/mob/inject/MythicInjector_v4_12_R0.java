@@ -74,7 +74,7 @@ class MythicInjector_v4_12_R0 implements MythicInjector {
                         mechanics.put(alias.toUpperCase(), customMechanic);
                     }
                 } else {
-                    logger.log(Level.WARNING, "Encountered a custom mechanic class not annotated with" +
+                    logger.log(Level.WARNING, "Encountered a custom mechanic class not annotated with " +
                             "@MythicMechanic: " + customMechanic.getTypeName());
                 }
             }
