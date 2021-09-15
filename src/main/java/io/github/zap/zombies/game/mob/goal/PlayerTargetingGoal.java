@@ -17,6 +17,7 @@ import org.jetbrains.annotations.Nullable;
 
 public abstract class PlayerTargetingGoal extends ZombiesPathfinderGoal<ZombiesPlayer> {
     private static final int RECALCULATE_INTERVAL = 10;
+    private static final int HALF_INTERVAL = RECALCULATE_INTERVAL / 2;
 
     private final int retargetInterval;
 
@@ -126,11 +127,12 @@ public abstract class PlayerTargetingGoal extends ZombiesPathfinderGoal<ZombiesP
             retarget();
             retargetCounter = 0;
         }
-        else if(currentPath == null || mobNavigator.shouldRecalculate() ||
+        else if(currentPath == null || mobNavigator.isIdle() ||
                 (locationChanged() && ++recalculateCounter >= RECALCULATE_INTERVAL)) {
             calculatePath(getCurrentTarget());
-            recalculateCounter = (int)(Math.random() * (RECALCULATE_INTERVAL)) -
-                    (currentPath == null ? 0 : currentPath.pathLength() / 2);
+
+            recalculateCounter = (int)(Math.random() * HALF_INTERVAL) -
+                    (currentPath == null ? 0 : currentPath.pathLength() / 4);
         }
     }
 }
