@@ -1,4 +1,4 @@
-package io.github.zap.zombies.game.mob.goal2;
+package io.github.zap.zombies.game.mob.goal;
 
 import io.github.zap.arenaapi.pathfind.calculate.SuccessConditions;
 import io.github.zap.arenaapi.pathfind.operation.PathOperation;

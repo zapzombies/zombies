@@ -1,4 +1,4 @@
-package io.github.zap.zombies.game.mob.goal2;
+package io.github.zap.zombies.game.mob.goal;
 
 import io.github.zap.arenaapi.nms.common.pathfind.PathEntityWrapper;
 import io.github.zap.arenaapi.pathfind.operation.PathOperation;

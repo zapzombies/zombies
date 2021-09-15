@@ -1,4 +1,4 @@
-package io.github.zap.zombies.game.mob.goal2;
+package io.github.zap.zombies.game.mob.goal;
 
 import io.github.zap.zombies.Zombies;
 import io.lumine.xikage.mythicmobs.adapters.AbstractEntity;

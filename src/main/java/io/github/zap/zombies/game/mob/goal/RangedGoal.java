@@ -1,4 +1,4 @@
-package io.github.zap.zombies.game.mob.goal2;
+package io.github.zap.zombies.game.mob.goal;
 
 import com.destroystokyo.paper.entity.RangedEntity;
 import io.lumine.xikage.mythicmobs.adapters.AbstractEntity;
