@@ -9,6 +9,7 @@ import io.github.zap.zombies.game.player.ZombiesPlayer;
 import io.lumine.xikage.mythicmobs.adapters.AbstractEntity;
 import io.lumine.xikage.mythicmobs.io.MythicLineConfig;
 import org.bukkit.GameMode;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
@@ -69,11 +70,16 @@ public abstract class PlayerTargetingGoal extends ZombiesPathfinderGoal<ZombiesP
         for(ZombiesPlayer player : getArena().getPlayerMap().values()) {
             Player bukkitPlayer = player.getPlayer();
             if(player.isAlive() && player.isInGame() && bukkitPlayer != null) {
-                double distance = mob.getLocation().distanceSquared(bukkitPlayer.getLocation());
+                Location mobLocation = mob.getLocation();
+                Location playerLocation = bukkitPlayer.getLocation();
 
-                if(distance < closestDistance) {
-                    closestDistance = distance;
-                    closest = player;
+                if(mobLocation.getWorld() == playerLocation.getWorld()) {
+                    double distance = mobLocation.distanceSquared(playerLocation);
+
+                    if(distance < closestDistance) {
+                        closestDistance = distance;
+                        closest = player;
+                    }
                 }
             }
         }
