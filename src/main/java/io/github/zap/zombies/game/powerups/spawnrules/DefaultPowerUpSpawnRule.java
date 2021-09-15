@@ -15,6 +15,7 @@ import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.metadata.MetadataValue;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 import java.util.stream.Collectors;
 
@@ -58,11 +59,11 @@ public class DefaultPowerUpSpawnRule extends PowerUpSpawnRule<DefaultPowerUpSpaw
 
         if(isRound) {
             //using new MetadataHelper util class; the old code would have failed if another plugin happened to register metadata to that entity
-            MetadataValue metadataValue = MetadataHelper.getMetadataFor(e.getEvent().getEntity(), Zombies.getInstance(),
-                    Zombies.SPAWNINFO_WAVE_METADATA_NAME);
+            Optional<MetadataValue> metadataValueOptional = MetadataHelper.getMetadataValue(e.getEvent().getEntity(),
+                    Zombies.getInstance(), Zombies.SPAWNINFO_WAVE_METADATA_NAME);
 
-            if(metadataValue != null) {
-                WaveData waveData = (WaveData) metadataValue.value();
+            if(metadataValueOptional.isPresent()) {
+                WaveData waveData = (WaveData) metadataValueOptional.get().value();
 
                 if(waveData == chosenWave) {
                     if(deathCountUntilDrops == roundDeathCount && !isDisabledRound()) {

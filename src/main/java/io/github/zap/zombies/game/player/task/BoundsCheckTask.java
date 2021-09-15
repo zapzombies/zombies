@@ -34,7 +34,7 @@ public class BoundsCheckTask extends ZombiesTask {
 
             if (roomIn != null) {
                 for (WindowData windowData : roomIn.getWindows()) {
-                    if (windowData.playerInside(playerLocationVector)) {
+                    if (windowData.vectorInside(playerLocationVector)) {
                         Vector target = windowData.getTarget();
                         bukkitPlayer.teleportAsync(new Location(arena.getWorld(), target.getX(), target.getY(),
                                 target.getZ(), playerLocation.getYaw(), playerLocation.getPitch()));

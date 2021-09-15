@@ -96,9 +96,9 @@ public class SpawnMobMechanic extends ZombiesArenaSkill implements Listener {
         UUID deadUUID = event.getEntity().getUniqueId();
 
         if(mobs.remove(deadUUID) == null) { //if the caster died, remove its spawned instances
-            MetadataValue value = MetadataHelper.getMetadataFor(event.getEntity(), Zombies.getInstance(), OWNER_METADATA_NAME);
-            if(value != null) {
-                UUID owner = (UUID)value.value();
+            Optional<MetadataValue> valueOptional = MetadataHelper.getMetadataValue(event.getEntity(), Zombies.getInstance(), OWNER_METADATA_NAME);
+            if(valueOptional.isPresent()) {
+                UUID owner = (UUID)valueOptional.get().value();
 
                 if(owner != null) {
                     Set<UUID> spawned = mobs.get(owner);
@@ -117,6 +117,6 @@ public class SpawnMobMechanic extends ZombiesArenaSkill implements Listener {
 
     private void registerMob(Set<UUID> registerTo, ActiveMob mob, UUID ownerId) {
         registerTo.add(mob.getUniqueId());
-        MetadataHelper.setMetadataFor(mob.getEntity().getBukkitEntity(), OWNER_METADATA_NAME, Zombies.getInstance(), ownerId);
+        MetadataHelper.setFixedMetadata(mob.getEntity().getBukkitEntity(), Zombies.getInstance(), OWNER_METADATA_NAME, ownerId);
     }
 }

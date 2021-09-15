@@ -9,7 +9,6 @@ import com.grinderwolf.swm.plugin.loaders.file.FileLoader;
 import io.github.regularcommands.commands.CommandManager;
 import io.github.zap.arenaapi.ArenaApi;
 import io.github.zap.arenaapi.LoadFailureException;
-import io.github.zap.arenaapi.game.arena.Arena;
 import io.github.zap.arenaapi.localization.LocalizationManager;
 import io.github.zap.arenaapi.nms.common.ArenaNMSBridge;
 import io.github.zap.arenaapi.playerdata.FilePlayerDataManager;
@@ -23,23 +22,17 @@ import io.github.zap.zombies.command.ZombiesCommand;
 import io.github.zap.zombies.command.mapeditor.ContextManager;
 import io.github.zap.zombies.command.mapeditor.MapeditorCommand;
 import io.github.zap.zombies.game.ZombiesArenaManager;
-import io.github.zap.zombies.game.mob.goal.mythicmobs.WrappedMythicArrowAttack;
-import io.github.zap.zombies.game.mob.goal.mythicmobs.WrappedMythicBreakWindow;
-import io.github.zap.zombies.game.mob.goal.mythicmobs.WrappedMythicOptimizedBowAttack;
-import io.github.zap.zombies.game.mob.goal.mythicmobs.WrappedMythicOptimizedMeleeAttack;
+import io.github.zap.zombies.game.mob.goal.BreakWindowGoal;
+import io.github.zap.zombies.game.mob.goal.MeleeAttackGoal;
+import io.github.zap.zombies.game.mob.goal.ProjectileShootGoal;
+import io.github.zap.zombies.game.mob.goal.StrafeBowShootGoal;
+import io.github.zap.zombies.game.mob.inject.MythicInjector;
 import io.github.zap.zombies.game.mob.mechanic.*;
 import io.github.zap.zombies.game.npc.ZombiesNPC;
 import io.github.zap.zombies.nms.common.ZombiesNMSBridge;
 import io.github.zap.zombies.nms.v1_16_R3.ZombiesNMSBridge_v1_16_R3;
 import io.github.zap.zombies.world.SlimeWorldLoader;
 import io.lumine.xikage.mythicmobs.MythicMobs;
-import io.lumine.xikage.mythicmobs.mobs.ai.PathfinderAdapter;
-import io.lumine.xikage.mythicmobs.skills.SkillManager;
-import io.lumine.xikage.mythicmobs.skills.SkillMechanic;
-import io.lumine.xikage.mythicmobs.util.annotations.MythicAIGoal;
-import io.lumine.xikage.mythicmobs.util.annotations.MythicMechanic;
-import io.lumine.xikage.mythicmobs.volatilecode.handlers.VolatileAIHandler;
-import io.lumine.xikage.mythicmobs.volatilecode.v1_16_R3.VolatileAIHandler_v1_16_R3;
 import lombok.Getter;
 import org.apache.commons.io.FilenameUtils;
 import org.bukkit.Bukkit;
@@ -53,7 +46,6 @@ import org.bukkit.util.Vector;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
@@ -113,6 +105,7 @@ public final class Zombies extends JavaPlugin implements Listener {
     public static final String POWERUPS_FOLDER_NAME = "powerups";
     public static final String PLAYER_DATA_FOLDER_NAME = "playerdata";
 
+    public static final String SPAWN_METADATA_NAME = "spawn_metadata";
     public static final String ARENA_METADATA_NAME = "zombies_arena";
     public static final String SPAWNINFO_WAVE_METADATA_NAME = "spawninfo_wave_metadata";
     public static final String WINDOW_METADATA_NAME = "spawn_window";
@@ -128,10 +121,7 @@ public final class Zombies extends JavaPlugin implements Listener {
             initBridge();
             initDependencies();
             initConfig();
-            initPathfinding(WrappedMythicBreakWindow.class, WrappedMythicOptimizedMeleeAttack.class,
-                    WrappedMythicOptimizedBowAttack.class, WrappedMythicArrowAttack.class);
-            initMechanics(CobwebMechanic.class, SpawnMobMechanic.class, StealCoinsMechanic.class,
-                    SlowFireRateMechanic.class, SummonMountMechanic.class, TeleportBehindTargetMechanic.class);
+            initMythicMobs();
             initPlayerDataManager();
             initLocalization();
             initWorldLoader();
@@ -160,18 +150,21 @@ public final class Zombies extends JavaPlugin implements Listener {
         if (arenaManager != null) {
             DataLoader loader = arenaManager.getMapLoader(); //save map data in case it was edited
 
-            for (File file : loader.getRootDirectory().listFiles()) { //delete map data that shouldn't exist
-                String fileNameWithExtension = file.getName();
+            File[] files = loader.getRootDirectory().listFiles();
+            if(files != null) {
+                for (File file : files) { //delete map data that shouldn't exist
+                    String fileNameWithExtension = file.getName();
 
-                if (fileNameWithExtension.endsWith(arenaManager.getMapLoader().getExtension())) {
-                    String filename = FilenameUtils.getBaseName(fileNameWithExtension);
+                    if (fileNameWithExtension.endsWith(arenaManager.getMapLoader().getExtension())) {
+                        String filename = FilenameUtils.getBaseName(fileNameWithExtension);
 
-                    if (arenaManager.canDelete(filename)) {
-                        try {
-                            Files.delete(file.toPath());
-                            Zombies.info(String.format("Deleted marked map file: '%s'", filename));
-                        } catch (IOException e) {
-                            warning(String.format("Failed to delete map file %s: %s", fileNameWithExtension, e.getMessage()));
+                        if (arenaManager.canDelete(filename)) {
+                            try {
+                                Files.delete(file.toPath());
+                                Zombies.info(String.format("Deleted marked map file: '%s'", filename));
+                            } catch (IOException e) {
+                                warning(String.format("Failed to delete map file %s: %s", fileNameWithExtension, e.getMessage()));
+                            }
                         }
                     }
                 }
@@ -213,6 +206,19 @@ public final class Zombies extends JavaPlugin implements Listener {
         saveConfig();
     }
 
+    private void initMythicMobs() throws LoadFailureException {
+        MythicInjector injector = MythicInjector.forInstance(getLogger(), mythicMobs);
+        if(injector != null) {
+            injector.injectGoals(List.of(BreakWindowGoal.class, MeleeAttackGoal.class,
+                    StrafeBowShootGoal.class, ProjectileShootGoal.class));
+            injector.injectSkills(List.of(CobwebMechanic.class, SpawnMobMechanic.class, StealCoinsMechanic.class,
+                    SlowFireRateMechanic.class, SummonMountMechanic.class, TeleportBehindTargetMechanic.class));
+        }
+        else {
+            throw new LoadFailureException("No MythicInjector found for version " + mythicMobs.getVersion());
+        }
+    }
+
     private void initDependencies() throws LoadFailureException {
         arenaApi = ArenaApi.getDependentPlugin(PluginNames.ARENA_API, true, true);
         SWM = ArenaApi.getDependentPlugin(PluginNames.SLIME_WORLD_MANAGER, true, true);
@@ -220,7 +226,7 @@ public final class Zombies extends JavaPlugin implements Listener {
         fixAswm();
     }
 
-    @SuppressWarnings("UnusedAssignment") //frick you unintelliJ this is necessary
+    @SuppressWarnings({"UnusedAssignment", "unused"}) //frick you unintelliJ this is necessary
     private void fixAswm() {
         Class<?> clazz;
         try {
@@ -246,70 +252,6 @@ public final class Zombies extends JavaPlugin implements Listener {
         clazz = LongArrayTag.class;
         clazz = ShortArrayTag.class;
         clazz = ZstdCompressCtx.class;
-    }
-
-    @SafeVarargs
-    private void initPathfinding(Class<? extends PathfinderAdapter>... customGoals) throws LoadFailureException {
-        VolatileAIHandler handler = mythicMobs.getVolatileCodeHandler().getAIHandler();
-
-        if (handler instanceof VolatileAIHandler_v1_16_R3 target) {
-            try {
-                Field aiGoalsField = VolatileAIHandler_v1_16_R3.class.getDeclaredField("AI_GOALS");
-                aiGoalsField.setAccessible(true);
-
-                @SuppressWarnings("unchecked") Map<String, Class<? extends PathfinderAdapter>> aiGoals =
-                        (Map<String, Class<? extends PathfinderAdapter>>) aiGoalsField.get(target);
-
-                for (Class<? extends PathfinderAdapter> customGoal : customGoals) {
-                    MythicAIGoal mythicAnnotation = customGoal.getAnnotation(MythicAIGoal.class);
-
-                    if (mythicAnnotation != null) {
-                        aiGoals.put(mythicAnnotation.name().toUpperCase(), customGoal);
-
-                        for (String alias : mythicAnnotation.aliases()) {
-                            aiGoals.put(alias.toUpperCase(), customGoal);
-                        }
-
-                        info("Loaded custom AI goal " + customGoal.getName());
-                    } else {
-                        warning("Class " + customGoal.getName() + " should be annotated with @MythicAIGoal!");
-                    }
-                }
-            } catch (NoSuchFieldException | IllegalAccessException | ClassCastException e) {
-                throw new LoadFailureException("Reflection-related exception when initializing pathfinding.");
-            }
-        } else {
-            throw new LoadFailureException("Unsupported version of MythicMobs AIHandler!");
-        }
-    }
-
-    @SafeVarargs
-    private void initMechanics(Class<? extends SkillMechanic>... customMechanics) throws LoadFailureException {
-        try {
-            Field mechanicsField = SkillManager.class.getDeclaredField("MECHANICS");
-            mechanicsField.setAccessible(true);
-
-            @SuppressWarnings("unchecked") Map<String, Class<? extends SkillMechanic>> mechanics =
-                    (Map<String, Class<? extends SkillMechanic>>) mechanicsField.get(null);
-
-            for (Class<? extends SkillMechanic> customMechanic : customMechanics) {
-                MythicMechanic mythicAnnotation = customMechanic.getAnnotation(MythicMechanic.class);
-
-                if (mythicAnnotation != null) {
-                    mechanics.put(mythicAnnotation.name().toUpperCase(), customMechanic);
-
-                    for (String alias : mythicAnnotation.aliases()) {
-                        mechanics.put(alias.toUpperCase(), customMechanic);
-                    }
-
-                    info("Loaded custom MythicMobs mechanic " + customMechanic.getName());
-                } else {
-                    throw new LoadFailureException("Class " + customMechanic.getName() + " should be annotated with @MythicMechanic!");
-                }
-            }
-        } catch (NoSuchFieldException | IllegalAccessException | ClassCastException e) {
-            throw new LoadFailureException("Reflection-related exception when initializing mechanics.");
-        }
     }
 
     private void initWorldLoader() {

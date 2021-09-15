@@ -13,7 +13,7 @@ import io.github.zap.arenaapi.game.SimpleJoinable;
 import io.github.zap.arenaapi.game.arena.ArenaManager;
 import io.github.zap.arenaapi.game.arena.JoinInformation;
 import io.github.zap.party.Party;
-import io.github.zap.party.PartyPlusPlus;
+import io.github.zap.party.plugin.PartyPlugin;
 import io.github.zap.zombies.Zombies;
 import org.bukkit.entity.Player;
 
@@ -45,7 +45,8 @@ public class JoinZombiesGameForm extends CommandForm<Joinable> {
         }
 
         Joinable joinable = null;
-        PartyPlusPlus partyPlusPlus = ArenaApi.getInstance().getPartyPlusPlus();
+
+        PartyPlugin partyPlusPlus = ArenaApi.getInstance().getPartyPlusPlus();
         if (partyPlusPlus != null) {
             Optional<Party> partyOptional = partyPlusPlus.getPartyTracker().getPartyForPlayer(previousData);
             if (partyOptional.isPresent()) {

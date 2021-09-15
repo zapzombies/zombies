@@ -4,7 +4,7 @@ run
 .pat
 *.iml
 .idea/*.xml
-
+gradle.properties
 
 # By .idea - somehow that file not work for me
 /shelf/
