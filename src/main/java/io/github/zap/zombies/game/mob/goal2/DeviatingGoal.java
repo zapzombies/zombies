@@ -18,7 +18,7 @@ public abstract class DeviatingGoal extends PlayerTargetingGoal {
                          @NotNull MythicLineConfig mlc) {
         super(plugin, entity, line, mlc);
         this.targetDeviationSquared = mlc.getDouble("targetDeviationSquared", 0);
-        this.requiresSight = mlc.getBoolean("requiresSight", false);
+        this.requiresSight = mlc.getBoolean("requiresSight", true);
     }
 
 
