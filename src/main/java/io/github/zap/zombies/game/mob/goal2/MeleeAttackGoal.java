@@ -22,8 +22,8 @@ public class MeleeAttackGoal extends DeviatingGoal {
     }
 
     @Override
-    public void start() {
-        super.start();
+    protected void begin() {
+        super.begin();
         this.attackTimer = 0;
     }
 

@@ -32,9 +32,8 @@ public class StrafeBowShootGoal extends RangedGoal {
         return false;
     }
 
-    @Override
-    protected boolean canStart() {
-        if(super.canStart()) {
+    private boolean canBeginInternal() {
+        if(super.canBegin()) {
             return isHoldingBow();
         }
 
@@ -42,12 +41,13 @@ public class StrafeBowShootGoal extends RangedGoal {
     }
 
     @Override
-    protected boolean canStop() {
-        if(!super.canStop()) {
-            return !isHoldingBow();
-        }
+    protected boolean canBegin() {
+        return canBeginInternal();
+    }
 
-        return true;
+    @Override
+    protected boolean canStop() {
+        return !canBeginInternal();
     }
 
     @Override

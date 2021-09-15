@@ -26,8 +26,8 @@ public abstract class RangedGoal extends DeviatingGoal {
     }
 
     @Override
-    public void start() {
-        super.start();
+    protected void begin() {
+        super.begin();
         rangedEntity.setChargingAttack(true);
     }
 

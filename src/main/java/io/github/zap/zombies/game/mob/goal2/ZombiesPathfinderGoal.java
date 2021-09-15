@@ -68,8 +68,7 @@ public abstract class ZombiesPathfinderGoal<T> extends Pathfinder {
         if(bukkitEntity instanceof Mob) {
             mob = (Mob)bukkitEntity;
 
-            //activeMob can be null because of a MythicMobs glitch where 2 pathfindergoals are created per mob...
-            //we can't stop this but since the first always has a null activeMob, it doesn't load and will never start
+            //activeMob can be null because of a MythicMobs glitch where 2 pathfindergoals are created per mob
             if(activeMob != null) {
                 mythicMob = MythicMobs.inst().getAPIHelper().getMythicMob(activeMob.getMobType());
 
@@ -176,17 +175,20 @@ public abstract class ZombiesPathfinderGoal<T> extends Pathfinder {
         }
     }
 
-
-
     @Override
     public final boolean shouldStart() {
         return successfulLoad && loadMetadata() && target == null && arena.runAI() &&
-                (target = acquireTarget()) != null && canStart();
+                (target = acquireTarget()) != null && canBegin();
     }
 
     @Override
     public final boolean shouldEnd() {
         return resetFlag || target == null || !arena.runAI() || canStop();
+    }
+
+    @Override
+    public final void start() {
+        begin();
     }
 
     @Override
@@ -196,9 +198,11 @@ public abstract class ZombiesPathfinderGoal<T> extends Pathfinder {
         resetFlag = false;
     }
 
-    protected abstract boolean canStart();
+    protected abstract boolean canBegin();
 
     protected abstract boolean canStop();
+
+    protected abstract void begin();
 
     protected abstract void stop();
 }

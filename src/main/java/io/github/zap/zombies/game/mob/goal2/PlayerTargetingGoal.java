@@ -82,7 +82,7 @@ public abstract class PlayerTargetingGoal extends ZombiesPathfinderGoal<ZombiesP
     }
 
     @Override
-    protected boolean canStart() {
+    protected boolean canBegin() {
         return canStartInternal();
     }
 
@@ -92,7 +92,7 @@ public abstract class PlayerTargetingGoal extends ZombiesPathfinderGoal<ZombiesP
     }
 
     @Override
-    public void start() {
+    protected void begin() {
         recalculateCounter = 0;
         retargetCounter = 0;
         lastLocation = null;
