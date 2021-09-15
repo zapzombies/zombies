@@ -129,7 +129,8 @@ public abstract class PlayerTargetingGoal extends ZombiesPathfinderGoal<ZombiesP
         else if(currentPath == null || mobNavigator.shouldRecalculate() ||
                 (locationChanged() && ++recalculateCounter >= RECALCULATE_INTERVAL)) {
             calculatePath(getCurrentTarget());
-            recalculateCounter = (int)(Math.random() * (RECALCULATE_INTERVAL / 2));
+            recalculateCounter = (int)(Math.random() * (RECALCULATE_INTERVAL)) -
+                    (currentPath == null ? 0 : currentPath.pathLength() / 2);
         }
     }
 }
