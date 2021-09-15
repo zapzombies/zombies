@@ -24,4 +24,16 @@ public abstract class RangedGoal extends DeviatingGoal {
             throw new IllegalArgumentException("mob must subclass RangedEntity");
         }
     }
+
+    @Override
+    public void start() {
+        super.start();
+        rangedEntity.setChargingAttack(true);
+    }
+
+    @Override
+    protected void stop() {
+        super.stop();
+        rangedEntity.setChargingAttack(false);
+    }
 }

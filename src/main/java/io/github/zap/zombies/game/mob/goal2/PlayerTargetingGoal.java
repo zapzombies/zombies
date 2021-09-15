@@ -39,13 +39,25 @@ public abstract class PlayerTargetingGoal extends ZombiesPathfinderGoal<ZombiesP
     }
 
     private boolean locationChanged() {
-        ZombiesPlayer target = getTarget();
+        ZombiesPlayer target = getCurrentTarget();
         Player bukkitPlayer = target.getPlayer();
-        if(bukkitPlayer != null) {
-            return Vectors.equals(lastLocation, Vectors.asIntFloor(Vectors.of(bukkitPlayer.getLocation())));
+        if(bukkitPlayer != null && lastLocation != null) {
+            return !Vectors.equals(lastLocation, Vectors.asIntFloor(Vectors.of(bukkitPlayer.getLocation())));
         }
 
         return true;
+    }
+
+    private boolean canStartInternal() {
+        ZombiesPlayer target = getCurrentTarget();
+        Player bukkitPlayer = target.getPlayer();
+        if(bukkitPlayer != null) {
+            GameMode gameMode = bukkitPlayer.getGameMode();
+            return target.isInGame() && target.isAlive() &&
+                    (gameMode == GameMode.ADVENTURE || gameMode == GameMode.SURVIVAL);
+        }
+
+        return false;
     }
 
     protected abstract @NotNull PathOperation makeOperation(@NotNull ZombiesPlayer zombiesPlayer, @NotNull Player target);
@@ -71,28 +83,12 @@ public abstract class PlayerTargetingGoal extends ZombiesPathfinderGoal<ZombiesP
 
     @Override
     protected boolean canStart() {
-        ZombiesPlayer target = getTarget();
-        Player bukkitPlayer = target.getPlayer();
-        if(bukkitPlayer != null) {
-            GameMode gameMode = bukkitPlayer.getGameMode();
-            return target.isInGame() && target.isAlive() &&
-                    (gameMode == GameMode.ADVENTURE || gameMode == GameMode.SURVIVAL);
-        }
-
-        return false;
+        return canStartInternal();
     }
 
     @Override
     protected boolean canStop() {
-        ZombiesPlayer target = getTarget();
-        Player bukkitPlayer = target.getPlayer();
-        if(bukkitPlayer != null) {
-            GameMode gameMode = bukkitPlayer.getGameMode();
-            return !target.isInGame() || !target.isAlive() ||
-                    gameMode == GameMode.CREATIVE || gameMode == GameMode.SPECTATOR;
-        }
-
-        return true;
+        return !canStartInternal();
     }
 
     @Override
@@ -101,14 +97,15 @@ public abstract class PlayerTargetingGoal extends ZombiesPathfinderGoal<ZombiesP
         retargetCounter = 0;
         lastLocation = null;
         zombiesNMS.entityBridge().setAggressive(mob, true);
-        mob.setTarget(getTarget().getPlayer());
-        calculatePath(getTarget());
+        mob.setTarget(getCurrentTarget().getPlayer());
+        calculatePath(getCurrentTarget());
     }
 
     @Override
     protected void stop() {
         zombiesNMS.entityBridge().setAggressive(mob, false);
         mob.setTarget(null);
+        mob.setAware(true);
     }
 
     @Override
@@ -120,12 +117,12 @@ public abstract class PlayerTargetingGoal extends ZombiesPathfinderGoal<ZombiesP
 
         PathEntityWrapper currentPath = mobNavigator.currentPath();
         if(++retargetCounter >= retargetInterval) {
-            reset();
+            retarget();
             retargetCounter = 0;
         }
         else if(currentPath == null || mobNavigator.shouldRecalculate() ||
                 (locationChanged() && ++recalculateCounter >= RECALCULATE_INTERVAL)) {
-            calculatePath(getTarget());
+            calculatePath(getCurrentTarget());
             recalculateCounter = (int)(Math.random() * (RECALCULATE_INTERVAL / 2));
         }
     }

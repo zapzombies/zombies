@@ -22,7 +22,6 @@ public class ProjectileShootGoal extends RangedGoal {
     @Override
     protected void stop() {
         super.stop();
-
         updateCountdownCounter = -1;
     }
 
@@ -30,7 +29,7 @@ public class ProjectileShootGoal extends RangedGoal {
     public void tick() {
         super.tick();
 
-        Player targetPlayer = getTarget().getPlayer();
+        Player targetPlayer = getCurrentTarget().getPlayer();
         if(targetPlayer != null) {
             double distanceSquared = rangedEntity.getLocation().distanceSquared(targetPlayer.getLocation());
             rangedEntity.lookAt(targetPlayer);

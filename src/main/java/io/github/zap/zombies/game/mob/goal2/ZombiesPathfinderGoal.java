@@ -144,7 +144,9 @@ public abstract class ZombiesPathfinderGoal<T> extends Pathfinder {
         return metadataLoaded;
     }
 
-    public abstract @Nullable T acquireTarget();
+    protected abstract @Nullable T acquireTarget();
+
+    protected void onTargetChange(@Nullable T newTarget) {}
 
     public ZombiesArena getArena() {
         return arena;
@@ -154,18 +156,32 @@ public abstract class ZombiesPathfinderGoal<T> extends Pathfinder {
         return window;
     }
 
-    public T getTarget() {
+    public T getCurrentTarget() {
         return target;
     }
 
-    protected void reset() {
+    public void reset() {
         resetFlag = true;
     }
 
+    public void retarget() {
+        T target = acquireTarget();
+        onTargetChange(target);
+
+        if(target == null) {
+            reset();
+        }
+        else {
+            this.target = target;
+        }
+    }
+
+
+
     @Override
     public final boolean shouldStart() {
-        return successfulLoad && loadMetadata() && target == null && arena.runAI() && (target = acquireTarget()) != null
-                && canStart();
+        return successfulLoad && loadMetadata() && target == null && arena.runAI() &&
+                (target = acquireTarget()) != null && canStart();
     }
 
     @Override

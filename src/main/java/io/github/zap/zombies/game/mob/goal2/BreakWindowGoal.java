@@ -35,7 +35,7 @@ public class BreakWindowGoal extends ZombiesPathfinderGoal<Vector3D> {
     }
 
     private void pathToWindow() {
-        Vector3D target = getTarget();
+        Vector3D target = getCurrentTarget();
 
         if(target != null) {
             pathHandler.giveOperation(new PathOperationBuilder()
@@ -64,7 +64,7 @@ public class BreakWindowGoal extends ZombiesPathfinderGoal<Vector3D> {
 
     @Override
     protected boolean canStop() {
-        Vector3D target = getTarget();
+        Vector3D target = getCurrentTarget();
         return target == null || Vectors.distanceSquared(Vectors.of(mob.getLocation()), target) <= 1.5;
     }
 

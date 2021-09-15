@@ -31,7 +31,7 @@ public class MeleeAttackGoal extends DeviatingGoal {
     public void tick() {
         super.tick();
 
-        Player targetPlayer = getTarget().getPlayer();
+        Player targetPlayer = getCurrentTarget().getPlayer();
         if(targetPlayer != null) {
             attackTimer--;
             tryAttack(targetPlayer);

@@ -6,7 +6,7 @@ import io.lumine.xikage.mythicmobs.io.MythicLineConfig;
 import io.lumine.xikage.mythicmobs.util.annotations.MythicAIGoal;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.EntityEquipment;
 import org.jetbrains.annotations.NotNull;
 
 @MythicAIGoal(name = "zombiesStrafeBowShoot")
@@ -23,20 +23,19 @@ public class StrafeBowShootGoal extends RangedGoal {
         super(Zombies.getInstance(), entity, line, mlc);
     }
 
-    @Override
-    protected void stop() {
-        super.stop();
+    private boolean isHoldingBow() {
+        EntityEquipment equipment = rangedEntity.getEquipment();
+        if(equipment != null) {
+            return equipment.getItemInMainHand().getType() == Material.BOW;
+        }
 
-        this.sightCounter = 0;
-        this.attackCounter = -1;
-        mob.clearActiveItem();
+        return false;
     }
 
     @Override
     protected boolean canStart() {
-        ItemStack activeItem = rangedEntity.getActiveItem();
-        if(activeItem != null) {
-            return super.canStart() && activeItem.getType() == Material.BOW;
+        if(super.canStart()) {
+            return isHoldingBow();
         }
 
         return false;
@@ -44,19 +43,27 @@ public class StrafeBowShootGoal extends RangedGoal {
 
     @Override
     protected boolean canStop() {
-        ItemStack activeItem = rangedEntity.getActiveItem();
-        if(activeItem != null) {
-            return super.canStop() || activeItem.getType() == Material.BOW;
+        if(!super.canStop()) {
+            return !isHoldingBow();
         }
 
-        return false;
+        return true;
+    }
+
+    @Override
+    protected void stop() {
+        super.stop();
+
+        this.sightCounter = 0;
+        this.attackCounter = -1;
+        rangedEntity.clearActiveItem();
     }
 
     @Override
     public void tick() {
         super.tick();
 
-        Player targetPlayer = getTarget().getPlayer();
+        Player targetPlayer = getCurrentTarget().getPlayer();
         if(targetPlayer != null) {
             double distanceSquared = rangedEntity.getLocation().distanceSquared(targetPlayer.getLocation());
             boolean hasSight = rangedEntity.hasLineOfSight(targetPlayer);
