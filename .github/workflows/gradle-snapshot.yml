@@ -30,7 +30,7 @@ jobs:
       - name: Set SNAPSHOT version from latest release
         run: |
           echo "Fetching version information..."
-          tag=$(curl --silent "https://api.github.com/repos/${{ github.event.repository.full_name }}/releases/latest" | grep -Po '"tag_name": "\K.*?(?=")')
+          tag=$(curl --silent -u=${USERNAME}:${TOKEN} "https://api.github.com/repos/${{ github.event.repository.full_name }}/releases/latest" | grep -Po '"tag_name": "\K.*?(?=")')
           echo "BASE_VERSION=${tag/v/}" >> $GITHUB_ENV
           ts=$(date +%s)
           echo "VERSION=${tag/v/}-SNAPSHOT-${ts}" >> $GITHUB_ENV
