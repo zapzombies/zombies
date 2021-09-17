@@ -236,18 +236,21 @@ public class ZombiesNPC implements Listener {
 
                     MapData mapData = mapDataList.get(index);
 
-                    ItemStack mapDataItemStackRepresentation = new ItemStack(mapData.getItemStackMaterial());
-                    mapDataItemStackRepresentation.setLore(mapData.getItemStackLore());
+                    Material mapStack = mapData.getItemStackMaterial();
+                    if(mapStack != null) {
+                        ItemStack mapDataItemStackRepresentation = new ItemStack(mapStack);
+                        mapDataItemStackRepresentation.setLore(mapData.getItemStackLore());
 
-                    ItemMeta itemMeta = mapDataItemStackRepresentation.getItemMeta();
-                    itemMeta.displayName(Component.text(mapData.getItemStackDisplayName()));
+                        ItemMeta itemMeta = mapDataItemStackRepresentation.getItemMeta();
+                        itemMeta.displayName(Component.text(mapData.getItemStackDisplayName()));
 
-                    mapDataItemStackRepresentation.setItemMeta(itemMeta);
+                        mapDataItemStackRepresentation.setItemMeta(itemMeta);
 
-                    mapInventory.setItem(pos, mapDataItemStackRepresentation);
+                        mapInventory.setItem(pos, mapDataItemStackRepresentation);
 
-                    mapNameMap.put(pos, mapData.getName());
-                    index++;
+                        mapNameMap.put(pos, mapData.getName());
+                        index++;
+                    }
                 }
             }
         } else {
@@ -365,17 +368,23 @@ public class ZombiesNPC implements Listener {
                     for (Map.Entry<UUID, ZombiesArena> arena : arenas) {
                         MapData map = arena.getValue().getMap();
 
-                        ItemStack itemStack = new ItemStack(map.getItemStackMaterial());
+                        Material mapStack = map.getItemStackMaterial();
+                        String mapDisplayName = map.getMapDisplayName();
+                        List<String> mapLore = map.getItemStackLore();
 
-                        ItemMeta itemMeta = itemStack.getItemMeta();
-                        itemMeta.displayName(Component.text(map.getItemStackDisplayName()));
+                        if(mapStack != null && mapDisplayName != null && mapLore != null) {
+                            ItemStack itemStack = new ItemStack(mapStack);
 
-                        List<String> lore = new ArrayList<>(map.getItemStackLore());
-                        lore.add(arena.getKey().toString());
-                        itemMeta.setLore(lore);
-                        itemStack.setItemMeta(itemMeta);
+                            ItemMeta itemMeta = itemStack.getItemMeta();
+                            itemMeta.displayName(Component.text(mapDisplayName));
 
-                        itemStacks[counter++] = itemStack;
+                            List<String> lore = new ArrayList<>(mapLore);
+                            lore.add(arena.getKey().toString());
+                            itemMeta.setLore(lore);
+                            itemStack.setItemMeta(itemMeta);
+
+                            itemStacks[counter++] = itemStack;
+                        }
                     }
 
                     for (int i = 0; i < itemStacks.length; i++) { // TODO: size check
