@@ -165,20 +165,22 @@ public abstract class ZombiesPathfinderGoal<T> extends Pathfinder {
 
     public void retarget() {
         T target = acquireTarget();
-        onTargetChange(target);
 
-        if(target == null) {
-            reset();
-        }
-        else {
-            this.target = target;
+        if(target != this.target) {
+            onTargetChange(target);
+
+            if(target == null) {
+                reset();
+            }
+            else {
+                this.target = target;
+            }
         }
     }
 
     @Override
     public final boolean shouldStart() {
-        return successfulLoad && loadMetadata() && target == null && arena.runAI() &&
-                (target = acquireTarget()) != null && canBegin();
+        return successfulLoad && loadMetadata() && arena.runAI() && (target = acquireTarget()) != null && canBegin();
     }
 
     @Override
