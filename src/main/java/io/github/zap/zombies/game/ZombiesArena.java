@@ -401,7 +401,7 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
                             EntityDamageEvent.DamageCause.CUSTOM, damage));
                 }
             } else {
-                mob.damage(damage, damager);
+                mob.damage(damage, null);
             }
 
             mob.playEffect(EntityEffect.HURT);
@@ -897,24 +897,27 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
 
     private void onEntityDamageByEntity(ProxyArgs<EntityDamageByEntityEvent> args) {
         EntityDamageByEntityEvent event = args.getEvent();
-        Entity entity = event.getEntity(), damager = event.getDamager();
-        ZombiesPlayer damagingPlayer = getPlayerMap().get(damager.getUniqueId());
 
-        if (damagingPlayer != null && entity instanceof Mob mob) {
-            if(!damagingPlayer.isAlive()) {
-                event.setCancelled(true);
-            } else if (getEntitySet().contains(mob.getUniqueId())) {
-                HotbarManager hotbarManager = damagingPlayer.getHotbarManager();
-                HotbarObject hotbarObject = hotbarManager.getSelectedObject();
+        if(event.getCause() != EntityDamageEvent.DamageCause.CUSTOM) {
+            Entity entity = event.getEntity(), damager = event.getDamager();
+            ZombiesPlayer damagingPlayer = getPlayerMap().get(damager.getUniqueId());
 
-                if (hotbarObject instanceof MeleeWeapon<?, ?> meleeWeapon) {
-                    if (meleeWeapon.isUsable() &&
-                            (event.getCause() != EntityDamageEvent.DamageCause.ENTITY_SWEEP_ATTACK
-                                    || meleeWeapon.getCurrentLevel().isShouldSweep())) {
-                        event.setDamage(0D);
-                        meleeWeapon.attack(mob);
-                    } else {
-                        event.setCancelled(true);
+            if (damagingPlayer != null && entity instanceof Mob mob) {
+                if(!damagingPlayer.isAlive()) {
+                    event.setCancelled(true);
+                } else if (getEntitySet().contains(mob.getUniqueId())) {
+                    HotbarManager hotbarManager = damagingPlayer.getHotbarManager();
+                    HotbarObject hotbarObject = hotbarManager.getSelectedObject();
+
+                    if (hotbarObject instanceof MeleeWeapon<?, ?> meleeWeapon) {
+                        if (meleeWeapon.isUsable() &&
+                                (event.getCause() != EntityDamageEvent.DamageCause.ENTITY_SWEEP_ATTACK
+                                        || meleeWeapon.getCurrentLevel().isShouldSweep())) {
+                            event.setDamage(0D);
+                            meleeWeapon.attack(mob);
+                        } else {
+                            event.setCancelled(true);
+                        }
                     }
                 }
             }
