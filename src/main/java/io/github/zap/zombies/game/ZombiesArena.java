@@ -162,26 +162,24 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
 
         @Override
         public ActiveMob spawnMobAt(@NotNull String mobType, @NotNull Vector vector, boolean updateCount) {
-            ActiveMob spawned = spawnMob(mobType, vector);
+            RoomData roomIn = map.roomAt(vector);
+            if(roomIn != null) {
+                for(WindowData windowData : roomIn.getWindows()) {
+                    if(windowData.vectorInside(vector)) {
+                        ActiveMob spawned = spawnMob(mobType, vector, windowData);
 
-            if(spawned != null) {
-                if(updateCount) {
-                    zombiesLeft++;
-                }
+                        if(spawned != null) {
+                            if(updateCount) {
+                                zombiesLeft++;
+                            }
 
-                RoomData roomIn = map.roomAt(vector);
-                if(roomIn != null) {
-                    for(WindowData windowData : roomIn.getWindows()) {
-                        if(windowData.vectorInside(vector)) {
-                            MetadataHelper.setFixedMetadata(spawned.getEntity().getBukkitEntity(), Zombies.getInstance(),
-                                    Zombies.SPAWN_METADATA_NAME, new SpawnMetadata(ZombiesArena.this, windowData));
-                            break;
+                            return spawned;
                         }
                     }
                 }
             }
 
-            return spawned;
+            return spawnMob(mobType, vector, null);
         }
 
         @Override
@@ -209,12 +207,10 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
                     int startAmt = amt;
                     for(SpawnContext context : spawns) {
                         if(method == SpawnMethod.IGNORE_SPAWNRULE || context.spawnpoint.canSpawn(spawnEntryData.getMobName(), map)) {
-                            ActiveMob mob = spawnMob(spawnEntryData.getMobName(), context.spawnpoint.getSpawn());
+                            ActiveMob mob = spawnMob(spawnEntryData.getMobName(), context.spawnpoint.getSpawn(), context.window);
 
                             if(mob != null) {
                                 spawnedEntities.add(mob);
-                                MetadataHelper.setFixedMetadata(mob.getEntity().getBukkitEntity(), Zombies.getInstance(),
-                                        Zombies.SPAWN_METADATA_NAME, new SpawnMetadata(ZombiesArena.this, context.window));
 
                                 if(updateCount) {
                                     zombiesLeft++;
@@ -250,7 +246,7 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
             return spawnedEntities;
         }
 
-        private ActiveMob spawnMob(String mobName, Vector blockPosition) {
+        private ActiveMob spawnMob(String mobName, Vector blockPosition, WindowData windowData) {
             MythicMob mob = MythicMobs.inst().getMobManager().getMythicMob(mobName);
 
             if(mob != null) {
@@ -260,7 +256,7 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
                 if(activeMob != null) {
                     getEntitySet().add(activeMob.getUniqueId());
                     MetadataHelper.setFixedMetadata(activeMob.getEntity().getBukkitEntity(), Zombies.getInstance(),
-                            Zombies.SPAWN_METADATA_NAME, new SpawnMetadata(ZombiesArena.this, null));
+                            Zombies.SPAWN_METADATA_NAME, new SpawnMetadata(ZombiesArena.this, windowData));
 
                     return activeMob;
                 }

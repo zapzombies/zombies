@@ -237,20 +237,18 @@ public class ZombiesNPC implements Listener {
                     MapData mapData = mapDataList.get(index);
 
                     Material mapStack = mapData.getItemStackMaterial();
-                    if(mapStack != null) {
-                        ItemStack mapDataItemStackRepresentation = new ItemStack(mapStack);
-                        mapDataItemStackRepresentation.setLore(mapData.getItemStackLore());
+                    ItemStack mapDataItemStackRepresentation = new ItemStack(mapStack);
+                    mapDataItemStackRepresentation.setLore(mapData.getItemStackLore());
 
-                        ItemMeta itemMeta = mapDataItemStackRepresentation.getItemMeta();
-                        itemMeta.displayName(Component.text(mapData.getItemStackDisplayName()));
+                    ItemMeta itemMeta = mapDataItemStackRepresentation.getItemMeta();
+                    itemMeta.displayName(Component.text(mapData.getItemStackDisplayName()));
 
-                        mapDataItemStackRepresentation.setItemMeta(itemMeta);
+                    mapDataItemStackRepresentation.setItemMeta(itemMeta);
 
-                        mapInventory.setItem(pos, mapDataItemStackRepresentation);
+                    mapInventory.setItem(pos, mapDataItemStackRepresentation);
 
-                        mapNameMap.put(pos, mapData.getName());
-                        index++;
-                    }
+                    mapNameMap.put(pos, mapData.getName());
+                    index++;
                 }
             }
         } else {
@@ -331,17 +329,16 @@ public class ZombiesNPC implements Listener {
                     ArenaApi arenaApi = Zombies.getInstance().getArenaApi();
                     Joinable joinable = null;
                     PartyPlugin partyPlusPlus = ArenaApi.getInstance().getPartyPlusPlus();
-                    if (partyPlusPlus != null) {
-                        Optional<Party> partyOptional = partyPlusPlus.getPartyTracker().getPartyForPlayer(player);
-                        if (partyOptional.isPresent()) {
-                            if (!partyOptional.get().isOwner(player)) {
-                                player.sendMessage(Component.text("You are not the owner of the party!",
-                                        NamedTextColor.RED));
-                                return;
-                            }
-                            joinable = new SimpleJoinable(partyOptional.get().getOnlinePlayers());
+                    Optional<Party> partyOptional = partyPlusPlus.getPartyTracker().getPartyForPlayer(player);
+                    if (partyOptional.isPresent()) {
+                        if (!partyOptional.get().isOwner(player)) {
+                            player.sendMessage(Component.text("You are not the owner of the party!",
+                                    NamedTextColor.RED));
+                            return;
                         }
+                        joinable = new SimpleJoinable(partyOptional.get().getOnlinePlayers());
                     }
+
                     if (joinable == null) {
                         joinable = new SimpleJoinable(Collections.singletonList(player));
                     }
@@ -372,19 +369,17 @@ public class ZombiesNPC implements Listener {
                         String mapDisplayName = map.getMapDisplayName();
                         List<String> mapLore = map.getItemStackLore();
 
-                        if(mapStack != null && mapDisplayName != null && mapLore != null) {
-                            ItemStack itemStack = new ItemStack(mapStack);
+                        ItemStack itemStack = new ItemStack(mapStack);
 
-                            ItemMeta itemMeta = itemStack.getItemMeta();
-                            itemMeta.displayName(Component.text(mapDisplayName));
+                        ItemMeta itemMeta = itemStack.getItemMeta();
+                        itemMeta.displayName(Component.text(mapDisplayName));
 
-                            List<String> lore = new ArrayList<>(mapLore);
-                            lore.add(arena.getKey().toString());
-                            itemMeta.setLore(lore);
-                            itemStack.setItemMeta(itemMeta);
+                        List<String> lore = new ArrayList<>(mapLore);
+                        lore.add(arena.getKey().toString());
+                        itemMeta.setLore(lore);
+                        itemStack.setItemMeta(itemMeta);
 
-                            itemStacks[counter++] = itemStack;
-                        }
+                        itemStacks[counter++] = itemStack;
                     }
 
                     for (int i = 0; i < itemStacks.length; i++) { // TODO: size check

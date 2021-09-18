@@ -15,7 +15,7 @@ import java.util.Optional;
 public abstract class ZombiesArenaSkill extends SkillMechanic implements INoTargetSkill {
     public ZombiesArenaSkill(String skill, MythicLineConfig mlc) {
         super(skill, mlc);
-        setAsyncSafe(false);
+        super.setAsyncSafe(false);
     }
 
     @Override
