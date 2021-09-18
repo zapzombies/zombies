@@ -341,7 +341,12 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
                     mobKbFactor = activeMob.get().getType().getConfig().getDouble("KnockbackFactor", 1);
                 }
 
-                double deltaHealth = inflictDamage(target, with.damageAmount(damager, target), with.ignoresArmor(damager, target));
+                Player player = null;
+                if(damager instanceof ZombiesPlayer zp) {
+                    player = zp.getPlayer();
+                }
+
+                double deltaHealth = inflictDamage(player, target, with.damageAmount(damager, target), with.ignoresArmor(damager, target));
                 Vector resultingVelocity = target.getVelocity().add(with.directionVector(damager, target)
                         .multiply(with.knockbackFactor(damager, target)).multiply(mobKbFactor));
 
@@ -357,7 +362,7 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
             }
         }
 
-        private double inflictDamage(Mob mob, double damage, boolean ignoreArmor) {
+        private double inflictDamage(Entity damager, Damageable mob, double damage, boolean ignoreArmor) {
             boolean instaKill = false;
 
             for(PowerUp powerup : getPowerUps()) {
@@ -381,11 +386,22 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
             }
 
             if(instaKill && !resistInstakill) {
+                double health = mob.getHealth();
                 mob.setHealth(0);
+
+                if(damager != null) {
+                    Bukkit.getPluginManager().callEvent(new EntityDamageByEntityEvent(damager, mob,
+                            EntityDamageEvent.DamageCause.CUSTOM, health));
+                }
             } else if(ignoreArmor) {
                 mob.setHealth(Math.max(mob.getHealth() - damage, 0D));
+
+                if(damager != null) {
+                    Bukkit.getPluginManager().callEvent(new EntityDamageByEntityEvent(damager, mob,
+                            EntityDamageEvent.DamageCause.CUSTOM, damage));
+                }
             } else {
-                mob.damage(damage);
+                mob.damage(damage, damager);
             }
 
             mob.playEffect(EntityEffect.HURT);
