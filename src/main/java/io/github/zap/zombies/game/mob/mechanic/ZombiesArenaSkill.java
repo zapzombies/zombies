@@ -1,6 +1,7 @@
 package io.github.zap.zombies.game.mob.mechanic;
 
 import io.github.zap.arenaapi.util.MetadataHelper;
+import io.github.zap.zombies.SpawnMetadata;
 import io.github.zap.zombies.Zombies;
 import io.github.zap.zombies.game.ZombiesArena;
 import io.lumine.xikage.mythicmobs.io.MythicLineConfig;
@@ -15,19 +16,23 @@ import java.util.Optional;
 public abstract class ZombiesArenaSkill extends SkillMechanic implements INoTargetSkill {
     public ZombiesArenaSkill(String skill, MythicLineConfig mlc) {
         super(skill, mlc);
-        setAsyncSafe(false);
+        super.setAsyncSafe(false);
     }
 
     @Override
     public boolean cast(SkillMetadata skillMetadata) {
        Optional<MetadataValue> metadataOptional = MetadataHelper.getMetadataValue(skillMetadata.getCaster().getEntity()
-               .getBukkitEntity(), Zombies.getInstance(), Zombies.ARENA_METADATA_NAME);
+               .getBukkitEntity(), Zombies.getInstance(), Zombies.SPAWN_METADATA_NAME);
 
         if(metadataOptional.isPresent()) {
-            ZombiesArena arena = (ZombiesArena)metadataOptional.get().value();
+            SpawnMetadata metadata = (SpawnMetadata)metadataOptional.get().value();
 
-            if(arena != null) {
-                return cast(skillMetadata, arena);
+            if(metadata != null) {
+                ZombiesArena arena = metadata.arena();
+
+                if(arena.runAI()) {
+                    return cast(skillMetadata, arena);
+                }
             }
         }
 

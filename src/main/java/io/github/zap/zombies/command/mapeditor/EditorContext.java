@@ -57,7 +57,7 @@ public class EditorContext implements Disposable {
     private static final Shader WINDOW_BOUNDS_SHADER = new SolidShader(Particle.REDSTONE, 1,
             new Particle.DustOptions(Color.PURPLE, 2));
 
-    private static final Shader SPAWNPOINT_SHADER = new SolidShader(Particle.REDSTONE, 3,
+    private static final Shader SPAWNPOINT_SHADER = new SolidShader(Particle.REDSTONE, 1,
             new Particle.DustOptions(Color.YELLOW, 1));
 
     private static final Shader DOOR_SHADER = new SolidShader(Particle.REDSTONE, 1,
@@ -139,7 +139,7 @@ public class EditorContext implements Disposable {
 
                 for(RoomData room : map.getRooms()) {
                     for(WindowData window : room.getWindows()) {
-                        vectorProviders.add(new RectangularPrism(window.getFaceBounds(), 2));
+                        vectorProviders.add(new RectangularPrism(window.getFaceBounds(), 1));
                     }
                 }
 
@@ -192,7 +192,7 @@ public class EditorContext implements Disposable {
                         Vector spawn = spawnpoint.getSpawn();
 
                         if(spawn != null) {
-                            vectorProviders.add(new RectangularPrism(BoundingBox.of(spawn, spawn.clone().add(UNIT)), 3));
+                            vectorProviders.add(new RectangularPrism(BoundingBox.of(spawn, spawn.clone().add(UNIT)), 2));
                         }
                     }
 
@@ -201,7 +201,7 @@ public class EditorContext implements Disposable {
                             Vector spawn = spawnpoint.getSpawn();
 
                             if(spawn != null) {
-                                vectorProviders.add(new RectangularPrism(BoundingBox.of(spawn, spawn.clone().add(UNIT)), 3));
+                                vectorProviders.add(new RectangularPrism(BoundingBox.of(spawn, spawn.clone().add(UNIT)), 2));
                             }
                         }
                     }
@@ -227,7 +227,7 @@ public class EditorContext implements Disposable {
 
                 for(DoorData door : map.getDoors()) {
                     for(BoundingBox bounds : door.getDoorBounds()) {
-                        vectorProviders.add(new RectangularPrism(bounds, 2));
+                        vectorProviders.add(new RectangularPrism(bounds, 1));
                     }
                 }
 
@@ -251,7 +251,7 @@ public class EditorContext implements Disposable {
 
                 for(DoorData door : map.getDoors()) {
                     for(DoorSide side : door.getDoorSides()) {
-                        vectorProviders.add(new RectangularPrism(side.getTriggerBounds(), 2));
+                        vectorProviders.add(new RectangularPrism(side.getTriggerBounds(), 1));
                     }
                 }
 

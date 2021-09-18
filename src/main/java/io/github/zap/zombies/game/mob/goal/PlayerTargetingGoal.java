@@ -9,6 +9,7 @@ import io.github.zap.zombies.game.player.ZombiesPlayer;
 import io.lumine.xikage.mythicmobs.adapters.AbstractEntity;
 import io.lumine.xikage.mythicmobs.io.MythicLineConfig;
 import org.bukkit.GameMode;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
@@ -16,6 +17,7 @@ import org.jetbrains.annotations.Nullable;
 
 public abstract class PlayerTargetingGoal extends ZombiesPathfinderGoal<ZombiesPlayer> {
     private static final int RECALCULATE_INTERVAL = 10;
+    private static final int HALF_INTERVAL = RECALCULATE_INTERVAL / 2;
 
     private final int retargetInterval;
 
@@ -69,11 +71,16 @@ public abstract class PlayerTargetingGoal extends ZombiesPathfinderGoal<ZombiesP
         for(ZombiesPlayer player : getArena().getPlayerMap().values()) {
             Player bukkitPlayer = player.getPlayer();
             if(player.isAlive() && player.isInGame() && bukkitPlayer != null) {
-                double distance = mob.getLocation().distanceSquared(bukkitPlayer.getLocation());
+                Location mobLocation = mob.getLocation();
+                Location playerLocation = bukkitPlayer.getLocation();
 
-                if(distance < closestDistance) {
-                    closestDistance = distance;
-                    closest = player;
+                if(mobLocation.getWorld() == playerLocation.getWorld()) {
+                    double distance = mobLocation.distanceSquared(playerLocation);
+
+                    if(distance < closestDistance) {
+                        closestDistance = distance;
+                        closest = player;
+                    }
                 }
             }
         }
@@ -120,10 +127,12 @@ public abstract class PlayerTargetingGoal extends ZombiesPathfinderGoal<ZombiesP
             retarget();
             retargetCounter = 0;
         }
-        else if(currentPath == null || mobNavigator.shouldRecalculate() ||
+        else if(currentPath == null || mobNavigator.isIdle() ||
                 (locationChanged() && ++recalculateCounter >= RECALCULATE_INTERVAL)) {
             calculatePath(getCurrentTarget());
-            recalculateCounter = (int)(Math.random() * (RECALCULATE_INTERVAL / 2));
+
+            recalculateCounter = (int)(Math.random() * HALF_INTERVAL) -
+                    (currentPath == null ? 0 : currentPath.pathLength() / 4);
         }
     }
 }

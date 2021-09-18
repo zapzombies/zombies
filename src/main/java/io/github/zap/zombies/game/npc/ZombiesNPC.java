@@ -236,7 +236,8 @@ public class ZombiesNPC implements Listener {
 
                     MapData mapData = mapDataList.get(index);
 
-                    ItemStack mapDataItemStackRepresentation = new ItemStack(mapData.getItemStackMaterial());
+                    Material mapStack = mapData.getItemStackMaterial();
+                    ItemStack mapDataItemStackRepresentation = new ItemStack(mapStack);
                     mapDataItemStackRepresentation.setLore(mapData.getItemStackLore());
 
                     ItemMeta itemMeta = mapDataItemStackRepresentation.getItemMeta();
@@ -328,17 +329,16 @@ public class ZombiesNPC implements Listener {
                     ArenaApi arenaApi = Zombies.getInstance().getArenaApi();
                     Joinable joinable = null;
                     PartyPlugin partyPlusPlus = ArenaApi.getInstance().getPartyPlusPlus();
-                    if (partyPlusPlus != null) {
-                        Optional<Party> partyOptional = partyPlusPlus.getPartyTracker().getPartyForPlayer(player);
-                        if (partyOptional.isPresent()) {
-                            if (!partyOptional.get().isOwner(player)) {
-                                player.sendMessage(Component.text("You are not the owner of the party!",
-                                        NamedTextColor.RED));
-                                return;
-                            }
-                            joinable = new SimpleJoinable(partyOptional.get().getOnlinePlayers());
+                    Optional<Party> partyOptional = partyPlusPlus.getPartyTracker().getPartyForPlayer(player);
+                    if (partyOptional.isPresent()) {
+                        if (!partyOptional.get().isOwner(player)) {
+                            player.sendMessage(Component.text("You are not the owner of the party!",
+                                    NamedTextColor.RED));
+                            return;
                         }
+                        joinable = new SimpleJoinable(partyOptional.get().getOnlinePlayers());
                     }
+
                     if (joinable == null) {
                         joinable = new SimpleJoinable(Collections.singletonList(player));
                     }
@@ -365,12 +365,16 @@ public class ZombiesNPC implements Listener {
                     for (Map.Entry<UUID, ZombiesArena> arena : arenas) {
                         MapData map = arena.getValue().getMap();
 
-                        ItemStack itemStack = new ItemStack(map.getItemStackMaterial());
+                        Material mapStack = map.getItemStackMaterial();
+                        String mapDisplayName = map.getMapDisplayName();
+                        List<String> mapLore = map.getItemStackLore();
+
+                        ItemStack itemStack = new ItemStack(mapStack);
 
                         ItemMeta itemMeta = itemStack.getItemMeta();
-                        itemMeta.displayName(Component.text(map.getItemStackDisplayName()));
+                        itemMeta.displayName(Component.text(mapDisplayName));
 
-                        List<String> lore = new ArrayList<>(map.getItemStackLore());
+                        List<String> lore = new ArrayList<>(mapLore);
                         lore.add(arena.getKey().toString());
                         itemMeta.setLore(lore);
                         itemStack.setItemMeta(itemMeta);

@@ -63,7 +63,7 @@ public class BreakWindowGoal extends ZombiesPathfinderGoal<Vector3D> {
     @Override
     protected boolean canStop() {
         Vector3D target = getCurrentTarget();
-        return target == null || Vectors.distanceSquared(Vectors.of(mob.getLocation()), target) <= 1.5;
+        return Vectors.distanceSquared(Vectors.of(mob.getLocation()), target) <= 1.5;
     }
 
     @Override
