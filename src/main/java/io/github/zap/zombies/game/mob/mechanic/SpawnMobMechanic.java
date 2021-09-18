@@ -1,17 +1,19 @@
 package io.github.zap.zombies.game.mob.mechanic;
 
 import com.destroystokyo.paper.event.entity.EntityRemoveFromWorldEvent;
-import com.google.common.collect.ImmutableList;
 import io.github.zap.arenaapi.util.MetadataHelper;
 import io.github.zap.zombies.Zombies;
 import io.github.zap.zombies.game.SpawnMethod;
 import io.github.zap.zombies.game.ZombiesArena;
 import io.github.zap.zombies.game.data.map.SpawnEntryData;
+import io.lumine.xikage.mythicmobs.MythicMobs;
 import io.lumine.xikage.mythicmobs.adapters.AbstractEntity;
 import io.lumine.xikage.mythicmobs.io.MythicLineConfig;
 import io.lumine.xikage.mythicmobs.mobs.ActiveMob;
 import io.lumine.xikage.mythicmobs.skills.SkillMetadata;
 import io.lumine.xikage.mythicmobs.util.annotations.MythicMechanic;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Entity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.metadata.MetadataValue;
@@ -24,7 +26,8 @@ import java.util.*;
         description = "General skill used for spawning mobs in Zombies games."
 )
 public class SpawnMobMechanic extends ZombiesArenaSkill implements Listener {
-    private static final String OWNER_METADATA = "spawn_owner";
+    private static final String PARENT = "skill.spawnmobs.parent";
+    private static final String CHILDREN = "skill.spawnmobs.children";
 
     private final String mobType;
     private final int mobCountMin;
@@ -34,8 +37,6 @@ public class SpawnMobMechanic extends ZombiesArenaSkill implements Listener {
     private final boolean ignoreSpawnrule;
     private final double spawnRadiusSquared;
     private final double originRadiusSquared;
-
-    private static final Map<UUID, Set<UUID>> owners = new HashMap<>();
 
     public SpawnMobMechanic(String skill, MythicLineConfig mlc) {
         super(skill, mlc);
@@ -54,10 +55,13 @@ public class SpawnMobMechanic extends ZombiesArenaSkill implements Listener {
     @Override
     public boolean cast(@NotNull SkillMetadata metadata, @NotNull ZombiesArena arena) {
         AbstractEntity caster = metadata.getCaster().getEntity();
-        Set<UUID> ownedMobs = owners.computeIfAbsent(caster.getUniqueId(), uuid -> new HashSet<>());
+        MetadataValue value = MetadataHelper.computeFixedValueIfAbsent(caster.getBukkitEntity(), Zombies.getInstance(),
+                CHILDREN + "." + mobType, (str) -> new HashSet<>());
 
-        if(ownedMobs.size() < mobCap) {
-            int limit = mobCap - ownedMobs.size();
+        //noinspection unchecked
+        Set<UUID> childMobs = (Set<UUID>) value.value();
+        if(childMobs != null && childMobs.size() < mobCap) {
+            int limit = mobCap - childMobs.size();
             int rngBound = mobCountMax - mobCountMin;
             int spawnAmount = Math.min(limit, mobCountMin + (int)((double)rngBound * Math.random()));
 
@@ -69,7 +73,7 @@ public class SpawnMobMechanic extends ZombiesArenaSkill implements Listener {
                         true, true);
 
                 for(ActiveMob mob : spawned) {
-                    registerMob(ownedMobs, mob, caster.getUniqueId());
+                    registerMob(childMobs, mob, caster.getUniqueId());
                 }
             }
             else {
@@ -78,7 +82,7 @@ public class SpawnMobMechanic extends ZombiesArenaSkill implements Listener {
                             .getLocation().toVector(), true);
 
                     if(mob != null) {
-                        registerMob(ownedMobs, mob, caster.getUniqueId());
+                        registerMob(childMobs, mob, caster.getUniqueId());
                     }
                 }
             }
@@ -91,22 +95,25 @@ public class SpawnMobMechanic extends ZombiesArenaSkill implements Listener {
 
     @EventHandler
     private void onEntityRemoveFromWorld(EntityRemoveFromWorldEvent event) {
-        UUID deadUUID = event.getEntity().getUniqueId();
+        Optional<MetadataValue> ownerOptional = MetadataHelper.getMetadataValue(event.getEntity(),
+                Zombies.getInstance(), PARENT);
 
-        if(owners.remove(deadUUID) == null) {
-            Optional<MetadataValue> valueOptional = MetadataHelper.getMetadataValue(event.getEntity(),
-                    Zombies.getInstance(), OWNER_METADATA);
-            if(valueOptional.isPresent()) {
-                UUID owner = (UUID)valueOptional.get().value();
+        if(ownerOptional.isPresent()) {
+            UUID owner = (UUID)ownerOptional.get().value();
+            if(owner != null) {
+                Entity ownerEntity = Bukkit.getEntity(owner);
 
-                if(owner != null) {
-                    Set<UUID> spawned = owners.get(owner);
+                if(ownerEntity != null) {
+                    UUID self = event.getEntity().getUniqueId();
+                    Optional<MetadataValue> childrenOptional = MetadataHelper.getMetadataValue(ownerEntity,
+                            Zombies.getInstance(), CHILDREN + "." + mobType);
 
-                    if(spawned != null) {
-                        spawned.remove(deadUUID);
-
-                        if(spawned.isEmpty()) {
-                            owners.remove(owner);
+                    Optional<ActiveMob> activeMob = MythicMobs.inst().getMobManager().getActiveMob(self);
+                    if(activeMob.isPresent() && activeMob.get().getMobType().equals(mobType)) {
+                        Set<UUID> childMobs;
+                        //noinspection unchecked
+                        if(childrenOptional.isPresent() && (childMobs = (Set<UUID>)childrenOptional.get().value()) != null) {
+                            childMobs.remove(self);
                         }
                     }
                 }
@@ -114,9 +121,8 @@ public class SpawnMobMechanic extends ZombiesArenaSkill implements Listener {
         }
     }
 
-    private void registerMob(Set<UUID> registerTo, ActiveMob spawned, UUID ownerId) {
-        registerTo.add(spawned.getUniqueId());
-        MetadataHelper.setFixedMetadata(spawned.getEntity().getBukkitEntity(), Zombies.getInstance(),
-                OWNER_METADATA, ownerId);
+    private void registerMob(Set<UUID> addTo, ActiveMob spawned, UUID ownerId) {
+        MetadataHelper.setFixedMetadata(spawned.getEntity().getBukkitEntity(), Zombies.getInstance(), PARENT, ownerId);
+        addTo.add(spawned.getUniqueId());
     }
 }
