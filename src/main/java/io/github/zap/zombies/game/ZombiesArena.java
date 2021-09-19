@@ -263,6 +263,23 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
                     MetadataHelper.setFixedMetadata(activeMob.getEntity().getBukkitEntity(), Zombies.getInstance(),
                             Zombies.SPAWN_METADATA_NAME, new SpawnMetadata(ZombiesArena.this, windowData));
 
+                    MythicMob type = MythicMobs.inst().getMobManager().getMythicMob(activeMob.getMobType());
+                    if(type.getConfig().getBoolean("IsBoss", false)) {
+                        RoomData room = map.roomAt(blockPosition);
+
+                        for(ZombiesPlayer player : getPlayerMap().values()) {
+                            Player bukkitPlayer = player.getPlayer();
+                            if(bukkitPlayer != null) {
+                                bukkitPlayer.showTitle(Title.title(
+                                        Component.text(type.getConfig().getString("ZombiesDisplayName", "unknown"), NamedTextColor.DARK_RED),
+                                        Component.text("spawned in " + room.getRoomDisplayName(),
+                                                TextColor.color(61, 61, 61)),
+                                        Title.Times.of(Duration.ofSeconds(1), Duration.ofSeconds(3),
+                                                Duration.ofSeconds(1))));
+                            }
+                        }
+                    }
+
                     return activeMob;
                 }
                 else {
