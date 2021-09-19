@@ -209,10 +209,12 @@ public final class Zombies extends JavaPlugin implements Listener {
     private void initMythicMobs() throws LoadFailureException {
         MythicInjector injector = MythicInjector.forInstance(getLogger(), mythicMobs);
         if(injector != null) {
-            injector.injectGoals(List.of(BreakWindowGoal.class, MeleeAttackGoal.class,
-                    StrafeBowShootGoal.class, ProjectileShootGoal.class));
+            injector.injectGoals(List.of(BreakWindowGoal.class, MeleeAttackGoal.class, StrafeBowShootGoal.class,
+                    ProjectileShootGoal.class));
+
             injector.injectSkills(List.of(CobwebMechanic.class, SpawnMobMechanic.class, StealCoinsMechanic.class,
-                    SlowFireRateMechanic.class, SummonMountMechanic.class, TeleportBehindTargetMechanic.class));
+                    SlowFireRateMechanic.class, SummonMountMechanic.class, TeleportBehindTargetMechanic.class,
+                    ArrowBarrageMechanic.class));
         }
         else {
             throw new LoadFailureException("No MythicInjector found for version " + mythicMobs.getVersion());

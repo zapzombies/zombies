@@ -67,6 +67,7 @@ public abstract class ZombiesPathfinderGoal<T> extends Pathfinder {
         Entity bukkitEntity = entity.getBukkitEntity();
         if(bukkitEntity instanceof Mob) {
             mob = (Mob)bukkitEntity;
+            mob.setAware(true);
 
             //activeMob can be null because of a MythicMobs glitch where 2 pathfindergoals are created per mob
             if(activeMob != null) {
@@ -145,7 +146,7 @@ public abstract class ZombiesPathfinderGoal<T> extends Pathfinder {
 
     protected abstract @Nullable T acquireTarget();
 
-    protected void onTargetChange(@Nullable T newTarget) {}
+    protected void onRetarget(@Nullable T newTarget) {}
 
     public ZombiesArena getArena() {
         return arena;
@@ -167,7 +168,7 @@ public abstract class ZombiesPathfinderGoal<T> extends Pathfinder {
         T target = acquireTarget();
 
         if(target != this.target) {
-            onTargetChange(target);
+            onRetarget(target);
 
             if(target == null) {
                 reset();

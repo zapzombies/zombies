@@ -112,7 +112,19 @@ public abstract class PlayerTargetingGoal extends ZombiesPathfinderGoal<ZombiesP
     protected void stop() {
         zombiesNMS.entityBridge().setAggressive(mob, false);
         mob.setTarget(null);
-        mob.setAware(true);
+    }
+
+    @Override
+    protected void onRetarget(@Nullable ZombiesPlayer newTarget) {
+        super.onRetarget(newTarget);
+
+        Player player;
+        if(newTarget != null && (player = newTarget.getPlayer()) != null) {
+            mob.setTarget(player);
+        }
+        else {
+            mob.setTarget(null);
+        }
     }
 
     @Override
