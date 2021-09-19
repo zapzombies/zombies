@@ -346,25 +346,22 @@ public class ZombiesPlayer extends ManagedPlayer<ZombiesPlayer, ZombiesArena> im
                                 ActiveMob activeMob = apiHelper.getMythicMobInstance(event.getDamager());
 
                                 if (activeMob != null) {
-                                    String mythicMobsDisplayName = activeMob.getDisplayName();
-                                    if (mythicMobsDisplayName != null) {
-                                        broadcastDeathMessage(bukkitPlayer.getName(),
-                                                Component.text(mythicMobsDisplayName));
-                                    }
-                                    else {
-                                        String configDisplayName = apiHelper.getMythicMob(activeMob.getMobType())
-                                                .getConfig().getString("DisplayName");
-                                        broadcastDeathMessage(bukkitPlayer.getName(),
-                                                configDisplayName != null
-                                                        ? Component.text(configDisplayName)
-                                                        : Component.text(activeMob.getMobType(), NamedTextColor.RED));
-                                    }
+                                    String configDisplayName = apiHelper.getMythicMob(activeMob.getMobType())
+                                            .getConfig().getString("ZombiesDisplayName");
+                                    broadcastDeathMessage(bukkitPlayer.getName(),
+                                            configDisplayName != null
+                                                    ? Component.text(configDisplayName)
+                                                    : Component.text(activeMob.getMobType(), NamedTextColor.RED));
                                 }
-                                else broadcastDeathMessage(bukkitPlayer.getName(),
-                                        Component.text(event.getDamager().getName(), NamedTextColor.RED));
+                                else {
+                                    broadcastDeathMessage(bukkitPlayer.getName(),
+                                            Component.text(event.getDamager().getName(), NamedTextColor.RED));
+                                }
                             }
                         }
-                        else broadcastDeathMessage(bukkitPlayer.getName(), null);
+                        else {
+                            broadcastDeathMessage(bukkitPlayer.getName(), null);
+                        }
                     }
                 }
             }
