@@ -1005,6 +1005,10 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
                                             1.0F,
                                             0.5F
                                     ));
+
+                                    otherBukkitPlayer.sendMessage(Component.text(knocked.getPlayer().getName() +
+                                                    " was knocked down in ", NamedTextColor.YELLOW)
+                                            .append(Component.text(" " + message, NamedTextColor.DARK_RED)));
                                 }
                             }
 
