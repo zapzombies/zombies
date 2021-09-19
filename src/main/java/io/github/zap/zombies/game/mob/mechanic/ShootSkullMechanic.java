@@ -11,6 +11,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityPotionEffectEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.potion.PotionEffect;
@@ -25,8 +26,9 @@ import java.util.Optional;
         description = "Shoots a Wither skull at the player, which applies a wither effect with an adjustable duration."
 )
 public class ShootSkullMechanic extends ZombiesPlayerSkill implements Listener {
-    private static final String EFFECT_DURATION = "skill.shootskull.effect_duration";
-    private static final String EFFECT_AMPLIFIER = "skill.shootskull.effect_amplifier";
+    private static final String EFFECT_DURATION = "skill.shootskull.duration";
+    private static final String EFFECT_AMPLIFIER = "skill.shootskull.amplifier";
+    private static final String EFFECT_SKULL = "skill.shootskull.skull";
 
     private static class Handler implements Listener {
         private Handler() {
@@ -37,8 +39,20 @@ public class ShootSkullMechanic extends ZombiesPlayerSkill implements Listener {
         private void onProjectileHit(ProjectileHitEvent event) {
             Entity hit = event.getHitEntity();
 
-            if(hit instanceof Mob hitMob) {
-                if(event.getEntity() instanceof WitherSkull skull) {
+            if(hit instanceof LivingEntity hitLiving && event.getEntity() instanceof WitherSkull skull) {
+                if(skull.hasMetadata(EFFECT_DURATION) && skull.hasMetadata(EFFECT_AMPLIFIER)) {
+                    MetadataHelper.setFixedMetadata(hitLiving, Zombies.getInstance(), EFFECT_SKULL, skull);
+                }
+            }
+        }
+
+        @EventHandler
+        private void onEntityPotionEffect(EntityPotionEffectEvent event) {
+            if(event.getEntity() instanceof LivingEntity living) {
+                Optional<MetadataValue> value = MetadataHelper.getMetadataValue(living, Zombies.getInstance(),
+                        EFFECT_SKULL);
+
+                if(value.isPresent() && value.get().value() instanceof WitherSkull skull) {
                     Optional<MetadataValue> optDuration = MetadataHelper.getMetadataValue(skull, Zombies.getInstance(),
                             EFFECT_DURATION);
 
@@ -46,9 +60,11 @@ public class ShootSkullMechanic extends ZombiesPlayerSkill implements Listener {
                             EFFECT_AMPLIFIER);
 
                     if(optDuration.isPresent() && optDuration.get().value() instanceof Integer duration &&
-                            optAmplifier.isPresent() && optAmplifier.get().value() instanceof Integer amplifier) {
-                        hitMob.removePotionEffect(PotionEffectType.WITHER);
-                        hitMob.addPotionEffect(new PotionEffect(PotionEffectType.WITHER, duration, amplifier));
+                        optAmplifier.isPresent() && optAmplifier.get().value() instanceof Integer amplifier) {
+                        living.removeMetadata(EFFECT_SKULL, Zombies.getInstance());
+                        event.setCancelled(true);
+
+                        living.addPotionEffect(new PotionEffect(PotionEffectType.WITHER, duration, amplifier));
                     }
                 }
             }
@@ -67,7 +83,7 @@ public class ShootSkullMechanic extends ZombiesPlayerSkill implements Listener {
     public ShootSkullMechanic(String skill, MythicLineConfig mlc) {
         super(skill, mlc);
         velocity = mlc.getFloat("velocity", 1F);
-        effectDuration = mlc.getInteger("effectDuration", 20);
+        effectDuration = mlc.getInteger("effectDuration", 60);
         effectAmplifier = mlc.getInteger("effectAmplifier", 1);
         isCharged = mlc.getBoolean("isCharged", false);
     }

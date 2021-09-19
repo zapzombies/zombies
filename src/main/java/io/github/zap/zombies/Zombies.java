@@ -214,7 +214,7 @@ public final class Zombies extends JavaPlugin implements Listener {
 
             injector.injectSkills(List.of(CobwebMechanic.class, SpawnMobMechanic.class, StealCoinsMechanic.class,
                     SlowFireRateMechanic.class, SummonMountMechanic.class, TeleportBehindTargetMechanic.class,
-                    ArrowBarrageMechanic.class));
+                    ArrowBarrageMechanic.class, ShootSkullMechanic.class));
         }
         else {
             throw new LoadFailureException("No MythicInjector found for version " + mythicMobs.getVersion());

@@ -180,7 +180,6 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
             }
 
             ActiveMob mob = spawnMob(mobType, vector, null);
-
             if(mob != null && updateCount) {
                 zombiesLeft++;
             }
