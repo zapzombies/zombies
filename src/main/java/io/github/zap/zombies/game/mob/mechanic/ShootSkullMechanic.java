@@ -71,7 +71,7 @@ public class ShootSkullMechanic extends ZombiesPlayerSkill implements Listener {
         }
     }
 
-    private final float velocity;
+    private final float speed;
     private final int effectDuration;
     private final int effectAmplifier;
     private final boolean isCharged;
@@ -82,7 +82,7 @@ public class ShootSkullMechanic extends ZombiesPlayerSkill implements Listener {
 
     public ShootSkullMechanic(String skill, MythicLineConfig mlc) {
         super(skill, mlc);
-        velocity = mlc.getFloat("velocity", 1F);
+        speed = mlc.getFloat("speed", 1F);
         effectDuration = mlc.getInteger("effectDuration", 60);
         effectAmplifier = mlc.getInteger("effectAmplifier", 1);
         isCharged = mlc.getBoolean("isCharged", false);
@@ -96,7 +96,7 @@ public class ShootSkullMechanic extends ZombiesPlayerSkill implements Listener {
             Vector direction = player.getEyeLocation().toVector().subtract(caster.getEyeLocation().toVector()).normalize();
 
             WitherSkull skull = arena.getWorld().spawn(caster.getEyeLocation(), WitherSkull.class);
-            skull.setVelocity(direction.multiply(velocity));
+            skull.setVelocity(direction.multiply(speed));
             skull.setCharged(isCharged);
 
             MetadataHelper.setFixedMetadata(skull, Zombies.getInstance(), EFFECT_DURATION, effectDuration);
