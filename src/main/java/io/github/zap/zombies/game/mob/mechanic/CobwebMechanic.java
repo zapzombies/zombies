@@ -10,25 +10,27 @@ import io.lumine.xikage.mythicmobs.skills.ITargetedEntitySkill;
 import io.lumine.xikage.mythicmobs.skills.SkillCaster;
 import io.lumine.xikage.mythicmobs.skills.SkillMechanic;
 import io.lumine.xikage.mythicmobs.skills.SkillMetadata;
+import io.lumine.xikage.mythicmobs.skills.mechanics.ShootMechanic;
 import io.lumine.xikage.mythicmobs.util.annotations.MythicMechanic;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.entity.WitherSkull;
 import org.bukkit.util.Vector;
 
 @MythicMechanic(
-        name = "cobweb",
+        name = "zombiesCobweb",
         description = "Places a cobweb at the current AI target's location, as long as it has line of sight."
 )
 public class CobwebMechanic extends SkillMechanic implements ITargetedEntitySkill {
-    private final int decayTime;
+    private final int cobwebLifetime;
     private final double rangeSquared;
 
     public CobwebMechanic(String skill, MythicLineConfig mlc) {
         super(skill, mlc);
-        decayTime = mlc.getInteger("decay",40);
-        rangeSquared = mlc.getDouble("rangeSquared", 256);
+        cobwebLifetime = mlc.getInteger("cobwebLifetime",40);
+        rangeSquared = mlc.getDouble("rangeSquared", 225);
         setAsyncSafe(false);
     }
 
@@ -65,6 +67,6 @@ public class CobwebMechanic extends SkillMechanic implements ITargetedEntitySkil
         targetBlock.setType(Material.COBWEB, false);
 
         Bukkit.getScheduler().scheduleSyncDelayedTask(Zombies.getInstance(), () -> targetBlock.setBlockData(save),
-                decayTime);
+                cobwebLifetime);
     }
 }

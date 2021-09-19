@@ -33,9 +33,7 @@ public class ArrowBarrageMechanic extends ZombiesPlayerSkill {
     private final float velocity;
     private final int onFireDuration;
     private final int fireInterval;
-    private final int despawnTicks;
-    private final boolean requiresSight;
-    private final double requiredDistanceSquared;
+    private final int arrowLifetime;
 
     public ArrowBarrageMechanic(String skill, MythicLineConfig mlc) {
         super(skill, mlc);
@@ -43,9 +41,7 @@ public class ArrowBarrageMechanic extends ZombiesPlayerSkill {
         velocity = mlc.getFloat("velocity", 1F);
         onFireDuration = mlc.getInteger("onFireDuration", 0);
         fireInterval = mlc.getInteger("fireInterval", 5);
-        despawnTicks = mlc.getInteger("despawnInterval", 100);
-        requiresSight = mlc.getBoolean("requiresSight", true);
-        requiredDistanceSquared = mlc.getDouble("requiredDistanceSquared", 225D);
+        arrowLifetime = mlc.getInteger("arrowLifetime", 100);
     }
 
     @Override
@@ -54,8 +50,7 @@ public class ArrowBarrageMechanic extends ZombiesPlayerSkill {
         Player player = target.getPlayer();
 
         if(skillMetadata.getCaster().getEntity().getBukkitEntity() instanceof Mob caster && player != null &&
-                caster.getLocation().distanceSquared(player.getLocation()) < requiredDistanceSquared &&
-                (!requiresSight || caster.hasLineOfSight(player)) && !hasTask(caster)) {
+                !hasTask(caster)) {
 
             caster.playEffect(EntityEffect.ENTITY_POOF);
             Vector direction = player.getEyeLocation().toVector().subtract(caster.getLocation().toVector()).normalize();
@@ -63,8 +58,7 @@ public class ArrowBarrageMechanic extends ZombiesPlayerSkill {
             List<Arrow> arrows = new ArrayList<>();
             AtomicInteger count = new AtomicInteger();
             BukkitTask task = Bukkit.getScheduler().runTaskTimer(Zombies.getInstance(), () -> {
-                Arrow arrow = player.getWorld().spawnArrow(caster.getLocation()
-                        .add(0, caster.getHeight() - (caster.getWidth() / 2), 0), direction, velocity, 0);
+                Arrow arrow = player.getWorld().spawnArrow(caster.getEyeLocation(), direction, velocity, 0);
                 arrows.add(arrow);
                 arrow.setShooter(caster);
 
@@ -82,7 +76,7 @@ public class ArrowBarrageMechanic extends ZombiesPlayerSkill {
                         for(Arrow spawned : arrows) {
                             spawned.remove();
                         }
-                    }, despawnTicks);
+                    }, arrowLifetime);
                 }
             }, 0, fireInterval);
 
