@@ -179,7 +179,13 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
                 }
             }
 
-            return spawnMob(mobType, vector, null);
+            ActiveMob mob = spawnMob(mobType, vector, null);
+
+            if(mob != null && updateCount) {
+                zombiesLeft++;
+            }
+
+            return mob;
         }
 
         @Override

@@ -46,7 +46,7 @@ public class ShootSkullMechanic extends ZombiesPlayerSkill implements Listener {
                             EFFECT_AMPLIFIER);
 
                     if(optDuration.isPresent() && optDuration.get().value() instanceof Integer duration &&
-                    optAmplifier.isPresent() && optAmplifier.get().value() instanceof Integer amplifier) {
+                            optAmplifier.isPresent() && optAmplifier.get().value() instanceof Integer amplifier) {
                         hitMob.removePotionEffect(PotionEffectType.WITHER);
                         hitMob.addPotionEffect(new PotionEffect(PotionEffectType.WITHER, duration, amplifier));
                     }
