@@ -162,7 +162,7 @@ public class Door extends Shop<DoorData> {
             Location playerLocation = bukkitPlayer.getLocation();
 
             for (DoorSide doorSide : doorData.getDoorSides()) {
-                if (doorSide.getTriggerBounds().contains(playerLocation.toVector())) {
+                if (doorSide.getTriggerBounds().clone().expand(0.5).contains(playerLocation.toVector())) {
                     int cost = doorSide.getCost();
 
                     if (player.getCoins() < cost) {
