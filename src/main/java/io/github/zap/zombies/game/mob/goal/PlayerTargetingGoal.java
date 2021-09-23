@@ -40,6 +40,11 @@ public abstract class PlayerTargetingGoal extends ZombiesPathfinderGoal<ZombiesP
         }
     }
 
+    private boolean validGamemode(Player player) {
+        GameMode gameMode = player.getGameMode();
+        return gameMode == GameMode.ADVENTURE || gameMode == GameMode.SURVIVAL;
+    }
+
     private boolean locationChanged() {
         ZombiesPlayer target = getCurrentTarget();
         Player bukkitPlayer = target.getPlayer();
@@ -54,9 +59,7 @@ public abstract class PlayerTargetingGoal extends ZombiesPathfinderGoal<ZombiesP
         ZombiesPlayer target = getCurrentTarget();
         Player bukkitPlayer = target.getPlayer();
         if(bukkitPlayer != null) {
-            GameMode gameMode = bukkitPlayer.getGameMode();
-            return target.isInGame() && target.isAlive() &&
-                    (gameMode == GameMode.ADVENTURE || gameMode == GameMode.SURVIVAL);
+            return target.isInGame() && target.isAlive() && validGamemode(bukkitPlayer);
         }
 
         return false;
@@ -70,7 +73,7 @@ public abstract class PlayerTargetingGoal extends ZombiesPathfinderGoal<ZombiesP
         ZombiesPlayer closest = null;
         for(ZombiesPlayer player : getArena().getPlayerMap().values()) {
             Player bukkitPlayer = player.getPlayer();
-            if(player.isAlive() && player.isInGame() && bukkitPlayer != null) {
+            if(player.isAlive() && player.isInGame() && bukkitPlayer != null && validGamemode(bukkitPlayer)) {
                 Location mobLocation = mob.getLocation();
                 Location playerLocation = bukkitPlayer.getLocation();
 
@@ -117,14 +120,7 @@ public abstract class PlayerTargetingGoal extends ZombiesPathfinderGoal<ZombiesP
     @Override
     protected void onRetarget(@Nullable ZombiesPlayer newTarget) {
         super.onRetarget(newTarget);
-
-        Player player;
-        if(newTarget != null && (player = newTarget.getPlayer()) != null) {
-            mob.setTarget(player);
-        }
-        else {
-            mob.setTarget(null);
-        }
+        mob.setTarget(newTarget == null ? null : newTarget.getPlayer());
     }
 
     @Override
@@ -144,7 +140,7 @@ public abstract class PlayerTargetingGoal extends ZombiesPathfinderGoal<ZombiesP
             calculatePath(getCurrentTarget());
 
             recalculateCounter = (int)(Math.random() * HALF_INTERVAL) -
-                    (currentPath == null ? 0 : currentPath.pathLength() / 4);
+                    (currentPath == null ? 0 : currentPath.pathLength());
         }
     }
 }

@@ -111,8 +111,8 @@ public abstract class PowerUp {
 
         // Check distance & time-out
         powerUpItemLocation = location;
+        MutableBoolean isPickedUp = new MutableBoolean(false);
         checkForDistTask = arena.runTaskTimer(0L, getRefreshRate(), () -> {
-            MutableBoolean isPickedUp = new MutableBoolean(false);
             // Check for despawn timer
             if((System.currentTimeMillis() - spawnedTimeStamp) / 50 > getData().getDespawnDuration()) {
                 deactivate();
