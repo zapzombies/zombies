@@ -1,5 +1,6 @@
 package io.github.zap.zombies.game.mob.goal;
 
+import io.github.zap.arenaapi.nms.common.pathfind.MobNavigator;
 import io.github.zap.arenaapi.nms.common.pathfind.PathEntityWrapper;
 import io.github.zap.arenaapi.pathfind.operation.PathOperation;
 import io.github.zap.arenaapi.pathfind.path.PathResult;
@@ -126,16 +127,18 @@ public abstract class PlayerTargetingGoal extends ZombiesPathfinderGoal<ZombiesP
     @Override
     public void tick() {
         PathResult result = pathHandler.tryTakeResult();
+        MobNavigator navigator = getNavigator();
+
         if(result != null) {
-            mobNavigator.navigateAlongPath(result.toPathEntity(), 1);
+            navigator.navigateAlongPath(result.toPathEntity(), 1);
         }
 
-        PathEntityWrapper currentPath = mobNavigator.currentPath();
+        PathEntityWrapper currentPath = navigator.currentPath();
         if(++retargetCounter >= retargetInterval) {
             retarget();
             retargetCounter = 0;
         }
-        else if(currentPath == null || mobNavigator.isIdle() ||
+        else if(currentPath == null || navigator.isIdle() ||
                 (locationChanged() && ++recalculateCounter >= RECALCULATE_INTERVAL)) {
             calculatePath(getCurrentTarget());
 

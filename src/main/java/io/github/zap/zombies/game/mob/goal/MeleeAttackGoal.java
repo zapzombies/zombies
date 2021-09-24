@@ -1,5 +1,6 @@
 package io.github.zap.zombies.game.mob.goal;
 
+import io.github.zap.arenaapi.nms.common.pathfind.MobNavigator;
 import io.github.zap.zombies.Zombies;
 import io.lumine.xikage.mythicmobs.adapters.AbstractEntity;
 import io.lumine.xikage.mythicmobs.io.MythicLineConfig;

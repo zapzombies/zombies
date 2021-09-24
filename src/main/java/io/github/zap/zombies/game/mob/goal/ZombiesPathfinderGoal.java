@@ -40,7 +40,6 @@ public abstract class ZombiesPathfinderGoal<T> extends Pathfinder {
 
     protected final Mob mob;
     protected final MythicMob mythicMob;
-    protected final MobNavigator mobNavigator;
     protected final PathHandler pathHandler;
     protected final boolean successfulLoad;
 
@@ -61,7 +60,6 @@ public abstract class ZombiesPathfinderGoal<T> extends Pathfinder {
 
         Mob mob = null;
         MythicMob mythicMob = null;
-        MobNavigator mobNavigator = null;
         PathHandler pathHandler = null;
         boolean successfulLoad = false;
 
@@ -75,7 +73,7 @@ public abstract class ZombiesPathfinderGoal<T> extends Pathfinder {
                 mythicMob = MythicMobs.inst().getAPIHelper().getMythicMob(activeMob.getMobType());
 
                 try {
-                    mobNavigator = arenaNMS.entityBridge().overrideNavigatorFor(mob);
+                    arenaNMS.entityBridge().overrideNavigatorFor(mob);
 
                     try {
                         zombiesNMS.entityBridge().replacePersistentGoals(mob);
@@ -103,7 +101,6 @@ public abstract class ZombiesPathfinderGoal<T> extends Pathfinder {
 
         this.mob = mob;
         this.mythicMob = mythicMob;
-        this.mobNavigator = mobNavigator;
         this.pathHandler = pathHandler;
         this.successfulLoad = successfulLoad;
     }
@@ -143,6 +140,15 @@ public abstract class ZombiesPathfinderGoal<T> extends Pathfinder {
         }
 
         return metadataLoaded;
+    }
+
+    protected MobNavigator getNavigator() {
+        MobNavigator navigator = arenaNMS.entityBridge().getNavigator(mob);
+        if(navigator != null) {
+            return navigator;
+        }
+
+        throw new IllegalStateException("MobNavigator not overridden for entity");
     }
 
     protected abstract @Nullable T acquireTarget();

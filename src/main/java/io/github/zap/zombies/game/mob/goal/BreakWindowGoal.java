@@ -1,5 +1,6 @@
 package io.github.zap.zombies.game.mob.goal;
 
+import io.github.zap.arenaapi.nms.common.pathfind.MobNavigator;
 import io.github.zap.arenaapi.nms.common.pathfind.PathEntityWrapper;
 import io.github.zap.arenaapi.pathfind.operation.PathOperationBuilder;
 import io.github.zap.arenaapi.pathfind.path.PathResult;
@@ -87,8 +88,10 @@ public class BreakWindowGoal extends ZombiesPathfinderGoal<Vector3D> {
     @Override
     public void tick() {
         PathResult result = pathHandler.tryTakeResult();
+        MobNavigator navigator = getNavigator();
+
         if(result != null) {
-            mobNavigator.navigateAlongPath(result.toPathEntity(), 1);
+            navigator.navigateAlongPath(result.toPathEntity(), 1);
         }
 
         if(++breakCounter >= breakInterval) {
@@ -100,9 +103,9 @@ public class BreakWindowGoal extends ZombiesPathfinderGoal<Vector3D> {
             breakCounter = 0;
         }
 
-        PathEntityWrapper currentPath = mobNavigator.currentPath();
-        if(currentPath == null || mobNavigator.shouldRecalculate() ||
-                (mobNavigator.isIdle() && ++recalculateCounter >= RECALCULATE_INTERVAL)) {
+        PathEntityWrapper currentPath = navigator.currentPath();
+        if(currentPath == null || navigator.shouldRecalculate() ||
+                (navigator.isIdle() && ++recalculateCounter >= RECALCULATE_INTERVAL)) {
             pathToWindow();
             recalculateCounter = 0;
         }
