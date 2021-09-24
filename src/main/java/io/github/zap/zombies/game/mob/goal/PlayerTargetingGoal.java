@@ -134,6 +134,13 @@ public abstract class PlayerTargetingGoal extends ZombiesPathfinderGoal<ZombiesP
         }
 
         PathEntityWrapper currentPath = navigator.currentPath();
+        ZombiesPlayer currentTarget = getCurrentTarget();
+        Player bukkitPlayer = currentTarget.getPlayer();
+
+        if(bukkitPlayer != null) {
+            mob.lookAt(bukkitPlayer);
+        }
+
         if(++retargetCounter >= retargetInterval) {
             retarget();
             retargetCounter = 0;

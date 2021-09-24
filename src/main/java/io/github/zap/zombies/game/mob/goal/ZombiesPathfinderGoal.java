@@ -142,7 +142,7 @@ public abstract class ZombiesPathfinderGoal<T> extends Pathfinder {
         return metadataLoaded;
     }
 
-    protected MobNavigator getNavigator() {
+    protected @NotNull MobNavigator getNavigator() {
         MobNavigator navigator = arenaNMS.entityBridge().getNavigator(mob);
         if(navigator != null) {
             return navigator;
