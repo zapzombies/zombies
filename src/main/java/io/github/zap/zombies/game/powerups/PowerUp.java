@@ -141,8 +141,8 @@ public abstract class PowerUp {
                                     .deserialize(getData().getDisplayName()), Component.empty());
                             if (otherBukkitPlayer != null) {
                                 otherBukkitPlayer.showTitle(title);
-                                player.getPlayer().sendMessage(ChatColor.YELLOW + bukkitPlayer.getName() + " activated " + getData().getDisplayName() + ChatColor.RESET + ChatColor.YELLOW + "!");
-                                player.getPlayer().playSound(player.getPlayer().getLocation(), getData().getPickupSound(), getData().getPickupSoundVolume(), getData().getPickupSoundPitch());
+                                otherBukkitPlayer.sendMessage(ChatColor.YELLOW + bukkitPlayer.getName() + " activated " + getData().getDisplayName() + ChatColor.RESET + ChatColor.YELLOW + "!");
+                                otherBukkitPlayer.playSound(player.getPlayer().getLocation(), getData().getPickupSound(), getData().getPickupSoundVolume(), getData().getPickupSoundPitch());
                             }
                         });
 
