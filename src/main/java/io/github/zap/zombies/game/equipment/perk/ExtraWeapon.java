@@ -25,7 +25,7 @@ public class ExtraWeapon extends MarkerPerk<ExtraWeaponData, ExtraWeaponLevel> {
         activate(); // activate again because previousLevel was set to 0 before initialization
     }
 
-    private void setLevel(int level) {
+    private void setLevel(int level, boolean saveState) {
         HotbarManager hotbarManager = getZombiesPlayer().getHotbarManager();
         HotbarProfile defaultProfile = hotbarManager.getProfiles().get(HotbarManager.DEFAULT_PROFILE_NAME);
 
@@ -46,7 +46,11 @@ public class ExtraWeapon extends MarkerPerk<ExtraWeaponData, ExtraWeaponLevel> {
         while (previousLevel > level) {
             for (Set<Integer> slots : getEquipmentData().getLevels().get(previousLevel--).getNewSlots().values()) {
                 for (Integer slot : slots) {
-                    defaultProfile.removeHotbarObject(slot, false);
+                    if (saveState) {
+                        defaultProfile.getHotbarObject(slot).setVisible(false);
+                    } else {
+                        defaultProfile.removeHotbarObject(slot, false);
+                    }
                 }
             }
         }
@@ -54,12 +58,12 @@ public class ExtraWeapon extends MarkerPerk<ExtraWeaponData, ExtraWeaponLevel> {
 
     @Override
     public void activate() {
-        setLevel(getLevel());
+        setLevel(getLevel(), true);
     }
 
     @Override
-    public void deactivate() {
-        setLevel(-1);
+    public void deactivate(boolean saveState) {
+        setLevel(-1, saveState);
     }
 
 }

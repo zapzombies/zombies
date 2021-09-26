@@ -555,7 +555,7 @@ public class ZombiesPlayer extends ManagedPlayer<ZombiesPlayer, ZombiesArena> im
                 for (Integer slot : hotbarObjectGroup.getHotbarObjectMap().keySet()) {
                     HotbarObject hotbarObject = hotbarObjectGroup.getHotbarObject(slot);
                     if (hotbarObject instanceof Perk<?, ?, ?, ?> perk) {
-                        perk.deactivate();
+                        perk.deactivate(true);
                     }
                 }
             }

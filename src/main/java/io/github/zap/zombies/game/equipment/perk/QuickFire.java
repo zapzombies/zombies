@@ -25,7 +25,7 @@ public class QuickFire extends MarkerPerk<QuickFireData, QuickFireLevel> {
     }
 
     @Override
-    public void deactivate() {
+    public void deactivate(boolean saveState) {
         getZombiesPlayer().getFireRateMultiplier().removeModifier(MODIFIER_NAME);
     }
 
