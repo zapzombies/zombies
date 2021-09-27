@@ -189,11 +189,6 @@ public abstract class Gun<D extends GunData<L>, L extends GunLevel> extends Upgr
             }
 
         }).getTaskId();
-
-        Sound sound = getEquipmentData().getSound();
-
-        Location playerLocation = player.getLocation();
-        player.getWorld().playSound(sound, playerLocation.getX(), playerLocation.getY(), playerLocation.getZ());
     }
 
     /**
@@ -298,28 +293,36 @@ public abstract class Gun<D extends GunData<L>, L extends GunLevel> extends Upgr
         if (canShoot) {
             canShoot = false;
             shoot(); // Shoot your first shot on the same tick
+            playShotSound();
 
-            if (getCurrentLevel().getShotsPerClick() > 1) { // Don't schedule if unnecessary
-                shootingTask = getArena().runTaskTimer(1L, 1L, new DisposableBukkitRunnable() {
+            if (Math.min(getCurrentLevel().getShotsPerClick(), currentClipAmmo) > 1) { // Don't schedule if unnecessary
+                shootingTask = getArena().runTaskTimer(
+                        getCurrentLevel().getDelayBetweenShots(),
+                        getCurrentLevel().getDelayBetweenShots(),
+                        new DisposableBukkitRunnable() {
 
-                    private int firedShots = 1;
+                            private int firedShots = 1;
 
-                    @Override
-                    public void run() {
-                        if (firedShots++ == Math.min(getCurrentLevel().getShotsPerClick(), currentAmmo)) { // Reload while shooting possible
-                            getArena().getStatsManager().queueCacheRequest(CacheInformation.PLAYER,
-                                    getPlayer().getUniqueId(), PlayerGeneralStats::new,
-                                    (stats) -> stats.setBulletsShot(stats.getBulletsShot() + firedShots));
-                            updateAfterShooting(firedShots);
+                            @Override
+                            public void run() {
+                                if (++firedShots == Math.min(getCurrentLevel().getShotsPerClick(), currentClipAmmo)) { // Reload while shooting possible
+                                    getArena().getStatsManager().queueCacheRequest(
+                                            CacheInformation.PLAYER,
+                                            getPlayer().getUniqueId(),
+                                            PlayerGeneralStats::new,
+                                            (stats) -> stats.setBulletsShot(stats.getBulletsShot() + firedShots)
+                                    );
+                                    updateAfterShooting(firedShots);
 
-                            shootingTask = -1;
-                            cancel();
+                                    shootingTask = -1;
+                                    cancel();
+                                }
+
+                                shoot();
+                                playShotSound();
+                            }
                         }
-
-                        shoot();
-                    }
-
-                }).getTaskId();
+                    ).getTaskId();
             } else {
                 getArena().getStatsManager().queueCacheRequest(CacheInformation.PLAYER,
                         getPlayer().getUniqueId(), PlayerGeneralStats::new,
@@ -327,6 +330,18 @@ public abstract class Gun<D extends GunData<L>, L extends GunLevel> extends Upgr
                 updateAfterShooting(1);
             }
         }
+    }
+
+    protected void playShotSound() {
+        Sound sound = getEquipmentData().getSound();
+
+        Location playerLocation = getPlayer().getLocation();
+        getPlayer().getWorld().playSound(
+                sound,
+                playerLocation.getX(),
+                playerLocation.getY(),
+                playerLocation.getZ()
+        );
     }
 
     /**
