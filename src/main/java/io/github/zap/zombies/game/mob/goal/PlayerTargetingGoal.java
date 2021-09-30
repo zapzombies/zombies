@@ -121,7 +121,15 @@ public abstract class PlayerTargetingGoal extends ZombiesPathfinderGoal<ZombiesP
     @Override
     protected void onRetarget(@Nullable ZombiesPlayer newTarget) {
         super.onRetarget(newTarget);
-        mob.setTarget(newTarget == null ? null : newTarget.getPlayer());
+
+        Player player;
+        if(newTarget != null && (player = newTarget.getPlayer()) != null) {
+            mob.setTarget(player);
+            lastLocation = null;
+            recalculateCounter = 0;
+        }
+
+        mob.setTarget(null);
     }
 
     @Override

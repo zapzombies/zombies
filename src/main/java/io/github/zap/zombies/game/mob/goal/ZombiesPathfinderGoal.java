@@ -21,6 +21,7 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Mob;
+import org.bukkit.entity.Projectile;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffectType;
@@ -44,6 +45,7 @@ public abstract class ZombiesPathfinderGoal<T> extends Pathfinder {
     protected final boolean successfulLoad;
 
     private boolean metadataLoaded = false;
+    private MobNavigator cachedNavigator = null;
     private ZombiesArena arena;
     private WindowData window;
 
