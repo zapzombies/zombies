@@ -30,7 +30,7 @@ public class FrozenBullets extends MarkerPerk<FrozenBulletsData, FrozenBulletsLe
     }
 
     @Override
-    public void deactivate() {
+    public void deactivate(boolean saveState) {
         reducedSpeed = 0.0D;
         duration = 0;
     }

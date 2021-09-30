@@ -60,7 +60,7 @@ public abstract class Perk<D extends PerkData<L>, L extends PerkLevel, E extends
             actionTriggerEvent.removeHandler(this::execute);
         }
 
-        deactivate();
+        deactivate(false);
     }
 
     /**
@@ -73,8 +73,9 @@ public abstract class Perk<D extends PerkData<L>, L extends PerkLevel, E extends
     /**
      * Removes the perk's effects. This is called when the player leaves the game, or when the perk's level has been
      * reduced to 0.
+     * @param saveState Whether the perk's current state should be saved for the next time it is activated
      */
-    public abstract void deactivate();
+    public abstract void deactivate(boolean saveState);
 
     /**
      * Performs the action associated with the perk. This is called automatically.

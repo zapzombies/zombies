@@ -33,6 +33,8 @@ public class GunLevel  {
 
     int shotsPerClick = 1;
 
+    long delayBetweenShots = 1L;
+
     protected GunLevel() {
 
     }

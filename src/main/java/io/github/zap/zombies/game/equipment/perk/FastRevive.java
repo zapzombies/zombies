@@ -26,7 +26,7 @@ public class FastRevive extends MarkerPerk<FastReviveData, FastReviveLevel> {
     }
 
     @Override
-    public void deactivate() {
+    public void deactivate(boolean saveState) {
         reducedReviveTime = 0;
     }
 
