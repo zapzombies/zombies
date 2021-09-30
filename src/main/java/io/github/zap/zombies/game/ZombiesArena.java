@@ -925,7 +925,8 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
             ZombiesPlayer damagingPlayer = getPlayerMap().get(damager.getUniqueId());
 
             if (damagingPlayer != null && entity instanceof Mob mob) {
-                if(!damagingPlayer.isAlive()) {
+                Player bukkitPlayer = damagingPlayer.getPlayer();
+                if(!damagingPlayer.isAlive() || bukkitPlayer == null) {
                     event.setCancelled(true);
                 } else if (getEntitySet().contains(mob.getUniqueId())) {
                     HotbarManager hotbarManager = damagingPlayer.getHotbarManager();
@@ -940,6 +941,9 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
                         } else {
                             event.setCancelled(true);
                         }
+                    }
+                    else {
+                        event.setCancelled(true);
                     }
                 }
             }
