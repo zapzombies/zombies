@@ -16,6 +16,8 @@ import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.logging.Level;
+
 public abstract class PlayerTargetingGoal extends ZombiesPathfinderGoal<ZombiesPlayer> {
     private static final int RECALCULATE_INTERVAL = 10;
     private static final int HALF_INTERVAL = RECALCULATE_INTERVAL / 2;
@@ -126,10 +128,11 @@ public abstract class PlayerTargetingGoal extends ZombiesPathfinderGoal<ZombiesP
         if(newTarget != null && (player = newTarget.getPlayer()) != null) {
             mob.setTarget(player);
             lastLocation = null;
-            recalculateCounter = 0;
+            recalculateCounter = RECALCULATE_INTERVAL; //force recalculate on next tick
         }
-
-        mob.setTarget(null);
+        else {
+            mob.setTarget(null);
+        }
     }
 
     @Override
