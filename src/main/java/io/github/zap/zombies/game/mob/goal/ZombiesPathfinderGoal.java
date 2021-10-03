@@ -189,12 +189,13 @@ public abstract class ZombiesPathfinderGoal<T> extends Pathfinder {
 
     @Override
     public final boolean shouldStart() {
-        return successfulLoad && loadMetadata() && arena.runAI() && (target = acquireTarget()) != null && canBegin();
+        return successfulLoad && loadMetadata() && arena.runAI() && mob.getPassengers().isEmpty() &&
+                (target = acquireTarget()) != null && canBegin();
     }
 
     @Override
     public final boolean shouldEnd() {
-        return resetFlag || !arena.runAI() || canStop();
+        return resetFlag || !arena.runAI() || !mob.getPassengers().isEmpty() || canStop();
     }
 
     @Override
