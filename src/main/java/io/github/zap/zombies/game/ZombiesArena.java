@@ -991,7 +991,7 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
                             for (ZombiesPlayer otherPlayer : getPlayerMap().values()) {
                                 Player otherBukkitPlayer = otherPlayer.getPlayer();
 
-                                if (otherPlayer != knocked && otherBukkitPlayer != null) {
+                                if (otherBukkitPlayer != null) {
                                     otherBukkitPlayer.showTitle(Title.title(
                                             Component.text(knocked.getPlayer().getName(), NamedTextColor.YELLOW),
                                             Component.text("was knocked down in " + message,
@@ -1556,6 +1556,19 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
                         luckyChestRoom = room != null ? room.getRoomDisplayName() : null;
 
                         rolls = 0;
+
+                        Component message = luckyChestRoom == null
+                                ? Component.text("The lucky chest has moved!")
+                                : Component.text("The lucky chest has moved to " + luckyChestRoom);
+                        Sound sound = Sound.sound(org.bukkit.Sound.BLOCK_NOTE_BLOCK_PLING, Sound.Source.MASTER,
+                                1.0F, 1.0F);
+                        for (ZombiesPlayer player : getPlayerMap().values()) {
+                            Player bukkitPlayer = player.getPlayer();
+                            if (bukkitPlayer != null && player.isInGame()) {
+                                bukkitPlayer.sendMessage(message);
+                                bukkitPlayer.playSound(sound);
+                            }
+                        }
                     }
                 }
             });
@@ -1600,6 +1613,19 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
                         piglinRoom = room != null ? room.getRoomDisplayName() : null;
 
                         rolls = 0;
+
+                        Component message = piglinRoom == null
+                                ? Component.text("The lucky piglin has moved!")
+                                : Component.text("The lucky piglin has moved to " + piglinRoom);
+                        Sound sound = Sound.sound(org.bukkit.Sound.BLOCK_NOTE_BLOCK_PLING, Sound.Source.MASTER,
+                                1.0F, 1.0F);
+                        for (ZombiesPlayer player : getPlayerMap().values()) {
+                            Player bukkitPlayer = player.getPlayer();
+                            if (bukkitPlayer != null && player.isInGame()) {
+                                bukkitPlayer.sendMessage(message);
+                                bukkitPlayer.playSound(sound);
+                            }
+                        }
                     }
                 }
             });
