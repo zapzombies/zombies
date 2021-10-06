@@ -1576,8 +1576,9 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
                         rolls = 0;
 
                         Component message = luckyChestRoom == null
-                                ? Component.text("The lucky chest has moved!")
-                                : Component.text("The lucky chest has moved to " + luckyChestRoom);
+                                ? Component.text("The lucky chest has moved!", NamedTextColor.RED)
+                                : Component.text("The lucky chest has moved to " + luckyChestRoom + "!",
+                                NamedTextColor.RED);
                         Sound sound = Sound.sound(org.bukkit.Sound.BLOCK_NOTE_BLOCK_PLING, Sound.Source.MASTER,
                                 1.0F, 1.0F);
                         for (ZombiesPlayer player : getPlayerMap().values()) {
@@ -1635,8 +1636,9 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
                         rolls = 0;
 
                         Component message = piglinRoom == null
-                                ? Component.text("The lucky piglin has moved!")
-                                : Component.text("The lucky piglin has moved to " + piglinRoom);
+                                ? Component.text("The lucky piglin has moved!", NamedTextColor.RED)
+                                : Component.text("The lucky piglin has moved to " + piglinRoom + "!",
+                                NamedTextColor.RED);
                         Sound sound = Sound.sound(org.bukkit.Sound.BLOCK_NOTE_BLOCK_PLING, Sound.Source.MASTER,
                                 1.0F, 1.0F);
                         for (ZombiesPlayer player : getPlayerMap().values()) {
