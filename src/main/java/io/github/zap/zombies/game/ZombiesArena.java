@@ -270,8 +270,13 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
                         for(ZombiesPlayer player : getPlayerMap().values()) {
                             Player bukkitPlayer = player.getPlayer();
                             if(bukkitPlayer != null && player.isInGame()) {
+                                MiniMessage miniMessage = MiniMessage.get();
+                                String configDisplayName = type.getConfig().getString("ZombiesDisplayName");
+                                Component displayName = configDisplayName != null
+                                        ? miniMessage.parse(configDisplayName)
+                                        : Component.text(activeMob.getMobType(), NamedTextColor.RED);
                                 bukkitPlayer.showTitle(Title.title(
-                                        Component.text(type.getConfig().getString("ZombiesDisplayName", "unknown"), NamedTextColor.DARK_RED),
+                                        displayName,
                                         Component.text("spawned in " + room.getRoomDisplayName(),
                                                 TextColor.color(61, 61, 61)),
                                         Title.Times.of(Duration.ofSeconds(1), Duration.ofSeconds(3),
