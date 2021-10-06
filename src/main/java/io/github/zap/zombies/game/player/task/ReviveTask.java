@@ -49,11 +49,10 @@ public class ReviveTask extends ZombiesTask {
     }
 
     private void attemptToContinueReviving(@NotNull Player bukkitPlayer) {
-        int maxDistance = arena.getMap().getReviveRadius();
-        double distance = bukkitPlayer.getLocation().toVector()
-                .distanceSquared(targetCorpse.getLocation().toVector());
+        double maxDistance = arena.getMap().getReviveRadiusSquared();
+        double distance = bukkitPlayer.getLocation().toVector().distanceSquared(targetCorpse.getCenter());
 
-        if (distance < maxDistance && reviveOn) {
+        if (distance <= maxDistance && reviveOn) {
             targetCorpse.continueReviving();
         } else {
             resetTargetCorpse();
@@ -74,10 +73,10 @@ public class ReviveTask extends ZombiesTask {
     }
 
     private void selectNewCorpse(@NotNull Player bukkitPlayer) {
-        int maxDistance = arena.getMap().getReviveRadius();
+        double maxDistance = arena.getMap().getReviveRadiusSquared();
 
         for (Corpse corpse : arena.getAvailableCorpses()) {
-            double distance = bukkitPlayer.getLocation().toVector().distanceSquared(corpse.getLocation().toVector());
+            double distance = bukkitPlayer.getLocation().toVector().distanceSquared(corpse.getCenter());
 
             if (distance <= maxDistance) {
                 Player corpseBukkitPlayer = corpse.getZombiesPlayer().getPlayer();

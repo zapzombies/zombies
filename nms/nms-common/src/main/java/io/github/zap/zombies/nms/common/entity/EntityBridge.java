@@ -3,6 +3,7 @@ package io.github.zap.zombies.nms.common.entity;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.*;
+import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -75,4 +76,7 @@ public interface EntityBridge {
     void shootProjectile(@NotNull LivingEntity livingEntity, @NotNull LivingEntity target, float velocity);
 
     void setCurrentHandHoldingBow(@NotNull LivingEntity livingEntity);
+
+    @NotNull Vector getCorpseCenter(@NotNull Vector root);
+
 }
