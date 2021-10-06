@@ -1376,19 +1376,21 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
             roundIndexProperty.setValue(this, targetRound);
 
             getPlayerMap().forEach((l,r) -> {
-                Player bukkitPlayer = r.getPlayer();
-                if(bukkitPlayer != null) {
-                    bukkitPlayer.showTitle(Title.title(currentRound.getCustomMessage() != null
-                            && !currentRound.getCustomMessage().isEmpty()
-                            ? Component.text(currentRound.getCustomMessage())
-                            : Component.text("ROUND " + (targetRound + 1), NamedTextColor.RED),
-                            Component.empty()));
-                    bukkitPlayer.playSound(Sound.sound(
-                            Key.key("minecraft:entity.wither.spawn"),
-                            Sound.Source.MASTER,
-                            1.0F,
-                            0.5F
-                    ));
+                if (r.isInGame()) {
+                    Player bukkitPlayer = r.getPlayer();
+                    if (bukkitPlayer != null) {
+                        bukkitPlayer.showTitle(Title.title(currentRound.getCustomMessage() != null
+                                        && !currentRound.getCustomMessage().isEmpty()
+                                        ? Component.text(currentRound.getCustomMessage())
+                                        : Component.text("ROUND " + (targetRound + 1), NamedTextColor.RED),
+                                Component.empty()));
+                        bukkitPlayer.playSound(Sound.sound(
+                                Key.key("minecraft:entity.wither.spawn"),
+                                Sound.Source.MASTER,
+                                1.0F,
+                                0.5F
+                        ));
+                    }
                 }
             });
 
@@ -1416,26 +1418,28 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
 
         var round = map.getCurrentRoundProperty().getValue(this);
         getPlayerMap().forEach((l,r) -> {
-            Player bukkitPlayer = r.getPlayer();
+            if (r.isInGame()) {
+                Player bukkitPlayer = r.getPlayer();
 
-            if(bukkitPlayer != null) {
-                bukkitPlayer.showTitle(Title.title(Component.text("You Win!", NamedTextColor.GREEN),
-                        Component.text("You made it to Round " + (round + 1) + "!", NamedTextColor.GRAY)));
-                statsManager.queueCacheRequest(CacheInformation.PLAYER, bukkitPlayer.getUniqueId(),
-                        PlayerGeneralStats::new, (playerStats) -> {
-                    PlayerMapStats playerMapStats = playerStats.getMapStatsForMap(getArena().getMap());
-                    playerMapStats.setWins(playerMapStats.getWins() + 1);
-
-                    if (playerMapStats.getBestTime() == null || approximateTicks < playerMapStats.getBestTime()) {
-                        playerMapStats.setBestTime(approximateTicks);
-                        statsManager.queueCacheRequest(CacheInformation.MAP, map.getName(), MapStats::new,
-                                (mapStats) -> {
-                            Map<UUID, Long> bestTimes = mapStats.getBestTimes();
-                            bestTimes.put(bukkitPlayer.getUniqueId(), approximateTicks);
-                        });
-                    }
-                });
+                if (bukkitPlayer != null) {
+                    bukkitPlayer.showTitle(Title.title(Component.text("You Win!", NamedTextColor.GREEN),
+                            Component.text("You made it to Round " + (round + 1) + "!", NamedTextColor.GRAY)));
+                }
             }
+            statsManager.queueCacheRequest(CacheInformation.PLAYER, r.getOfflinePlayer().getUniqueId(),
+                    PlayerGeneralStats::new, (playerStats) -> {
+                        PlayerMapStats playerMapStats = playerStats.getMapStatsForMap(getArena().getMap());
+                        playerMapStats.setWins(playerMapStats.getWins() + 1);
+
+                        if (playerMapStats.getBestTime() == null || approximateTicks < playerMapStats.getBestTime()) {
+                            playerMapStats.setBestTime(approximateTicks);
+                            statsManager.queueCacheRequest(CacheInformation.MAP, map.getName(), MapStats::new,
+                                    (mapStats) -> {
+                                        Map<UUID, Long> bestTimes = mapStats.getBestTimes();
+                                        bestTimes.put(r.getOfflinePlayer().getUniqueId(), approximateTicks);
+                                    });
+                        }
+                    });
         });
         runTaskLater(200L, this::dispose);
     }
@@ -1448,11 +1452,13 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
         endTimeStamp = System.currentTimeMillis();
         var round = map.getCurrentRoundProperty().getValue(this);
         getPlayerMap().forEach((l,r) -> {
-            Player bukkitPlayer = r.getPlayer();
-            if(bukkitPlayer != null) {
-                bukkitPlayer.showTitle(Title.title(Component.text("Game Over!", NamedTextColor.GREEN),
-                        Component.text("You made it to Round " + (round + 1) + "!", NamedTextColor.GRAY)));
-                bukkitPlayer.sendActionBar(Component.empty());
+            if (r.isInGame()) {
+                Player bukkitPlayer = r.getPlayer();
+                if (bukkitPlayer != null) {
+                    bukkitPlayer.showTitle(Title.title(Component.text("Game Over!", NamedTextColor.GREEN),
+                            Component.text("You made it to Round " + (round + 1) + "!", NamedTextColor.GRAY)));
+                    bukkitPlayer.sendActionBar(Component.empty());
+                }
             }
         });
         gameScoreboard.run();

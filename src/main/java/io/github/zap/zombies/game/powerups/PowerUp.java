@@ -136,13 +136,15 @@ public abstract class PowerUp {
                         var eventArgs = new PowerUpChangedEventArgs(ChangedAction.ACTIVATED, Collections.singleton(getCurrent()));
                         getArena().getPowerUpChangedEvent().callEvent(eventArgs);
                         getArena().getPlayerMap().forEach((id, otherPlayer) -> {
-                            Player otherBukkitPlayer = otherPlayer.getPlayer();
-                            Title title = Title.title(LegacyComponentSerializer.legacySection()
-                                    .deserialize(getData().getDisplayName()), Component.empty());
-                            if (otherBukkitPlayer != null) {
-                                otherBukkitPlayer.showTitle(title);
-                                otherBukkitPlayer.sendMessage(ChatColor.YELLOW + bukkitPlayer.getName() + " activated " + getData().getDisplayName() + ChatColor.RESET + ChatColor.YELLOW + "!");
-                                otherBukkitPlayer.playSound(player.getPlayer().getLocation(), getData().getPickupSound(), getData().getPickupSoundVolume(), getData().getPickupSoundPitch());
+                            if (otherPlayer.isInGame()) {
+                                Player otherBukkitPlayer = otherPlayer.getPlayer();
+                                Title title = Title.title(LegacyComponentSerializer.legacySection()
+                                        .deserialize(getData().getDisplayName()), Component.empty());
+                                if (otherBukkitPlayer != null) {
+                                    otherBukkitPlayer.showTitle(title);
+                                    otherBukkitPlayer.sendMessage(ChatColor.YELLOW + bukkitPlayer.getName() + " activated " + getData().getDisplayName() + ChatColor.RESET + ChatColor.YELLOW + "!");
+                                    otherBukkitPlayer.playSound(player.getPlayer().getLocation(), getData().getPickupSound(), getData().getPickupSoundVolume(), getData().getPickupSoundPitch());
+                                }
                             }
                         });
 
