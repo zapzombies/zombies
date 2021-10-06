@@ -320,8 +320,8 @@ public class Corpse {
 
     private void onPlayerRejoin(ZombiesArena.ManagedPlayerListArgs playerListArgs) {
         for (ZombiesPlayer player : playerListArgs.getPlayers()) {
-            spawnDeadBodyForPlayer(zombiesPlayer.getPlayer());
-            hologram.renderToPlayer(zombiesPlayer.getPlayer());
+            spawnDeadBodyForPlayer(player.getPlayer());
+            hologram.renderToPlayer(player.getPlayer());
         }
     }
 

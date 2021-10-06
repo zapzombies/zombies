@@ -831,7 +831,9 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
 
                     // There are no players alive, so end the game
                     for (ZombiesPlayer player : getPlayerMap().values()) {
-                        player.kill("DEFAULT");
+                        if (player.isInGame()) {
+                            player.kill("DEFAULT");
+                        }
                     }
                     doLoss();
                 }
@@ -982,43 +984,48 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
                     knocked.knock();
 
                     for (ZombiesPlayer player : getPlayerMap().values()) {
-                        Player bukkitPlayer = player.getPlayer();
+                        if (player.isInGame() && player.isAlive()) {
+                            Player bukkitPlayer = player.getPlayer();
+                            if (bukkitPlayer != null) {
+                                String message = knocked.getDeathRoomName();
 
-                        if (player.isInGame() && player.isAlive() && bukkitPlayer != null) {
-                            String message = knocked.getDeathRoomName();
+                                //display death message only if necessary
+                                for (ZombiesPlayer otherPlayer : getPlayerMap().values()) {
+                                    if (otherPlayer.isInGame()) {
+                                        Player otherBukkitPlayer = otherPlayer.getPlayer();
 
-                            //display death message only if necessary
-                            for (ZombiesPlayer otherPlayer : getPlayerMap().values()) {
-                                Player otherBukkitPlayer = otherPlayer.getPlayer();
+                                        if (otherBukkitPlayer != null) {
+                                            otherBukkitPlayer.showTitle(Title.title(
+                                                    Component.text(knocked.getPlayer().getName(), NamedTextColor.YELLOW),
+                                                    Component.text("was knocked down in " + message,
+                                                            TextColor.color(61, 61, 61)),
+                                                    Title.Times.of(Duration.ofSeconds(1), Duration.ofSeconds(3),
+                                                            Duration.ofSeconds(1))));
 
-                                if (otherBukkitPlayer != null) {
-                                    otherBukkitPlayer.showTitle(Title.title(
-                                            Component.text(knocked.getPlayer().getName(), NamedTextColor.YELLOW),
-                                            Component.text("was knocked down in " + message,
-                                                    TextColor.color(61, 61, 61)),
-                                            Title.Times.of(Duration.ofSeconds(1), Duration.ofSeconds(3),
-                                                    Duration.ofSeconds(1))));
+                                            otherPlayer.getPlayer().playSound(Sound.sound(
+                                                    Key.key("minecraft:entity.ender_dragon.growl"),
+                                                    Sound.Source.MASTER,
+                                                    1.0F,
+                                                    0.5F
+                                            ));
 
-                                    otherPlayer.getPlayer().playSound(Sound.sound(
-                                            Key.key("minecraft:entity.ender_dragon.growl"),
-                                            Sound.Source.MASTER,
-                                            1.0F,
-                                            0.5F
-                                    ));
-
-                                    otherBukkitPlayer.sendMessage(Component.text(knocked.getPlayer().getName() +
-                                                    " was knocked down in", NamedTextColor.YELLOW)
-                                            .append(Component.text(" " + message, NamedTextColor.DARK_RED)));
+                                            otherBukkitPlayer.sendMessage(Component.text(knocked.getPlayer().getName() +
+                                                            " was knocked down in", NamedTextColor.YELLOW)
+                                                    .append(Component.text(" " + message, NamedTextColor.DARK_RED)));
+                                        }
+                                    }
                                 }
-                            }
 
-                            return; //return if there are any players still alive
+                                return; //return if there are any players still alive
+                            }
                         }
                     }
 
                     // There are no players alive, so end the game
                     for (ZombiesPlayer player : getPlayerMap().values()) {
-                        player.kill("DEFAULT");
+                        if (player.isInGame()) {
+                            player.kill("DEFAULT");
+                        }
                     }
                     doLoss();
                 }
@@ -1240,7 +1247,7 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
         long approximateTicks = (System.currentTimeMillis() - startTimeStamp) / 50; // todo: approximation bad
 
         for (ZombiesPlayer zombiesPlayer : getPlayerMap().values()) {
-            if (!zombiesPlayer.isAlive()) {
+            if (zombiesPlayer.isInGame() && !zombiesPlayer.isAlive()) {
                 zombiesPlayer.respawn();
             }
 
@@ -1563,10 +1570,12 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
                         Sound sound = Sound.sound(org.bukkit.Sound.BLOCK_NOTE_BLOCK_PLING, Sound.Source.MASTER,
                                 1.0F, 1.0F);
                         for (ZombiesPlayer player : getPlayerMap().values()) {
-                            Player bukkitPlayer = player.getPlayer();
-                            if (bukkitPlayer != null && player.isInGame()) {
-                                bukkitPlayer.sendMessage(message);
-                                bukkitPlayer.playSound(sound);
+                            if (player.isInGame()) {
+                                Player bukkitPlayer = player.getPlayer();
+                                if (bukkitPlayer != null) {
+                                    bukkitPlayer.sendMessage(message);
+                                    bukkitPlayer.playSound(sound);
+                                }
                             }
                         }
                     }
@@ -1620,10 +1629,12 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
                         Sound sound = Sound.sound(org.bukkit.Sound.BLOCK_NOTE_BLOCK_PLING, Sound.Source.MASTER,
                                 1.0F, 1.0F);
                         for (ZombiesPlayer player : getPlayerMap().values()) {
-                            Player bukkitPlayer = player.getPlayer();
-                            if (bukkitPlayer != null && player.isInGame()) {
-                                bukkitPlayer.sendMessage(message);
-                                bukkitPlayer.playSound(sound);
+                            if (player.isInGame()) {
+                                Player bukkitPlayer = player.getPlayer();
+                                if (bukkitPlayer != null) {
+                                    bukkitPlayer.sendMessage(message);
+                                    bukkitPlayer.playSound(sound);
+                                }
                             }
                         }
                     }

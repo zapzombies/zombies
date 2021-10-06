@@ -124,7 +124,7 @@ public abstract class PowerUp {
                     powerUpItemLocation.getZ()).expand(getData().getPickupRange());
             for (ZombiesPlayer player : getArena().getPlayerMap().values()) {
                 Player bukkitPlayer = player.getPlayer();
-                if (bukkitPlayer != null && player.getState() == ZombiesPlayerState.ALIVE) {
+                if (bukkitPlayer != null && player.isInGame() && player.getState() == ZombiesPlayerState.ALIVE) {
                     boolean collide = bukkitPlayer.getBoundingBox().overlaps(itemBox);
                     itemEntity.setCustomName(getData().getDisplayName());
                     if (collide && !(boolean) isPickedUp.getValue() && getState() == PowerUpState.DROPPED) {

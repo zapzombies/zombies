@@ -236,12 +236,14 @@ public class Door extends Shop<DoorData> {
             }
 
             for (ZombiesPlayer player : getArena().getPlayerMap().values()) {
-                Player otherBukkitPlayer = player.getPlayer();
-                if (otherBukkitPlayer != null) {
-                    otherBukkitPlayer.showTitle(Title.title(Component.text(opener.getName(), NamedTextColor.YELLOW),
-                            Component.text(message.toString(), TextColor.color(61, 61, 61)),
-                            Title.Times.of(Duration.ofSeconds(1), Duration.ofSeconds(3),
-                                    Duration.ofSeconds(1))));
+                if (player.isInGame()) {
+                    Player otherBukkitPlayer = player.getPlayer();
+                    if (otherBukkitPlayer != null) {
+                        otherBukkitPlayer.showTitle(Title.title(Component.text(opener.getName(), NamedTextColor.YELLOW),
+                                Component.text(message.toString(), TextColor.color(61, 61, 61)),
+                                Title.Times.of(Duration.ofSeconds(1), Duration.ofSeconds(3),
+                                        Duration.ofSeconds(1))));
+                    }
                 }
             }
         }
