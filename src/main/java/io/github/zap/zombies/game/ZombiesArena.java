@@ -1347,7 +1347,7 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
                                             if (finalLast != null) {
                                                 finalAttributeInstance.removeModifier(finalLast);
                                             }
-                                            finalAttributeInstance.addModifier(last[0] = new AttributeModifier(MOB_SPEEDUP_ATTRIBUTE_NAME, (value[0] *= 1.0372991973) - 1, AttributeModifier.Operation.MULTIPLY_SCALAR_1));
+                                            finalAttributeInstance.addModifier(last[0] = new AttributeModifier(MOB_SPEEDUP_ATTRIBUTE_NAME, (value[0] *= 1.0225106035) - 1, AttributeModifier.Operation.MULTIPLY_SCALAR_1));
                                         }
                                         else cancel();
                                     }
