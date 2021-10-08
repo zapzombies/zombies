@@ -34,6 +34,7 @@ import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -52,6 +53,8 @@ public class Corpse {
 
     @Getter
     private final Location location;
+
+    private final Vector center;
 
     private final UUID uniqueId = UUID.randomUUID();
 
@@ -88,6 +91,7 @@ public class Corpse {
             EntityBridge entityBridge = ArenaApi.getInstance().getNmsBridge().entityBridge();
 
             this.location = player.getPlayer().getLocation();
+            this.center = Zombies.getInstance().getNmsBridge().entityBridge().getCorpseCenter(this.location.toVector());
             this.defaultDeathTime = player.getArena().getMap().getCorpseDeathTime();
             this.hologram = new Hologram(location.clone().add(0, 1, 0));
             this.deathTime = defaultDeathTime;
@@ -316,8 +320,8 @@ public class Corpse {
 
     private void onPlayerRejoin(ZombiesArena.ManagedPlayerListArgs playerListArgs) {
         for (ZombiesPlayer player : playerListArgs.getPlayers()) {
-            spawnDeadBodyForPlayer(zombiesPlayer.getPlayer());
-            hologram.renderToPlayer(zombiesPlayer.getPlayer());
+            spawnDeadBodyForPlayer(player.getPlayer());
+            hologram.renderToPlayer(player.getPlayer());
         }
     }
 
@@ -461,6 +465,10 @@ public class Corpse {
         zombiesArena.getCorpses().remove(this);
         zombiesArena.getPlayerJoinEvent().removeHandler(this::onPlayerJoin);
         zombiesArena.getPlayerRejoinEvent().removeHandler(this::onPlayerRejoin);
+    }
+
+    public @NotNull Vector getCenter() {
+        return center;
     }
 
     @Override

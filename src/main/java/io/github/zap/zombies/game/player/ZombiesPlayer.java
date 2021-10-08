@@ -40,6 +40,7 @@ import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -346,11 +347,12 @@ public class ZombiesPlayer extends ManagedPlayer<ZombiesPlayer, ZombiesArena> im
                                 ActiveMob activeMob = apiHelper.getMythicMobInstance(event.getDamager());
 
                                 if (activeMob != null) {
+                                    MiniMessage miniMessage = MiniMessage.get();
                                     String configDisplayName = apiHelper.getMythicMob(activeMob.getMobType())
                                             .getConfig().getString("ZombiesDisplayName");
                                     broadcastDeathMessage(bukkitPlayer.getName(),
                                             configDisplayName != null
-                                                    ? Component.text(configDisplayName)
+                                                    ? miniMessage.parse(configDisplayName)
                                                     : Component.text(activeMob.getMobType(), NamedTextColor.RED));
                                 }
                                 else {

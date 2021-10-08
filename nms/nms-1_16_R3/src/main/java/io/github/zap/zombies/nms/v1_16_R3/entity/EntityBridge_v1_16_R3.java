@@ -11,6 +11,7 @@ import org.bukkit.craftbukkit.v1_16_R3.entity.CraftMob;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.*;
 import org.bukkit.event.entity.CreatureSpawnEvent;
+import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -141,5 +142,10 @@ public class EntityBridge_v1_16_R3 implements EntityBridge {
     public void setCurrentHandHoldingBow(@NotNull LivingEntity livingEntity) {
         EntityLiving entityLiving = ((CraftLivingEntity)livingEntity).getHandle();
         entityLiving.c(ProjectileHelper.a(entityLiving, Items.BOW));
+    }
+
+    @Override
+    public @NotNull Vector getCorpseCenter(@NotNull Vector root) {
+        return root.clone().setX(root.getX() - 0.9D);
     }
 }

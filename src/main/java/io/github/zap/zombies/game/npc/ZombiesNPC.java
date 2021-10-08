@@ -39,6 +39,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 
@@ -219,8 +220,7 @@ public class ZombiesNPC implements Listener {
         // init equipment
         List<Pair<EnumWrappers.ItemSlot, ItemStack>> equipmentSlotStackPairList = new ArrayList<>();
         for (int i = 0; i < 4; i++) {
-            equipmentSlotStackPairList.add(new Pair<>(ITEM_SLOT_MAP.get(i + 2),
-                    new ItemStack(data.getEquipment().get(i))));
+            equipmentSlotStackPairList.add(new Pair<>(ITEM_SLOT_MAP.get(i + 2), data.getEquipment().get(i)));
         }
 
         equipmentPacket.getIntegers().write(0, id);
@@ -494,7 +494,7 @@ public class ZombiesNPC implements Listener {
 
         private final Set<String> maps;
 
-        private final List<Material> equipment;
+        private final List<ItemStack> equipment;
 
         private final WrappedSignedProperty texture;
 
@@ -507,7 +507,7 @@ public class ZombiesNPC implements Listener {
             serialized.put("customName", MiniMessage.get().serialize(customName));
             serialized.put("customNameVisible", customNameVisible);
             serialized.put("maps", new ArrayList<>(maps));
-            serialized.put("equipment", equipment.stream().map(Enum::toString).toList());
+            serialized.put("equipment", equipment);
 
             if (texture != null) {
                 serialized.put("textureValue", texture.getValue());
@@ -526,11 +526,15 @@ public class ZombiesNPC implements Listener {
                     Component.text(PLAY_ZOMBIES));
             boolean customNameVisible = (boolean) data.getOrDefault("customNameVisible", false);
             Set<String> maps = new HashSet<>((List<String>) data.getOrDefault("maps", Collections.emptyList()));
-            List<Material> equipment = ((List<String>) data.getOrDefault("equipment",
-                   Collections.nCopies(4, Material.AIR.toString())))
-                   .stream()
-                   .map(Material::getMaterial)
-                   .toList();
+            List<ItemStack> equipment = (List<ItemStack>) data.getOrDefault("equipment",
+                    new ArrayList<>(4) {
+                        {
+                            add(new ItemStack(Material.AIR));
+                            add(new ItemStack(Material.AIR));
+                            add(new ItemStack(Material.AIR));
+                            add(new ItemStack(Material.AIR));
+                        }
+                    }); // Collections.nCopies(4, new ItemStack(Material.AIR)); seems to break serialization
 
             String textureValue = (String) data.get("textureValue");
             String signature = (String) data.get("signature");

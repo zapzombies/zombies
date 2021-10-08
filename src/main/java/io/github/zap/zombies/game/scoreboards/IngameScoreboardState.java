@@ -192,10 +192,12 @@ public class IngameScoreboardState implements GameScoreboardState, Disposable {
                 playerSb.getValue().getSidebarWriter().update();
                 gameScoreboard.getZombiesArena().getPlayerMap()
                         .forEach((l,r) -> {
-                            Player otherPlayer = r.getPlayer();
-                            if (otherPlayer != null) {
-                                playerSb.getValue().getZombiesKillObjective().getScore(otherPlayer.getName()).setScore(r.getKills());
-                                playerSb.getValue().getHealthObjective().getScore(otherPlayer.getName()).setScore((int) otherPlayer.getHealth());
+                            if (r.isInGame()) {
+                                Player otherPlayer = r.getPlayer();
+                                if (otherPlayer != null) {
+                                    playerSb.getValue().getZombiesKillObjective().getScore(otherPlayer.getName()).setScore(r.getKills());
+                                    playerSb.getValue().getHealthObjective().getScore(otherPlayer.getName()).setScore((int) otherPlayer.getHealth());
+                                }
                             }
                         });
             } else {
