@@ -6,7 +6,6 @@ import com.grinderwolf.swm.api.loaders.SlimeLoader;
 import com.grinderwolf.swm.internal.com.flowpowered.nbt.*;
 import com.grinderwolf.swm.internal.com.flowpowered.nbt.stream.NBTOutputStream;
 import com.grinderwolf.swm.plugin.loaders.file.FileLoader;
-import io.github.regularcommands.commands.CommandManager;
 import io.github.zap.arenaapi.ArenaApi;
 import io.github.zap.arenaapi.LoadFailureException;
 import io.github.zap.arenaapi.localization.LocalizationManager;
@@ -18,6 +17,7 @@ import io.github.zap.arenaapi.serialize.JacksonDataLoader;
 import io.github.zap.arenaapi.shadow.org.apache.commons.lang3.time.StopWatch;
 import io.github.zap.arenaapi.util.WorldUtils;
 import io.github.zap.arenaapi.world.WorldLoader;
+import io.github.zap.regularcommands.commands.CommandManager;
 import io.github.zap.zombies.command.ZombiesCommand;
 import io.github.zap.zombies.command.mapeditor.ContextManager;
 import io.github.zap.zombies.command.mapeditor.MapeditorCommand;
@@ -34,6 +34,7 @@ import io.github.zap.zombies.nms.v1_16_R3.ZombiesNMSBridge_v1_16_R3;
 import io.github.zap.zombies.world.SlimeWorldLoader;
 import io.lumine.xikage.mythicmobs.MythicMobs;
 import lombok.Getter;
+import net.kyori.adventure.translation.GlobalTranslator;
 import org.apache.commons.io.FilenameUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
@@ -326,9 +327,10 @@ public final class Zombies extends JavaPlugin implements Listener {
     }
 
     private void initCommands() {
-        commandManager = new CommandManager(this);
-        commandManager.registerCommand(new ZombiesCommand());
-        commandManager.registerCommand(new MapeditorCommand());
+        commandManager = new CommandManager(this, GlobalTranslator.get());
+        commandManager.registerDefaultTranslations();
+        commandManager.registerCommand(new ZombiesCommand(commandManager));
+        commandManager.registerCommand(new MapeditorCommand(commandManager));
 
         contextManager = new ContextManager();
     }

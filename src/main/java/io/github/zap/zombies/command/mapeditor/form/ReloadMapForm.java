@@ -1,17 +1,19 @@
 package io.github.zap.zombies.command.mapeditor.form;
 
-import io.github.regularcommands.commands.CommandForm;
-import io.github.regularcommands.commands.Context;
-import io.github.regularcommands.converter.Parameter;
-import io.github.regularcommands.util.Permissions;
-import io.github.regularcommands.util.StringUtils;
-import io.github.regularcommands.validator.CommandValidator;
 import io.github.zap.arenaapi.LoadFailureException;
+import io.github.zap.regularcommands.commands.CommandForm;
+import io.github.zap.regularcommands.commands.Context;
+import io.github.zap.regularcommands.commands.RegularCommand;
+import io.github.zap.regularcommands.converter.Parameter;
+import io.github.zap.regularcommands.util.Permissions;
+import io.github.zap.regularcommands.validator.CommandValidator;
 import io.github.zap.zombies.Zombies;
 import io.github.zap.zombies.command.mapeditor.EditorContext;
 import io.github.zap.zombies.command.mapeditor.MapeditorValidators;
 import io.github.zap.zombies.command.mapeditor.form.data.EditorContextData;
 import io.github.zap.zombies.game.data.map.MapData;
+import net.kyori.adventure.text.Component;
+import org.jetbrains.annotations.NotNull;
 
 public class ReloadMapForm extends CommandForm<EditorContextData> {
     private static final Parameter[] parameters = new Parameter[] {
@@ -19,8 +21,8 @@ public class ReloadMapForm extends CommandForm<EditorContextData> {
             new Parameter("reload")
     };
 
-    public ReloadMapForm() {
-        super("Reloads all MapData.", Permissions.OPERATOR, parameters);
+    public ReloadMapForm(@NotNull RegularCommand command) {
+        super(command, Component.text("Reloads all MapData."), Permissions.OPERATOR, parameters);
     }
 
     @Override
@@ -29,12 +31,7 @@ public class ReloadMapForm extends CommandForm<EditorContextData> {
     }
 
     @Override
-    public boolean canStylize() {
-        return true;
-    }
-
-    @Override
-    public String execute(Context context, Object[] arguments, EditorContextData data) {
+    public Component execute(Context context, Object[] arguments, EditorContextData data) {
         try {
             Zombies zombies = Zombies.getInstance();
             zombies.getArenaManager().loadMaps();
@@ -50,9 +47,9 @@ public class ReloadMapForm extends CommandForm<EditorContextData> {
             }
         }
         catch (LoadFailureException e) {
-            return ">red{" + StringUtils.escapify(e.getMessage()) + "}";
+            return Component.text(e.getMessage());
         }
 
-        return "Reloaded all maps.";
+        return Component.text("Reloaded all maps.");
     }
 }

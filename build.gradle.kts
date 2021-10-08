@@ -2,7 +2,7 @@ import io.github.zap.build.gradle.convention.*
 
 // Uncomment to use local maven version - help local testing faster
 plugins {
-    id("io.github.zap.build.gradle.convention.shadow-mc-plugin") version "1.1.0"
+    id("io.github.zap.build.gradle.convention.shadow-mc-plugin") version "1.1.0-SNAPSHOT-1633613339"
 }
 
 repositories {
@@ -14,8 +14,6 @@ repositories {
     maven("https://repo.glaremasters.me/repository/concuncan/")
     maven("https://repo.dmulloy2.net/repository/public/")
     maven("https://mvn.lumine.io/repository/maven-public/")
-
-    maven("https://jitpack.io")
 }
 
 dependencies {
@@ -26,7 +24,7 @@ dependencies {
     shade(project(":nms:nms-common"))
     shade(project("nms:nms-1_16_R3"))
 
-    shade("com.github.Steanky:RegularCommands:master-SNAPSHOT")
+    shade("io.github.zap:regular-commands:1.0.1", qs())
     shade("net.kyori:adventure-text-minimessage:4.1.0-SNAPSHOT") {
         exclude("net.kyori", "adventure-api")
     }

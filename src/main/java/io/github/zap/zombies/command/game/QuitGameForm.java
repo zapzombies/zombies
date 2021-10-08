@@ -1,17 +1,20 @@
 package io.github.zap.zombies.command.game;
 
 import com.google.common.collect.ImmutableList;
-import io.github.regularcommands.commands.CommandForm;
-import io.github.regularcommands.commands.Context;
-import io.github.regularcommands.converter.Parameter;
-import io.github.regularcommands.util.Permissions;
-import io.github.regularcommands.util.Validators;
-import io.github.regularcommands.validator.CommandValidator;
-import io.github.regularcommands.validator.ValidationResult;
 import io.github.zap.arenaapi.ArenaApi;
 import io.github.zap.arenaapi.game.arena.Arena;
 import io.github.zap.arenaapi.shadow.org.apache.commons.lang3.tuple.Pair;
+import io.github.zap.regularcommands.commands.CommandForm;
+import io.github.zap.regularcommands.commands.Context;
+import io.github.zap.regularcommands.commands.RegularCommand;
+import io.github.zap.regularcommands.converter.Parameter;
+import io.github.zap.regularcommands.util.Permissions;
+import io.github.zap.regularcommands.util.Validators;
+import io.github.zap.regularcommands.validator.CommandValidator;
+import io.github.zap.regularcommands.validator.ValidationResult;
+import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Iterator;
 
@@ -20,7 +23,8 @@ public class QuitGameForm extends CommandForm<Pair<Player, Arena<?>>> {
             new Parameter("quit")
     };
 
-    private static final CommandValidator<Pair<Player, Arena<?>>, Player> validator = new CommandValidator<>((context, objects, player) -> {
+    private static final CommandValidator<Pair<Player, Arena<?>>, Player> validator =
+            new CommandValidator<>((context, objects, player) -> {
             Iterator<? extends Arena<?>> arenaIterator = ArenaApi.getInstance().arenaIterator();
         while(arenaIterator.hasNext()) {
             Arena<?> next = arenaIterator.next();
@@ -29,11 +33,12 @@ public class QuitGameForm extends CommandForm<Pair<Player, Arena<?>>> {
             }
         }
 
-        return ValidationResult.of(false, "You must be in a game to use that command!", null);
+        return ValidationResult.of(false, Component.text("You must be in a game to use that command!"),
+                null);
     }, Validators.PLAYER_EXECUTOR);
 
-    public QuitGameForm() {
-        super("Quits a game.", Permissions.NONE, parameters);
+    public QuitGameForm(@NotNull RegularCommand command) {
+        super(command, Component.text("Quits a game."), Permissions.NONE, parameters);
     }
 
     @Override
@@ -42,8 +47,8 @@ public class QuitGameForm extends CommandForm<Pair<Player, Arena<?>>> {
     }
 
     @Override
-    public String execute(Context context, Object[] objects, Pair<Player, Arena<?>> data) {
+    public @NotNull Component execute(Context context, Object[] objects, Pair<Player, Arena<?>> data) {
         data.getRight().handleLeave(ImmutableList.of(data.getLeft()));
-        return "Leaving arena...";
+        return Component.text("Leaving arena...");
     }
 }

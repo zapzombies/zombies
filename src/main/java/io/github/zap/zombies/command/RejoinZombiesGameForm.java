@@ -1,29 +1,32 @@
 package io.github.zap.zombies.command;
 
 import com.google.common.collect.Lists;
-import io.github.regularcommands.commands.CommandForm;
-import io.github.regularcommands.commands.Context;
-import io.github.regularcommands.converter.Parameter;
-import io.github.regularcommands.util.Permissions;
-import io.github.regularcommands.util.Validators;
-import io.github.regularcommands.validator.CommandValidator;
-import io.github.regularcommands.validator.ValidationResult;
 import io.github.zap.arenaapi.ArenaApi;
 import io.github.zap.arenaapi.game.Joinable;
 import io.github.zap.arenaapi.game.SimpleJoinable;
 import io.github.zap.arenaapi.game.arena.ArenaManager;
 import io.github.zap.arenaapi.game.arena.JoinInformation;
+import io.github.zap.regularcommands.commands.CommandForm;
+import io.github.zap.regularcommands.commands.Context;
+import io.github.zap.regularcommands.commands.RegularCommand;
+import io.github.zap.regularcommands.converter.Parameter;
+import io.github.zap.regularcommands.util.Permissions;
+import io.github.zap.regularcommands.util.Validators;
+import io.github.zap.regularcommands.validator.CommandValidator;
+import io.github.zap.regularcommands.validator.ValidationResult;
 import io.github.zap.zombies.Zombies;
+import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
 public class RejoinZombiesGameForm extends CommandForm<Joinable> {
     private static final Parameter[] parameters = new Parameter[] {
             new Parameter("rejoin"),
-            new Parameter("^([a-zA-Z0-9_ ]+)$", "[arena-name]"),
+            new Parameter("^([a-zA-Z0-9_ ]+)$", Component.text("[arena-name]")),
             new Parameter("[0-9a-fA-F]{8}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{12}",
-                    "[map-uuid]")
+                    Component.text("[map-uuid]"))
     };
 
     private static final CommandValidator<Joinable, ?> validator = new CommandValidator<>((context, arguments,
@@ -34,32 +37,27 @@ public class RejoinZombiesGameForm extends CommandForm<Joinable> {
         ArenaManager<?> arenaManager = ArenaApi.getInstance().getArenaManager(managerName);
 
         if (arenaManager == null) {
-            return ValidationResult.of(false, String.format("An ArenaManager named '%s' does not exist.",
-                    managerName), null);
+            return ValidationResult.of(false, Component.text("An ArenaManager named " + managerName +
+                    " does not exist."), null);
         }
 
         try {
             UUID mapUUID = UUID.fromString(mapUUIDString);
 
             if (!arenaManager.getArenas().containsKey(mapUUID)) {
-                return ValidationResult.of(false, String.format("There is no map with UUID '%s' for " +
-                        "ArenaManager '%s'", mapUUIDString, managerName), null);
+                return ValidationResult.of(false, Component.text("There is no map with UUID " + mapUUIDString +
+                        "for ArenaManager " + arenaManager.getGameName()), null);
             }
         } catch (IllegalArgumentException e) {
-            return ValidationResult.of(false, String.format("The given UUID string '%s' is invalid.",
-                    mapUUIDString), null);
+            return ValidationResult.of(false, Component.text("The given UUID string " + mapUUIDString +
+                    " is not valid"), null);
         }
 
         return ValidationResult.of(true, null, new SimpleJoinable(Lists.newArrayList(previousData)));
     }, Validators.PLAYER_EXECUTOR);
 
-    public RejoinZombiesGameForm() {
-        super("Rejoins a Zombies game.", Permissions.OPERATOR, parameters);
-    }
-
-    @Override
-    public boolean canStylize() {
-        return true;
+    public RejoinZombiesGameForm(@NotNull RegularCommand command) {
+        super(command, Component.text("Rejoins a Zombies game."), Permissions.OPERATOR, parameters);
     }
 
     @Override
@@ -68,7 +66,7 @@ public class RejoinZombiesGameForm extends CommandForm<Joinable> {
     }
 
     @Override
-    public String execute(Context context, Object[] arguments, Joinable data) {
+    public @NotNull Component execute(Context context, Object[] arguments, Joinable data) {
         Player player = (Player) context.getSender();
         ArenaApi api = Zombies.getInstance().getArenaApi();
 
@@ -81,6 +79,6 @@ public class RejoinZombiesGameForm extends CommandForm<Joinable> {
             }
         });
 
-        return ">green{Attempting to rejoin a game...}";
+        return Component.text("Attempting to rejoin a game...");
     }
 }

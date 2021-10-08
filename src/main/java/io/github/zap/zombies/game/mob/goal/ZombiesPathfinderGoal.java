@@ -32,7 +32,8 @@ import java.util.Optional;
 import java.util.logging.Level;
 
 public abstract class ZombiesPathfinderGoal<T> extends Pathfinder {
-    protected static final PathfinderEngine PATHFINDER_ENGINE = PathfinderEngines.proxyAsync(Zombies.getInstance());
+    protected static final PathfinderEngine PATHFINDER_ENGINE = PathfinderEngines.proxyAsync(Zombies.getInstance(),
+            ArenaApi.getInstance().getNmsBridge().worldBridge());
 
     protected final Plugin plugin;
 
