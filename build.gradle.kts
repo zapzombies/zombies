@@ -24,7 +24,7 @@ dependencies {
     shade(project(":nms:nms-common"))
     shade(project("nms:nms-1_16_R3"))
 
-    shade("io.github.zap:regular-commands:1.0.1", qs())
+    shade("io.github.zap:regular-commands:1.0.1-SNAPSHOT-1633667782", qs())
     shade("net.kyori:adventure-text-minimessage:4.1.0-SNAPSHOT") {
         exclude("net.kyori", "adventure-api")
     }
