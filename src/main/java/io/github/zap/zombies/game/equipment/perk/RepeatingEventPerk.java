@@ -25,7 +25,7 @@ public abstract class RepeatingEventPerk<D extends PerkData<L>, L extends PerkLe
     }
 
     @Override
-    public void deactivate() {
+    public void deactivate(boolean saveState) {
         getActionTriggerEvent().stop();
     }
 }

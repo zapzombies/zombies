@@ -35,7 +35,6 @@ public class MeleeAttackGoal extends DeviatingGoal {
         if(targetPlayer != null) {
             attackTimer--;
             tryAttack(targetPlayer);
-            mob.lookAt(targetPlayer);
         }
     }
 

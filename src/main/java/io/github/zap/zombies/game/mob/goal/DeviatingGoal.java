@@ -17,16 +17,15 @@ public abstract class DeviatingGoal extends PlayerTargetingGoal {
     public DeviatingGoal(@NotNull Plugin plugin, @NotNull AbstractEntity entity, @NotNull String line,
                          @NotNull MythicLineConfig mlc) {
         super(plugin, entity, line, mlc);
-        this.targetDeviationSquared = mlc.getDouble("targetDeviationSquared", 0);
+        this.targetDeviationSquared = mlc.getDouble("targetDeviationSquared", 0.5);
         this.requiresSight = mlc.getBoolean("requiresSight", true);
     }
-
 
     @Override
     protected @NotNull PathOperation makeOperation(@NotNull ZombiesPlayer zombiesPlayer, @NotNull Player target) {
         return new PathOperationBuilder()
                 .withAgent(mob)
-                .withDestination(target, zombiesPlayer)
+                .withDestination(target, arenaNMS.worldBridge(), zombiesPlayer)
                 .withRange(getArena().getMapBounds())
                 .withSuccessCondition(SuccessConditions.whenWithin(targetDeviationSquared > 1 ? (requiresSight ?
                         (mob.hasLineOfSight(target) ? targetDeviationSquared : 0) : targetDeviationSquared) :

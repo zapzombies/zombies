@@ -29,6 +29,46 @@ public class SpawnMobMechanic extends ZombiesArenaSkill implements Listener {
     private static final String PARENT = "skill.spawnmobs.parent";
     private static final String CHILDREN = "skill.spawnmobs.children";
 
+    private static class Handler implements Listener {
+        private Handler() {
+            Bukkit.getPluginManager().registerEvents(this, Zombies.getInstance());
+        }
+
+        @EventHandler
+        private void onEntityRemoveFromWorld(EntityRemoveFromWorldEvent event) {
+            Optional<MetadataValue> ownerOptional = MetadataHelper.getMetadataValue(event.getEntity(),
+                    Zombies.getInstance(), PARENT);
+
+            if(ownerOptional.isPresent()) {
+                UUID owner = (UUID)ownerOptional.get().value();
+                if(owner != null) {
+                    Entity ownerEntity = Bukkit.getEntity(owner);
+
+                    if(ownerEntity != null) {
+                        UUID self = event.getEntity().getUniqueId();
+                        Optional<ActiveMob> selfOpt = MythicMobs.inst().getMobManager().getActiveMob(self);
+
+                        if(selfOpt.isPresent()) {
+                            ActiveMob selfActive = selfOpt.get();
+                            String mobType = selfActive.getMobType();
+                            Optional<MetadataValue> childrenOptional = MetadataHelper.getMetadataValue(ownerEntity,
+                                    Zombies.getInstance(), CHILDREN + "." + mobType);
+
+                            Optional<ActiveMob> activeMob = MythicMobs.inst().getMobManager().getActiveMob(self);
+                            if(activeMob.isPresent() && activeMob.get().getMobType().equals(mobType)) {
+                                Set<UUID> childMobs;
+                                //noinspection unchecked
+                                if(childrenOptional.isPresent() && (childMobs = (Set<UUID>)childrenOptional.get().value()) != null) {
+                                    childMobs.remove(self);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     private final String mobType;
     private final int mobCountMin;
     private final int mobCountMax;
@@ -37,6 +77,10 @@ public class SpawnMobMechanic extends ZombiesArenaSkill implements Listener {
     private final boolean ignoreSpawnrule;
     private final double spawnRadiusSquared;
     private final double originRadiusSquared;
+
+    static {
+        new Handler();
+    }
 
     public SpawnMobMechanic(String skill, MythicLineConfig mlc) {
         super(skill, mlc);
@@ -48,8 +92,7 @@ public class SpawnMobMechanic extends ZombiesArenaSkill implements Listener {
         ignoreSpawnrule = mlc.getBoolean("ignoreSpawnrule", false);
         spawnRadiusSquared = mlc.getDouble("slaRadiusSquared", 4096);
         originRadiusSquared = mlc.getDouble("originRadiusSquared", 1024);
-
-        Zombies.getInstance().getServer().getPluginManager().registerEvents(this, Zombies.getInstance());
+        new Handler();
     }
 
     @Override
@@ -91,34 +134,6 @@ public class SpawnMobMechanic extends ZombiesArenaSkill implements Listener {
         }
 
         return false;
-    }
-
-    @EventHandler
-    private void onEntityRemoveFromWorld(EntityRemoveFromWorldEvent event) {
-        Optional<MetadataValue> ownerOptional = MetadataHelper.getMetadataValue(event.getEntity(),
-                Zombies.getInstance(), PARENT);
-
-        if(ownerOptional.isPresent()) {
-            UUID owner = (UUID)ownerOptional.get().value();
-            if(owner != null) {
-                Entity ownerEntity = Bukkit.getEntity(owner);
-
-                if(ownerEntity != null) {
-                    UUID self = event.getEntity().getUniqueId();
-                    Optional<MetadataValue> childrenOptional = MetadataHelper.getMetadataValue(ownerEntity,
-                            Zombies.getInstance(), CHILDREN + "." + mobType);
-
-                    Optional<ActiveMob> activeMob = MythicMobs.inst().getMobManager().getActiveMob(self);
-                    if(activeMob.isPresent() && activeMob.get().getMobType().equals(mobType)) {
-                        Set<UUID> childMobs;
-                        //noinspection unchecked
-                        if(childrenOptional.isPresent() && (childMobs = (Set<UUID>)childrenOptional.get().value()) != null) {
-                            childMobs.remove(self);
-                        }
-                    }
-                }
-            }
-        }
     }
 
     private void registerMob(Set<UUID> addTo, ActiveMob spawned, UUID ownerId) {

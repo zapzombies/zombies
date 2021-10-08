@@ -81,9 +81,11 @@ public class StrafeBowShootGoal extends RangedGoal {
 
             if(distanceSquared < shootRangeSquared && sightCounter >= 20) {
                 combatCounter++;
+                getNavigator().pauseNavigating();
             }
             else {
                 combatCounter = -1;
+                getNavigator().resumeNavigating();
             }
 
             if(combatCounter >= 20) {

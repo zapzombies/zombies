@@ -1,5 +1,6 @@
 package io.github.zap.zombies.game.mob.goal;
 
+import io.github.zap.arenaapi.nms.common.pathfind.MobNavigator;
 import io.github.zap.arenaapi.nms.common.pathfind.PathEntityWrapper;
 import io.github.zap.arenaapi.pathfind.operation.PathOperation;
 import io.github.zap.arenaapi.pathfind.path.PathResult;
@@ -14,6 +15,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.logging.Level;
 
 public abstract class PlayerTargetingGoal extends ZombiesPathfinderGoal<ZombiesPlayer> {
     private static final int RECALCULATE_INTERVAL = 10;
@@ -40,6 +43,11 @@ public abstract class PlayerTargetingGoal extends ZombiesPathfinderGoal<ZombiesP
         }
     }
 
+    private boolean validGamemode(Player player) {
+        GameMode gameMode = player.getGameMode();
+        return gameMode == GameMode.ADVENTURE || gameMode == GameMode.SURVIVAL;
+    }
+
     private boolean locationChanged() {
         ZombiesPlayer target = getCurrentTarget();
         Player bukkitPlayer = target.getPlayer();
@@ -54,9 +62,7 @@ public abstract class PlayerTargetingGoal extends ZombiesPathfinderGoal<ZombiesP
         ZombiesPlayer target = getCurrentTarget();
         Player bukkitPlayer = target.getPlayer();
         if(bukkitPlayer != null) {
-            GameMode gameMode = bukkitPlayer.getGameMode();
-            return target.isInGame() && target.isAlive() &&
-                    (gameMode == GameMode.ADVENTURE || gameMode == GameMode.SURVIVAL);
+            return target.isInGame() && target.isAlive() && validGamemode(bukkitPlayer);
         }
 
         return false;
@@ -70,7 +76,7 @@ public abstract class PlayerTargetingGoal extends ZombiesPathfinderGoal<ZombiesP
         ZombiesPlayer closest = null;
         for(ZombiesPlayer player : getArena().getPlayerMap().values()) {
             Player bukkitPlayer = player.getPlayer();
-            if(player.isAlive() && player.isInGame() && bukkitPlayer != null) {
+            if(player.isAlive() && player.isInGame() && bukkitPlayer != null && validGamemode(bukkitPlayer)) {
                 Location mobLocation = mob.getLocation();
                 Location playerLocation = bukkitPlayer.getLocation();
 
@@ -112,27 +118,50 @@ public abstract class PlayerTargetingGoal extends ZombiesPathfinderGoal<ZombiesP
     protected void stop() {
         zombiesNMS.entityBridge().setAggressive(mob, false);
         mob.setTarget(null);
-        mob.setAware(true);
+    }
+
+    @Override
+    protected void onRetarget(@Nullable ZombiesPlayer newTarget) {
+        super.onRetarget(newTarget);
+
+        Player player;
+        if(newTarget != null && (player = newTarget.getPlayer()) != null) {
+            mob.setTarget(player);
+            lastLocation = null;
+            recalculateCounter = RECALCULATE_INTERVAL; //force recalculate on next tick
+        }
+        else {
+            mob.setTarget(null);
+        }
     }
 
     @Override
     public void tick() {
         PathResult result = pathHandler.tryTakeResult();
+        MobNavigator navigator = getNavigator();
+
         if(result != null) {
-            mobNavigator.navigateAlongPath(result.toPathEntity(), 1);
+            navigator.navigateAlongPath(result.toPathEntity(), 1);
         }
 
-        PathEntityWrapper currentPath = mobNavigator.currentPath();
+        PathEntityWrapper currentPath = navigator.currentPath();
+        ZombiesPlayer currentTarget = getCurrentTarget();
+        Player bukkitPlayer = currentTarget.getPlayer();
+
+        if(bukkitPlayer != null) {
+            mob.lookAt(bukkitPlayer);
+        }
+
         if(++retargetCounter >= retargetInterval) {
             retarget();
             retargetCounter = 0;
         }
-        else if(currentPath == null || mobNavigator.isIdle() ||
+        else if(currentPath == null || navigator.isIdle() ||
                 (locationChanged() && ++recalculateCounter >= RECALCULATE_INTERVAL)) {
             calculatePath(getCurrentTarget());
 
             recalculateCounter = (int)(Math.random() * HALF_INTERVAL) -
-                    (currentPath == null ? 0 : currentPath.pathLength() / 4);
+                    (currentPath == null ? 0 : currentPath.pathLength());
         }
     }
 }

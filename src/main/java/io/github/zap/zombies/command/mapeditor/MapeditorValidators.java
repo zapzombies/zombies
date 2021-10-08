@@ -1,12 +1,13 @@
 package io.github.zap.zombies.command.mapeditor;
 
-import io.github.regularcommands.util.Validators;
-import io.github.regularcommands.validator.CommandValidator;
-import io.github.regularcommands.validator.ValidationResult;
+import io.github.zap.regularcommands.util.Validators;
+import io.github.zap.regularcommands.validator.CommandValidator;
+import io.github.zap.regularcommands.validator.ValidationResult;
 import io.github.zap.zombies.Zombies;
 import io.github.zap.zombies.command.mapeditor.form.data.*;
 import io.github.zap.zombies.game.data.map.MapData;
 import io.github.zap.zombies.game.data.map.RoomData;
+import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.bukkit.util.BoundingBox;
 
@@ -21,7 +22,7 @@ public final class MapeditorValidators {
     public static final CommandValidator<EditorContextData, EditorContextData> NO_ACTIVE_MAP =
             new CommandValidator<>((context, arguments, previousData) -> {
         if(previousData.getContext().getMap() != null) {
-            return ValidationResult.of(false, "You are already editing a map.", null);
+            return ValidationResult.of(false, Component.text("You are already editing a map."), null);
         }
 
         return ValidationResult.of(true, null, previousData);
@@ -31,20 +32,23 @@ public final class MapeditorValidators {
             HAS_ACTIVE_MAP = new CommandValidator<>((context, arguments, previousData) -> {
         MapData map = previousData.getContext().getMap();
         if(map == null) {
-            return ValidationResult.of(false, "You are not editing a map.", null);
+            return ValidationResult.of(false, Component.text("You are not editing a map."), null);
         }
 
-        return ValidationResult.of(true, null, new MapContextData(previousData.getPlayer(), previousData.getContext(), map));
+        return ValidationResult.of(true, null, new MapContextData(previousData.getPlayer(),
+                previousData.getContext(), map));
     }, HAS_EDITOR_CONTEXT);
 
     public static final CommandValidator<BoundsContextData, EditorContextData>
             HAS_SELECTION = new CommandValidator<>((context, arguments, previousData) -> {
         BoundingBox selection = previousData.getContext().getSelection();
         if(selection == null) {
-            return ValidationResult.of(false, "You must have something selected to use this command.", null);
+            return ValidationResult.of(false,
+                    Component.text("You must have something selected to use this command."), null);
         }
 
-        return ValidationResult.of(true, null, new BoundsContextData(previousData.getPlayer(), previousData.getContext(), selection));
+        return ValidationResult.of(true, null, new BoundsContextData(previousData.getPlayer(),
+                previousData.getContext(), selection));
     }, HAS_EDITOR_CONTEXT);
 
     public static final CommandValidator<MapSelectionData, BoundsContextData> HAS_MAP_SELECTION =
@@ -64,6 +68,7 @@ public final class MapeditorValidators {
                     }
                 }
 
-                return ValidationResult.of(false, "Your selection must be contained in a room!", null);
+                return ValidationResult.of(false,
+                        Component.text("Your selection must be contained in a room!"), null);
             }, MapeditorValidators.HAS_MAP_SELECTION);
 }

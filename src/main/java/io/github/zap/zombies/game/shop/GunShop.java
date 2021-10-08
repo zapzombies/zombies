@@ -57,6 +57,14 @@ public class GunShop extends ArmorStandShop<GunShopData> {
                 displayToPlayer(player);
             }
         });
+        for (ZombiesPlayer player : getArena().getPlayerMap().values()) {
+            player.getStateChangedEvent().registerHandler(state -> {
+                Player bukkitPlayer = player.getPlayer();
+                if (bukkitPlayer != null) {
+                    displayToPlayer(bukkitPlayer);
+                }
+            });
+        }
     }
 
     @Override

@@ -52,9 +52,11 @@ public class PregameScoreboardState implements GameScoreboardState, Disposable {
               .text(ChatColor.YELLOW + "discord.gg/private-bro");
 
         for (var player : gameScoreboard.getZombiesArena().getPlayerMap().values()) {
-            Player bukkitPlayer = player.getPlayer();
-            if (bukkitPlayer != null) {
-                bukkitPlayer.setScoreboard(bukkitScoreboard);
+            if (player.isInGame()) {
+                Player bukkitPlayer = player.getPlayer();
+                if (bukkitPlayer != null) {
+                    bukkitPlayer.setScoreboard(bukkitScoreboard);
+                }
             }
         }
 

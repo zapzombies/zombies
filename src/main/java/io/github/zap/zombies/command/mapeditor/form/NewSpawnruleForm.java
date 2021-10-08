@@ -1,45 +1,50 @@
 package io.github.zap.zombies.command.mapeditor.form;
 
-import io.github.regularcommands.commands.CommandForm;
-import io.github.regularcommands.commands.Context;
-import io.github.regularcommands.converter.ConversionResult;
-import io.github.regularcommands.converter.Parameter;
-import io.github.regularcommands.util.Converters;
-import io.github.regularcommands.util.Permissions;
-import io.github.regularcommands.validator.CommandValidator;
-import io.github.regularcommands.validator.ValidationResult;
+import io.github.zap.regularcommands.commands.CommandForm;
+import io.github.zap.regularcommands.commands.Context;
+import io.github.zap.regularcommands.commands.RegularCommand;
+import io.github.zap.regularcommands.converter.ConversionResult;
+import io.github.zap.regularcommands.converter.Parameter;
+import io.github.zap.regularcommands.util.Converters;
+import io.github.zap.regularcommands.util.Permissions;
+import io.github.zap.regularcommands.validator.CommandValidator;
+import io.github.zap.regularcommands.validator.ValidationResult;
 import io.github.zap.zombies.Zombies;
 import io.github.zap.zombies.command.mapeditor.MapeditorValidators;
 import io.github.zap.zombies.command.mapeditor.Regexes;
 import io.github.zap.zombies.command.mapeditor.form.data.MapContextData;
 import io.github.zap.zombies.command.mapeditor.form.data.SpawnRuleContext;
 import io.github.zap.zombies.game.data.map.SpawnRule;
+import net.kyori.adventure.text.Component;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashSet;
 import java.util.Set;
 
 public class NewSpawnruleForm extends CommandForm<SpawnRuleContext> {
     private static final Parameter[] parameters = new Parameter[] {
-            new Parameter("spawnrule"),
-            new Parameter("create"),
-            new Parameter(Regexes.OBJECT_NAME, "[spawnrule-name]"),
-            new Parameter(Regexes.BOOLEAN, "[is-blacklist]", Converters.BOOLEAN_CONVERTER),
-            new Parameter(Regexes.STRING_LIST, "[mob-names]", Converters.newArrayConverter(argument ->
-                    ConversionResult.of(true, argument, null), ",", String.class))
+            new Parameter("spawnrule", Component.text("spawnrule")),
+            new Parameter("create", Component.text("create")),
+            new Parameter(Regexes.OBJECT_NAME, Component.text("[spawnrule-name]")),
+            new Parameter(Regexes.BOOLEAN, Component.text("[is-blacklist]"), Converters.BOOLEAN_CONVERTER),
+            new Parameter(Regexes.STRING_LIST, Component.text("[mob-names]"), Converters.newArrayConverter(
+                    (form, argument) -> ConversionResult.of(true, argument, null), ",",
+                    String.class))
     };
 
-    private static final CommandValidator<SpawnRuleContext, MapContextData> validator = new CommandValidator<>((context, objects, mapSelectionData) -> {
+    private static final CommandValidator<SpawnRuleContext, MapContextData> validator = new CommandValidator<>(
+            (context, objects, mapSelectionData) -> {
         String spawnruleName = (String)objects[2];
 
         if(mapSelectionData.getMap().getSpawnRules().containsKey(spawnruleName)) {
-            return ValidationResult.of(false, "A spawnrule with that name already exists!", null);
+            return ValidationResult.of(false, Component.text("A spawnrule with that name already exists!"), null);
         }
 
         String[] names = (String[]) objects[4];
         Set<String> namesSet = new HashSet<>();
         for(String mobName : names) {
             if(Zombies.getInstance().getMythicMobs().getAPIHelper().getMythicMob(mobName) == null) {
-                return ValidationResult.of(false, "Mob '" + mobName + "' does not exist!", null);
+                return ValidationResult.of(false, Component.text("Mob '" + mobName + "' does not exist!"), null);
             }
 
             namesSet.add(mobName);
@@ -50,8 +55,8 @@ public class NewSpawnruleForm extends CommandForm<SpawnRuleContext> {
                 (boolean)objects[3], namesSet)));
     }, MapeditorValidators.HAS_ACTIVE_MAP);
 
-    public NewSpawnruleForm() {
-        super("Creates a new spawnrule.", Permissions.OPERATOR, parameters);
+    public NewSpawnruleForm(@NotNull RegularCommand command) {
+        super(command, Component.text("Creates a new spawnrule."), Permissions.OPERATOR, parameters);
     }
 
     @Override
@@ -60,9 +65,9 @@ public class NewSpawnruleForm extends CommandForm<SpawnRuleContext> {
     }
 
     @Override
-    public String execute(Context context, Object[] objects, SpawnRuleContext rule) {
+    public Component execute(Context context, Object[] objects, SpawnRuleContext rule) {
         SpawnRule spawnRule = rule.getRule();
         rule.getMap().getSpawnRules().put(spawnRule.getName(), spawnRule);
-        return "Created new spawnrule.";
+        return Component.text("Created new spawnrule.");
     }
 }

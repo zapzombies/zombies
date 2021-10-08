@@ -147,9 +147,9 @@ public class MapData {
     int corpseDeathTime = 500;
 
     /**
-     * The minimum distance in blocks that players must be from a player corpse in order to revive it
+     * The minimum distance in blocks squared that players must be from a player corpse in order to revive it
      */
-    int reviveRadius = 3;
+    double reviveRadiusSquared = 1;
 
     /**
      * Whether or not to allow "wallshooting", allowing players to shoot mobs through walls if their shot passes through

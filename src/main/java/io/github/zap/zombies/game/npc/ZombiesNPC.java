@@ -21,6 +21,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -38,6 +39,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 
@@ -76,6 +78,15 @@ public class ZombiesNPC implements Listener {
 
     };
 
+    private static final Map<Integer, EnumWrappers.ItemSlot> ITEM_SLOT_MAP = new HashMap<>() {
+        {
+            put(2, EnumWrappers.ItemSlot.FEET);
+            put(3, EnumWrappers.ItemSlot.LEGS);
+            put(4, EnumWrappers.ItemSlot.CHEST);
+            put(5, EnumWrappers.ItemSlot.HEAD);
+        }
+    };
+
     private final Location location;
 
     private final int id;
@@ -98,6 +109,8 @@ public class ZombiesNPC implements Listener {
             = new PacketContainer(PacketType.Play.Server.ENTITY_HEAD_ROTATION);
 
     private final PacketContainer lookPacket = new PacketContainer(PacketType.Play.Server.ENTITY_LOOK);
+
+    private final PacketContainer equipmentPacket = new PacketContainer(PacketType.Play.Server.ENTITY_EQUIPMENT);
 
     private final boolean isPlayer;
 
@@ -173,9 +186,9 @@ public class ZombiesNPC implements Listener {
             WrappedDataWatcher.WrappedDataWatcherObject customNameVisible
                     = new WrappedDataWatcher.WrappedDataWatcherObject(3, customNameVisibleSerializer);
 
-            wrappedDataWatcher.setObject(customName, Optional.of(WrappedChatComponent.fromText(PLAY_ZOMBIES)
-                    .getHandle()));
-            wrappedDataWatcher.setObject(customNameVisible, true);
+            wrappedDataWatcher.setObject(customName,
+                    Optional.of(AdventureComponentConverter.fromComponent(data.getCustomName()).getHandle()));
+            wrappedDataWatcher.setObject(customNameVisible, data.isCustomNameVisible());
 
         }
 
@@ -204,8 +217,18 @@ public class ZombiesNPC implements Listener {
         lookPacket.getBooleans().write(0, true);
 
 
+        // init equipment
+        List<Pair<EnumWrappers.ItemSlot, ItemStack>> equipmentSlotStackPairList = new ArrayList<>();
+        for (int i = 0; i < 4; i++) {
+            equipmentSlotStackPairList.add(new Pair<>(ITEM_SLOT_MAP.get(i + 2), data.getEquipment().get(i)));
+        }
+
+        equipmentPacket.getIntegers().write(0, id);
+        equipmentPacket.getSlotStackPairLists().write(0, equipmentSlotStackPairList);
+
         // init GUI inventory
         List<MapData> mapDataList = Zombies.getInstance().getArenaManager().getMaps();
+        mapDataList.removeIf(mapData -> !data.getMaps().contains(mapData.getName()));
         int num = mapDataList.size();
 
         if (num > 0) {
@@ -294,6 +317,7 @@ public class ZombiesNPC implements Listener {
         arenaApi.sendPacketToPlayer(zombies, player, metadataPacket);
         arenaApi.sendPacketToPlayer(zombies, player, headRotationPacket);
         arenaApi.sendPacketToPlayer(zombies, player, lookPacket);
+        arenaApi.sendPacketToPlayer(zombies, player, equipmentPacket);
     }
 
     @EventHandler
@@ -464,6 +488,14 @@ public class ZombiesNPC implements Listener {
 
         private final float direction;
 
+        private final Component customName;
+
+        private final boolean customNameVisible;
+
+        private final Set<String> maps;
+
+        private final List<ItemStack> equipment;
+
         private final WrappedSignedProperty texture;
 
         @Override
@@ -472,6 +504,10 @@ public class ZombiesNPC implements Listener {
             serialized.put("entityType", entityType.toString());
             serialized.put("location", location);
             serialized.put("direction", direction);
+            serialized.put("customName", MiniMessage.get().serialize(customName));
+            serialized.put("customNameVisible", customNameVisible);
+            serialized.put("maps", new ArrayList<>(maps));
+            serialized.put("equipment", equipment);
 
             if (texture != null) {
                 serialized.put("textureValue", texture.getValue());
@@ -486,6 +522,19 @@ public class ZombiesNPC implements Listener {
             EntityType entityType = EntityType.valueOf((String) data.get("entityType"));
             Vector location = (Vector) data.get("location");
             float direction = (float) (double) data.get("direction");
+            Component customName = MiniMessage.get().deserializeOr((String) data.get("customName"),
+                    Component.text(PLAY_ZOMBIES));
+            boolean customNameVisible = (boolean) data.getOrDefault("customNameVisible", false);
+            Set<String> maps = new HashSet<>((List<String>) data.getOrDefault("maps", Collections.emptyList()));
+            List<ItemStack> equipment = (List<ItemStack>) data.getOrDefault("equipment",
+                    new ArrayList<>(4) {
+                        {
+                            add(new ItemStack(Material.AIR));
+                            add(new ItemStack(Material.AIR));
+                            add(new ItemStack(Material.AIR));
+                            add(new ItemStack(Material.AIR));
+                        }
+                    }); // Collections.nCopies(4, new ItemStack(Material.AIR)); seems to break serialization
 
             String textureValue = (String) data.get("textureValue");
             String signature = (String) data.get("signature");
@@ -497,7 +546,8 @@ public class ZombiesNPC implements Listener {
                 texture = null;
             }
 
-            return new ZombiesNPCData(entityType, location, direction, texture);
+            return new ZombiesNPCData(entityType, location, direction, customName, customNameVisible, maps,
+                    equipment, texture);
         }
 
     }

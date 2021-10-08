@@ -40,6 +40,7 @@ import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -346,25 +347,23 @@ public class ZombiesPlayer extends ManagedPlayer<ZombiesPlayer, ZombiesArena> im
                                 ActiveMob activeMob = apiHelper.getMythicMobInstance(event.getDamager());
 
                                 if (activeMob != null) {
-                                    String mythicMobsDisplayName = activeMob.getDisplayName();
-                                    if (mythicMobsDisplayName != null) {
-                                        broadcastDeathMessage(bukkitPlayer.getName(),
-                                                Component.text(mythicMobsDisplayName));
-                                    }
-                                    else {
-                                        String configDisplayName = apiHelper.getMythicMob(activeMob.getMobType())
-                                                .getConfig().getString("DisplayName");
-                                        broadcastDeathMessage(bukkitPlayer.getName(),
-                                                configDisplayName != null
-                                                        ? Component.text(configDisplayName)
-                                                        : Component.text(activeMob.getMobType(), NamedTextColor.RED));
-                                    }
+                                    MiniMessage miniMessage = MiniMessage.get();
+                                    String configDisplayName = apiHelper.getMythicMob(activeMob.getMobType())
+                                            .getConfig().getString("ZombiesDisplayName");
+                                    broadcastDeathMessage(bukkitPlayer.getName(),
+                                            configDisplayName != null
+                                                    ? miniMessage.parse(configDisplayName)
+                                                    : Component.text(activeMob.getMobType(), NamedTextColor.RED));
                                 }
-                                else broadcastDeathMessage(bukkitPlayer.getName(),
-                                        Component.text(event.getDamager().getName(), NamedTextColor.RED));
+                                else {
+                                    broadcastDeathMessage(bukkitPlayer.getName(),
+                                            Component.text(event.getDamager().getName(), NamedTextColor.RED));
+                                }
                             }
                         }
-                        else broadcastDeathMessage(bukkitPlayer.getName(), null);
+                        else {
+                            broadcastDeathMessage(bukkitPlayer.getName(), null);
+                        }
                     }
                 }
             }
@@ -558,7 +557,7 @@ public class ZombiesPlayer extends ManagedPlayer<ZombiesPlayer, ZombiesArena> im
                 for (Integer slot : hotbarObjectGroup.getHotbarObjectMap().keySet()) {
                     HotbarObject hotbarObject = hotbarObjectGroup.getHotbarObject(slot);
                     if (hotbarObject instanceof Perk<?, ?, ?, ?> perk) {
-                        perk.deactivate();
+                        perk.deactivate(true);
                     }
                 }
             }

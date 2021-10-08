@@ -21,8 +21,10 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Mob;
+import org.bukkit.entity.Projectile;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -30,7 +32,8 @@ import java.util.Optional;
 import java.util.logging.Level;
 
 public abstract class ZombiesPathfinderGoal<T> extends Pathfinder {
-    protected static final PathfinderEngine PATHFINDER_ENGINE = PathfinderEngines.proxyAsync(Zombies.getInstance());
+    protected static final PathfinderEngine PATHFINDER_ENGINE = PathfinderEngines.proxyAsync(Zombies.getInstance(),
+            ArenaApi.getInstance().getNmsBridge().worldBridge());
 
     protected final Plugin plugin;
 
@@ -39,7 +42,6 @@ public abstract class ZombiesPathfinderGoal<T> extends Pathfinder {
 
     protected final Mob mob;
     protected final MythicMob mythicMob;
-    protected final MobNavigator mobNavigator;
     protected final PathHandler pathHandler;
     protected final boolean successfulLoad;
 
@@ -60,20 +62,20 @@ public abstract class ZombiesPathfinderGoal<T> extends Pathfinder {
 
         Mob mob = null;
         MythicMob mythicMob = null;
-        MobNavigator mobNavigator = null;
         PathHandler pathHandler = null;
         boolean successfulLoad = false;
 
         Entity bukkitEntity = entity.getBukkitEntity();
         if(bukkitEntity instanceof Mob) {
             mob = (Mob)bukkitEntity;
+            mob.setAware(true);
 
             //activeMob can be null because of a MythicMobs glitch where 2 pathfindergoals are created per mob
             if(activeMob != null) {
                 mythicMob = MythicMobs.inst().getAPIHelper().getMythicMob(activeMob.getMobType());
 
                 try {
-                    mobNavigator = arenaNMS.entityBridge().overrideNavigatorFor(mob);
+                    arenaNMS.entityBridge().overrideNavigatorFor(mob);
 
                     try {
                         zombiesNMS.entityBridge().replacePersistentGoals(mob);
@@ -101,7 +103,6 @@ public abstract class ZombiesPathfinderGoal<T> extends Pathfinder {
 
         this.mob = mob;
         this.mythicMob = mythicMob;
-        this.mobNavigator = mobNavigator;
         this.pathHandler = pathHandler;
         this.successfulLoad = successfulLoad;
     }
@@ -143,9 +144,18 @@ public abstract class ZombiesPathfinderGoal<T> extends Pathfinder {
         return metadataLoaded;
     }
 
+    protected @NotNull MobNavigator getNavigator() {
+        MobNavigator navigator = arenaNMS.entityBridge().getNavigator(mob);
+        if(navigator != null) {
+            return navigator;
+        }
+
+        throw new IllegalStateException("MobNavigator not overridden for entity");
+    }
+
     protected abstract @Nullable T acquireTarget();
 
-    protected void onTargetChange(@Nullable T newTarget) {}
+    protected void onRetarget(@Nullable T newTarget) {}
 
     public ZombiesArena getArena() {
         return arena;
@@ -167,7 +177,7 @@ public abstract class ZombiesPathfinderGoal<T> extends Pathfinder {
         T target = acquireTarget();
 
         if(target != this.target) {
-            onTargetChange(target);
+            onRetarget(target);
 
             if(target == null) {
                 reset();
@@ -180,12 +190,13 @@ public abstract class ZombiesPathfinderGoal<T> extends Pathfinder {
 
     @Override
     public final boolean shouldStart() {
-        return successfulLoad && loadMetadata() && arena.runAI() && (target = acquireTarget()) != null && canBegin();
+        return successfulLoad && loadMetadata() && arena.runAI() && mob.getPassengers().isEmpty() &&
+                (target = acquireTarget()) != null && canBegin();
     }
 
     @Override
     public final boolean shouldEnd() {
-        return resetFlag || !arena.runAI() || canStop();
+        return resetFlag || !arena.runAI() || !mob.getPassengers().isEmpty() || canStop();
     }
 
     @Override

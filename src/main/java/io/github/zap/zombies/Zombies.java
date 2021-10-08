@@ -6,7 +6,6 @@ import com.grinderwolf.swm.api.loaders.SlimeLoader;
 import com.grinderwolf.swm.internal.com.flowpowered.nbt.*;
 import com.grinderwolf.swm.internal.com.flowpowered.nbt.stream.NBTOutputStream;
 import com.grinderwolf.swm.plugin.loaders.file.FileLoader;
-import io.github.regularcommands.commands.CommandManager;
 import io.github.zap.arenaapi.ArenaApi;
 import io.github.zap.arenaapi.LoadFailureException;
 import io.github.zap.arenaapi.localization.LocalizationManager;
@@ -18,6 +17,7 @@ import io.github.zap.arenaapi.serialize.JacksonDataLoader;
 import io.github.zap.arenaapi.shadow.org.apache.commons.lang3.time.StopWatch;
 import io.github.zap.arenaapi.util.WorldUtils;
 import io.github.zap.arenaapi.world.WorldLoader;
+import io.github.zap.regularcommands.commands.CommandManager;
 import io.github.zap.zombies.command.ZombiesCommand;
 import io.github.zap.zombies.command.mapeditor.ContextManager;
 import io.github.zap.zombies.command.mapeditor.MapeditorCommand;
@@ -34,13 +34,16 @@ import io.github.zap.zombies.nms.v1_16_R3.ZombiesNMSBridge_v1_16_R3;
 import io.github.zap.zombies.world.SlimeWorldLoader;
 import io.lumine.xikage.mythicmobs.MythicMobs;
 import lombok.Getter;
+import net.kyori.adventure.translation.GlobalTranslator;
 import org.apache.commons.io.FilenameUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
+import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.Vector;
 
@@ -141,6 +144,14 @@ public final class Zombies extends JavaPlugin implements Listener {
         info(String.format("Enabled successfully; ~%sms elapsed.", timer.getTime()));
     }
 
+    @EventHandler
+    public void onFoodLevelChange(FoodLevelChangeEvent event) {
+        //TODO: remove disgusting hardcode, this is just a short-term fix
+        if(event.getEntity().getWorld().getName().equals("zap_lobby_2")) {
+            event.setCancelled(true);
+        }
+    }
+
     @Override
     public void onDisable() {
         if (playerDataManager != null) {
@@ -209,10 +220,12 @@ public final class Zombies extends JavaPlugin implements Listener {
     private void initMythicMobs() throws LoadFailureException {
         MythicInjector injector = MythicInjector.forInstance(getLogger(), mythicMobs);
         if(injector != null) {
-            injector.injectGoals(List.of(BreakWindowGoal.class, MeleeAttackGoal.class,
-                    StrafeBowShootGoal.class, ProjectileShootGoal.class));
+            injector.injectGoals(List.of(BreakWindowGoal.class, MeleeAttackGoal.class, StrafeBowShootGoal.class,
+                    ProjectileShootGoal.class));
+
             injector.injectSkills(List.of(CobwebMechanic.class, SpawnMobMechanic.class, StealCoinsMechanic.class,
-                    SlowFireRateMechanic.class, SummonMountMechanic.class, TeleportBehindTargetMechanic.class));
+                    SlowFireRateMechanic.class, SummonMountMechanic.class, TeleportBehindTargetMechanic.class,
+                    ArrowBarrageMechanic.class, ShootSkullMechanic.class));
         }
         else {
             throw new LoadFailureException("No MythicInjector found for version " + mythicMobs.getVersion());
@@ -324,9 +337,10 @@ public final class Zombies extends JavaPlugin implements Listener {
     }
 
     private void initCommands() {
-        commandManager = new CommandManager(this);
-        commandManager.registerCommand(new ZombiesCommand());
-        commandManager.registerCommand(new MapeditorCommand());
+        commandManager = new CommandManager(this, GlobalTranslator.get());
+        commandManager.registerDefaultTranslations();
+        commandManager.registerCommand(new ZombiesCommand(commandManager));
+        commandManager.registerCommand(new MapeditorCommand(commandManager));
 
         contextManager = new ContextManager();
     }

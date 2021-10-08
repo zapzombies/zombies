@@ -40,7 +40,7 @@ public class ExtraHealth extends MarkerPerk<ExtraHealthData, ExtraHealthLevel> {
     }
 
     @Override
-    public void deactivate() {
+    public void deactivate(boolean saveState) {
         Player player = getZombiesPlayer().getPlayer();
         if (player != null) {
             AttributeInstance attribute = player.getAttribute(Attribute.GENERIC_MAX_HEALTH);
