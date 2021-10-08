@@ -29,7 +29,7 @@ dependencies {
         exclude("net.kyori", "adventure-api")
     }
 
-    bukkitPlugin("io.github.zap:arena-api:1.0.0-SNAPSHOT-1633481837", qs())
+    bukkitPlugin("io.github.zap:arena-api:1.0.0-SNAPSHOT-1633668106", qs())
     bukkitPlugin("io.github.zap:zap-party:1.0.0-SNAPSHOT-1630956414", qs())
     bukkitPlugin("io.lumine.xikage:MythicMobs:4.12.0")
     bukkitPlugin("com.grinderwolf:slimeworldmanager-plugin:2.6.2-SNAPSHOT")
