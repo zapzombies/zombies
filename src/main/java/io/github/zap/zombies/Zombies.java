@@ -41,7 +41,9 @@ import org.bukkit.World;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
+import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.Vector;
 
@@ -140,6 +142,14 @@ public final class Zombies extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(this, this);
         timer.stop();
         info(String.format("Enabled successfully; ~%sms elapsed.", timer.getTime()));
+    }
+
+    @EventHandler
+    public void onFoodLevelChange(FoodLevelChangeEvent event) {
+        //TODO: remove disgusting hardcode, this is just a short-term fix
+        if(event.getEntity().getWorld().getName().equals("zap_lobby_2")) {
+            event.setCancelled(true);
+        }
     }
 
     @Override
