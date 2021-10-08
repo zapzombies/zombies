@@ -49,7 +49,7 @@ public class PregameScoreboardState implements GameScoreboardState, Disposable {
               .line()
               .line(status, ChatColor.GREEN + " ", cd)
               .line()
-              .text(ChatColor.YELLOW + "discord.gg/private-bro");
+              .text(ChatColor.YELLOW + "discord.gg/QgutmgAWQT");
 
         for (var player : gameScoreboard.getZombiesArena().getPlayerMap().values()) {
             if (player.isInGame()) {

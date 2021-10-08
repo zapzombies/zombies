@@ -2,6 +2,7 @@ package io.github.zap.zombies.game;
 
 import com.destroystokyo.paper.event.entity.EntityAddToWorldEvent;
 import com.destroystokyo.paper.event.entity.EntityRemoveFromWorldEvent;
+import io.github.zap.arenaapi.ArenaApi;
 import io.github.zap.arenaapi.DisposableBukkitRunnable;
 import io.github.zap.arenaapi.Property;
 import io.github.zap.arenaapi.ResourceManager;
@@ -12,8 +13,10 @@ import io.github.zap.arenaapi.hologram.Hologram;
 import io.github.zap.arenaapi.hotbar.HotbarManager;
 import io.github.zap.arenaapi.hotbar.HotbarObject;
 import io.github.zap.arenaapi.hotbar.HotbarObjectGroup;
+import io.github.zap.arenaapi.nms.common.world.BlockCollisionView;
 import io.github.zap.arenaapi.pathfind.chunk.ChunkBounds;
 import io.github.zap.arenaapi.pathfind.chunk.ChunkCoordinateProviders;
+import io.github.zap.arenaapi.pathfind.util.Utils;
 import io.github.zap.arenaapi.shadow.com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.zap.arenaapi.shadow.org.apache.commons.lang3.tuple.Pair;
 import io.github.zap.arenaapi.stats.StatsManager;
@@ -68,7 +71,6 @@ import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.attribute.AttributeModifier;
-import org.bukkit.block.Block;
 import org.bukkit.entity.*;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -887,20 +889,12 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
                 if (state == ZombiesPlayerState.ALIVE) {
                     if (player.getHealth() <= event.getFinalDamage()) {
                         Location location = player.getLocation();
-                        location.setY(Math.floor(location.getY()));
 
-                        RoomData room = map.roomAt(location.toVector());
-                        managedPlayer.setDeathRoomName((room == null) ? "an unknown room" : room.getRoomDisplayName());
+                        BlockCollisionView collisionView = Utils.highestBlockBelow(world,
+                                ArenaApi.getInstance().getNmsBridge().worldBridge(), player.getBoundingBox());
+                        location.setY(collisionView.exactY());
 
-                        for (double y = location.getY() - 1.0D; y >= 0D; y--) {
-                            location.setY(y);
-                            Block block = player.getWorld().getBlockAt(location);
-
-                            if (!block.isPassable()) {
-                                player.teleport(location.add(0, block.getBoundingBox().getHeight(), 0));
-                                break;
-                            }
-                        }
+                        player.teleportAsync(location);
                     }
                 } else {
                     event.setCancelled(true);
