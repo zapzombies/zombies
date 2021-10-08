@@ -22,7 +22,7 @@ import java.util.Iterator;
 
 public class GotoRoundForm extends CommandForm<Pair<Player, Arena<?>>> {
     private static final Parameter[] parameters = new Parameter[] {
-            new Parameter("gotoRound"),
+            new Parameter("gotoRound", Component.text("gotoRound")),
             new Parameter(Regexes.NON_NEGATIVE_INTEGER, Component.text("[round-index]"),
                     Converters.INTEGER_CONVERTER)
     };

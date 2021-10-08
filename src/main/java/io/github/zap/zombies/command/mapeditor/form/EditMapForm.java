@@ -18,8 +18,8 @@ import org.jetbrains.annotations.NotNull;
 
 public class EditMapForm extends CommandForm<MapContextData> {
     private static final Parameter[] parameters = new Parameter[] {
-            new Parameter("map"),
-            new Parameter("edit"),
+            new Parameter("map", Component.text("map")),
+            new Parameter("edit", Component.text("edit")),
             new Parameter(Regexes.OBJECT_NAME, Component.text("[name]"))
     };
 

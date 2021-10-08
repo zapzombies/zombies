@@ -15,8 +15,8 @@ import org.jetbrains.annotations.NotNull;
 
 public class SaveMapForm extends CommandForm<MapContextData> {
     private static final Parameter[] parameters = new Parameter[] {
-            new Parameter("map"),
-            new Parameter("save")
+            new Parameter("map", Component.text("map")),
+            new Parameter("save", Component.text("save"))
     };
 
     public SaveMapForm(@NotNull RegularCommand command) {

@@ -22,8 +22,8 @@ import java.util.List;
 
 public class NewSpawnEntryForm extends CommandForm<SpawnEntryContextData> {
     private static final Parameter[] parameters = new Parameter[] {
-            new Parameter("spawnentry"),
-            new Parameter("create"),
+            new Parameter("spawnentry", Component.text("spawnentry")),
+            new Parameter("create", Component.text("create")),
             new Parameter(Regexes.NON_NEGATIVE_INTEGER, Component.text("[round-index]"), Converters.INTEGER_CONVERTER),
             new Parameter(Regexes.NON_NEGATIVE_INTEGER, Component.text("[wave-index]"), Converters.INTEGER_CONVERTER),
             new Parameter(Regexes.NON_NEGATIVE_INTEGER, Component.text("[count]"), Converters.INTEGER_CONVERTER),

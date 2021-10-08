@@ -21,8 +21,8 @@ import java.util.List;
 
 public class NewDoorForm extends CommandForm<DoorSelectionData> {
     private static final Parameter[] parameters = new Parameter[] {
-            new Parameter("door"),
-            new Parameter("addbounds"),
+            new Parameter("door", Component.text("door")),
+            new Parameter("addbounds", Component.text("addbounds")),
             new Parameter(Regexes.NON_NEGATIVE_INTEGER, Component.text("[door-index]"), Converters.INTEGER_CONVERTER)
     };
 

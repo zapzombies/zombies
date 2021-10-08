@@ -19,8 +19,8 @@ import org.jetbrains.annotations.NotNull;
 
 public class NewShopForm extends CommandForm<ShopSelectionData> {
     private static final Parameter[] parameters = new Parameter[] {
-            new Parameter("shop"),
-            new Parameter("create"),
+            new Parameter("shop", Component.text("shop")),
+            new Parameter("create", Component.text("create")),
             new Parameter(Regexes.OBJECT_NAME, Component.text("[shop-type]"))
     };
 

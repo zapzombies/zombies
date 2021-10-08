@@ -21,7 +21,7 @@ import java.util.Iterator;
 
 public class GiveGoldForm extends CommandForm<ZombiesPlayer> {
     private static final Parameter[] parameters = new Parameter[] {
-            new Parameter("giveGold"),
+            new Parameter("giveGold", Component.text("giveGold")),
             new Parameter(Regexes.INTEGER, Component.text("[gold-amount]"), Converters.INTEGER_CONVERTER)
     };
 

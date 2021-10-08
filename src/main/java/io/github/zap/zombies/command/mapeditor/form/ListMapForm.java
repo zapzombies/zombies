@@ -15,8 +15,8 @@ import org.jetbrains.annotations.NotNull;
 
 public class ListMapForm extends CommandForm<Player> {
     private static final Parameter[] parameters = new Parameter[] {
-            new Parameter("map"),
-            new Parameter("list")
+            new Parameter("map", Component.text("map")),
+            new Parameter("list", Component.text("list"))
     };
 
     public ListMapForm(@NotNull RegularCommand command) {

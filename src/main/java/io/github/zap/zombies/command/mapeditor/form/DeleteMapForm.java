@@ -18,8 +18,8 @@ import org.jetbrains.annotations.NotNull;
 
 public class DeleteMapForm extends CommandForm<MapData> {
     private static final Parameter[] parameters = new Parameter[] {
-            new Parameter("map"),
-            new Parameter("delete"),
+            new Parameter("map", Component.text("map")),
+            new Parameter("delete", Component.text("delete")),
             new Parameter(Regexes.OBJECT_NAME, Component.text("[map-name]"))
     };
 

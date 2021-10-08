@@ -18,8 +18,8 @@ import org.jetbrains.annotations.NotNull;
 
 public class NewSpawnpointForm extends CommandForm<RoomSelectionData> {
     private static final Parameter[] parameters = new Parameter[] {
-            new Parameter("spawn"),
-            new Parameter("create"),
+            new Parameter("spawn", Component.text("spawn")),
+            new Parameter("create", Component.text("create")),
             new Parameter(Regexes.OBJECT_NAME, Component.text("[spawn-rule-name]"))
     };
 

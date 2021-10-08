@@ -24,8 +24,8 @@ import java.util.List;
 
 public class NewDoorSideForm extends CommandForm<DoorSelectionData> {
     private static final Parameter[] parameters = new Parameter[] {
-            new Parameter("door"),
-            new Parameter("side"),
+            new Parameter("door", Component.text("door")),
+            new Parameter("side", Component.text("side")),
             new Parameter(Regexes.NON_NEGATIVE_INTEGER, Component.text("[door-index]"), Converters.INTEGER_CONVERTER),
             new Parameter(Regexes.STRING_LIST, Component.text("[opens-to]"), Converters.newArrayConverter((form, argument) ->
                     ConversionResult.of(true, argument, null), ",", String.class))

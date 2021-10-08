@@ -19,8 +19,8 @@ import org.jetbrains.annotations.NotNull;
 
 public class WindowBoundsForm extends CommandForm<WindowSelectionData> {
     private static final Parameter[] parameters = new Parameter[] {
-            new Parameter("window"),
-            new Parameter("addbounds"),
+            new Parameter("window", Component.text("window")),
+            new Parameter("addbounds", Component.text("addbounds")),
             new Parameter(Regexes.NON_NEGATIVE_INTEGER, Component.text("[target-index]"), Converters.INTEGER_CONVERTER)
     };
 

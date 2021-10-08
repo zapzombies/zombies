@@ -17,8 +17,8 @@ import org.jetbrains.annotations.NotNull;
 
 public class NewWaveForm extends CommandForm<MapContextData> {
     private static final Parameter[] parameters = new Parameter[] {
-            new Parameter("wave"),
-            new Parameter("create"),
+            new Parameter("wave", Component.text("wave")),
+            new Parameter("create", Component.text("create")),
             new Parameter(Regexes.NON_NEGATIVE_INTEGER, Component.text("[round-index]"), Converters.INTEGER_CONVERTER)
     };
 

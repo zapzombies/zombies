@@ -14,7 +14,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class ExitEditorForm extends CommandForm<EditorContextData> {
     private static final Parameter[] parameters = new Parameter[] {
-            new Parameter("exit")
+            new Parameter("exit", Component.text("exit"))
     };
 
     public ExitEditorForm(@NotNull RegularCommand command) {

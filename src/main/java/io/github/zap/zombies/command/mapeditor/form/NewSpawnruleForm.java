@@ -23,8 +23,8 @@ import java.util.Set;
 
 public class NewSpawnruleForm extends CommandForm<SpawnRuleContext> {
     private static final Parameter[] parameters = new Parameter[] {
-            new Parameter("spawnrule"),
-            new Parameter("create"),
+            new Parameter("spawnrule", Component.text("spawnrule")),
+            new Parameter("create", Component.text("create")),
             new Parameter(Regexes.OBJECT_NAME, Component.text("[spawnrule-name]")),
             new Parameter(Regexes.BOOLEAN, Component.text("[is-blacklist]"), Converters.BOOLEAN_CONVERTER),
             new Parameter(Regexes.STRING_LIST, Component.text("[mob-names]"), Converters.newArrayConverter(

@@ -14,8 +14,8 @@ import org.jetbrains.annotations.NotNull;
 
 public class GiveWandForm extends CommandForm<Player> {
     private static final Parameter[] parameters = new Parameter[] {
-            new Parameter("map"),
-            new Parameter("wand")
+            new Parameter("map", Component.text("map")),
+            new Parameter("wand", Component.text("wand"))
     };
 
     public GiveWandForm(@NotNull RegularCommand command) {

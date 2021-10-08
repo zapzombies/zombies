@@ -23,7 +23,7 @@ import java.util.UUID;
 
 public class RejoinZombiesGameForm extends CommandForm<Joinable> {
     private static final Parameter[] parameters = new Parameter[] {
-            new Parameter("rejoin"),
+            new Parameter("rejoin", Component.text("rejoin")),
             new Parameter("^([a-zA-Z0-9_ ]+)$", Component.text("[arena-name]")),
             new Parameter("[0-9a-fA-F]{8}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{12}",
                     Component.text("[map-uuid]"))

@@ -20,7 +20,7 @@ import java.util.Iterator;
 
 public class QuitGameForm extends CommandForm<Pair<Player, Arena<?>>> {
     private static final Parameter[] parameters = new Parameter[] {
-            new Parameter("quit")
+            new Parameter("quit", Component.text("quit"))
     };
 
     private static final CommandValidator<Pair<Player, Arena<?>>, Player> validator =

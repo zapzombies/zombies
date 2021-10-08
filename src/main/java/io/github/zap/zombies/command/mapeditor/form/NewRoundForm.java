@@ -14,8 +14,8 @@ import org.jetbrains.annotations.NotNull;
 
 public class NewRoundForm extends CommandForm<MapContextData> {
     private static final Parameter[] parameters = new Parameter[] {
-            new Parameter("round"),
-            new Parameter("create"),
+            new Parameter("round", Component.text("round")),
+            new Parameter("create", Component.text("create")),
     };
 
     public NewRoundForm(@NotNull RegularCommand command) {

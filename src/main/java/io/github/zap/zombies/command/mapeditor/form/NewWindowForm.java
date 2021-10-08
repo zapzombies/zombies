@@ -15,8 +15,8 @@ import org.jetbrains.annotations.NotNull;
 
 public class NewWindowForm extends CommandForm<RoomSelectionData> {
     private static final Parameter[] parameters = new Parameter[] {
-            new Parameter("window"),
-            new Parameter("create")
+            new Parameter("window", Component.text("window")),
+            new Parameter("create", Component.text("create"))
     };
 
     public NewWindowForm(@NotNull RegularCommand command) {

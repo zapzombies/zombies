@@ -17,8 +17,8 @@ import org.jetbrains.annotations.NotNull;
 
 public class ReloadMapForm extends CommandForm<EditorContextData> {
     private static final Parameter[] parameters = new Parameter[] {
-            new Parameter("map"),
-            new Parameter("reload")
+            new Parameter("map", Component.text("map")),
+            new Parameter("reload", Component.text("reload"))
     };
 
     public ReloadMapForm(@NotNull RegularCommand command) {
