@@ -24,12 +24,12 @@ dependencies {
     shade(project(":nms:nms-common"))
     shade(project("nms:nms-1_16_R3"))
 
-    shade("io.github.zap:regular-commands:1.0.1-SNAPSHOT-1633667782", qs())
+    shade("io.github.zap:regular-commands:1.0.1-SNAPSHOT-1633760633", qs())
     shade("net.kyori:adventure-text-minimessage:4.1.0-SNAPSHOT") {
         exclude("net.kyori", "adventure-api")
     }
 
-    bukkitPlugin("io.github.zap:arena-api:1.0.0-SNAPSHOT-1633742371", qs())
+    bukkitPlugin("io.github.zap:arena-api:1.0.0-SNAPSHOT-1633760118", qs())
     bukkitPlugin("io.github.zap:zap-party:1.0.0-SNAPSHOT-1630956414", qs {
         exclude("io.github.zap", "regular-commands")
     })
