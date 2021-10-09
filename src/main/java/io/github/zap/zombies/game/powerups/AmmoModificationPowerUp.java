@@ -1,5 +1,6 @@
 package io.github.zap.zombies.game.powerups;
 
+import io.github.zap.arenaapi.hotbar.HotbarManager;
 import io.github.zap.zombies.game.ZombiesArena;
 import io.github.zap.zombies.game.data.equipment.gun.GunData;
 import io.github.zap.zombies.game.data.equipment.gun.GunLevel;
@@ -28,7 +29,7 @@ public class AmmoModificationPowerUp extends PowerUp {
     public void activate() {
         var cData = (ModifierModeModificationPowerUpData) getData();
         getArena().getPlayerMap().forEach((l,r) -> {
-            var gunGroup = r.getHotbarManager()
+            var gunGroup = r.getHotbarManager().getProfiles().get(HotbarManager.DEFAULT_PROFILE_NAME)
                     .getHotbarObjectGroup(EquipmentObjectGroupType.GUN.name());
             if (gunGroup != null) {
                 gunGroup.getHotbarObjectMap().forEach((slot, eq) -> {
