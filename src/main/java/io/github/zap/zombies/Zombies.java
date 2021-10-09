@@ -135,7 +135,7 @@ public final class Zombies extends JavaPlugin implements Listener {
             severe(String.format("A fatal error occurred that prevented the plugin from enabling properly: '%s'.",
                     exception.getMessage()));
             getPluginLoader().disablePlugin(this, false);
-            // getServer().shutdown();
+            getServer().shutdown();
             return;
         }
 

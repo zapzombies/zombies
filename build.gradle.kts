@@ -30,7 +30,9 @@ dependencies {
     }
 
     bukkitPlugin("io.github.zap:arena-api:1.0.0-SNAPSHOT-1633742371", qs())
-    bukkitPlugin("io.github.zap:zap-party:1.0.0-SNAPSHOT-1630956414", qs())
+    bukkitPlugin("io.github.zap:zap-party:1.0.0-SNAPSHOT-1630956414", qs {
+        exclude("io.github.zap", "regular-commands")
+    })
     bukkitPlugin("io.lumine.xikage:MythicMobs:4.12.0")
     bukkitPlugin("com.grinderwolf:slimeworldmanager-plugin:2.6.2-SNAPSHOT")
     bukkitPlugin("com.comphenix.protocol:ProtocolLib:4.7.0")
