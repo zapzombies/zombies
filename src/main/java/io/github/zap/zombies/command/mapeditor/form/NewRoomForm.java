@@ -22,7 +22,7 @@ public class NewRoomForm extends CommandForm<MapSelectionData> {
     private static final Parameter[] parameters = new Parameter[] {
             new Parameter("room", Component.text("room")),
             new Parameter("addbounds", Component.text("addbounds")),
-            new Parameter(Regexes.OBJECT_NAME, Component.text("[name]"))
+            new Parameter(Regexes.OBJECT_NAME, Component.text("[name]"), false)
     };
 
     private static final CommandValidator<MapSelectionData, MapSelectionData> validator = new CommandValidator<>((context, arguments, previousData) -> {

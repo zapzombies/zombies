@@ -79,7 +79,7 @@ public class IngameScoreboardState implements GameScoreboardState, Disposable {
                     .line("Time: " + ChatColor.GREEN, time)
                     .line("Map: " + ChatColor.GREEN + map)
                     .line()
-                    .text(ChatColor.YELLOW + "discord.gg/:zzz:");
+                    .text(ChatColor.YELLOW + "discord.gg/QgutmgAWQT");
 
 
             // Health objective

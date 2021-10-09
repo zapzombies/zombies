@@ -20,7 +20,7 @@ public class NewSpawnpointForm extends CommandForm<RoomSelectionData> {
     private static final Parameter[] parameters = new Parameter[] {
             new Parameter("spawn", Component.text("spawn")),
             new Parameter("create", Component.text("create")),
-            new Parameter(Regexes.OBJECT_NAME, Component.text("[spawn-rule-name]"))
+            new Parameter(Regexes.OBJECT_NAME, Component.text("[spawn-rule-name]"), false)
     };
 
     private static final CommandValidator<RoomSelectionData, RoomSelectionData> validator =
