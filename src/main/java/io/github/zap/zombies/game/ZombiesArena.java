@@ -986,7 +986,8 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
                         if (player.isInGame() && player.isAlive()) {
                             Player bukkitPlayer = player.getPlayer();
                             if (bukkitPlayer != null) {
-                                String message = knocked.getDeathRoomName();
+                                RoomData roomIn = map.roomAt(bukkitKnocked.getLocation().toVector());
+                                String message = roomIn == null ? "an unknown room" : roomIn.getRoomDisplayName();
 
                                 //display death message only if necessary
                                 for (ZombiesPlayer otherPlayer : getPlayerMap().values()) {
