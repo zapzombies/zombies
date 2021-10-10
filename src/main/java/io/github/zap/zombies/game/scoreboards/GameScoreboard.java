@@ -1,6 +1,6 @@
 package io.github.zap.zombies.game.scoreboards;
 
-import io.github.zap.arenaapi.Disposable;
+import io.github.zap.commons.Disposable;
 import io.github.zap.zombies.game.ZombiesArena;
 import io.github.zap.zombies.game.ZombiesArenaState;
 import io.github.zap.zombies.game.player.ZombiesPlayer;
@@ -54,6 +54,10 @@ public class GameScoreboard implements Disposable, Runnable {
     private GameScoreboardState getCurrentState() {
         var arenaState = getZombiesArena().getState();
         if(arenaState != previousState) {
+            if(currentState instanceof Disposable disposable) {
+                disposable.dispose();
+            }
+
             currentState = SCOREBOARD_STATES.get(arenaState).get();
             currentState.stateChangedFrom(previousState, this);
             previousState = arenaState;
