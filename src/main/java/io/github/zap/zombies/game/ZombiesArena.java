@@ -24,7 +24,6 @@ import io.github.zap.arenaapi.util.MetadataHelper;
 import io.github.zap.arenaapi.util.TimeUtil;
 import io.github.zap.arenaapi.util.WorldUtils;
 import io.github.zap.commons.vectors.Vectors;
-import io.github.zap.zombies.ChunkLoadHandler;
 import io.github.zap.zombies.SpawnMetadata;
 import io.github.zap.zombies.Zombies;
 import io.github.zap.zombies.game.corpse.Corpse;
@@ -495,10 +494,6 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
 
     @Getter
     private final Set<Corpse> availableCorpses = new HashSet<>();
-
-    @Getter
-    private final ChunkLoadHandler chunkLoadHandler = new ChunkLoadHandler();
-
     @Getter
     private final Set<Item> protectedItems = new HashSet<>();
 
@@ -638,7 +633,6 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
 
         resourceManager.addDisposable(gameScoreboard);
         resourceManager.addDisposable(powerUpBossBar);
-        resourceManager.addDisposable(chunkLoadHandler);
     }
 
     private @NotNull Hologram setupTimeLeaderboard() {
