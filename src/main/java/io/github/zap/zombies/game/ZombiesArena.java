@@ -770,6 +770,7 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
     }
 
     private void onPlayerRejoin(ManagedPlayerListArgs args) {
+        /*
         for (ZombiesPlayer player : args.getPlayers()) {
             Player bukkitPlayer = player.getPlayer();
 
@@ -785,7 +786,7 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
                     }
                 }
             }
-        }
+        }*/
     }
 
     private void onPlayerLeave(ManagedPlayerListArgs args) {
