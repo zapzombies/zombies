@@ -1,6 +1,6 @@
 package io.github.zap.zombies.game.scoreboards;
 
-import io.github.zap.arenaapi.Disposable;
+import io.github.zap.commons.Disposable;
 import io.github.zap.zombies.game.ZombiesArena;
 import io.github.zap.zombies.game.ZombiesArenaState;
 import io.github.zap.zombies.game.player.ZombiesPlayer;
@@ -97,7 +97,7 @@ public class GameScoreboard implements Disposable, Runnable {
         if(currentState != null) {
             if(currentState instanceof Disposable disposable )
                 disposable.dispose();
-            else if (currentState instanceof io.github.zap.commons.Disposable disposable2)
+            else if (currentState instanceof io.github.zap.arenaapi.Disposable disposable2)
                 disposable2.dispose();
         }
     }
