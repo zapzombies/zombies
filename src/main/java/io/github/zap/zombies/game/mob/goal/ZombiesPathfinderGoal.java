@@ -32,9 +32,6 @@ import java.util.Optional;
 import java.util.logging.Level;
 
 public abstract class ZombiesPathfinderGoal<T> extends Pathfinder {
-    protected static final PathfinderEngine PATHFINDER_ENGINE = PathfinderEngines.proxyAsync(Zombies.getInstance(),
-            ArenaApi.getInstance().getNmsBridge().worldBridge());
-
     protected final Plugin plugin;
 
     protected final ArenaNMSBridge arenaNMS;
@@ -87,7 +84,7 @@ public abstract class ZombiesPathfinderGoal<T> extends Pathfinder {
                         setAttributeValue(mob, Attribute.GENERIC_ATTACK_KNOCKBACK, knockback);
 
                         setGoalType(GoalType.MOVE_LOOK);
-                        pathHandler = new PathHandler(PATHFINDER_ENGINE);
+                        pathHandler = new PathHandler(Zombies.getInstance().getPathfinderEngine());
                         successfulLoad = true;
                     } catch (NoSuchFieldException | IllegalAccessException exception) {
                         plugin.getLogger().log(Level.SEVERE, "failed to replace persistent goals", exception);

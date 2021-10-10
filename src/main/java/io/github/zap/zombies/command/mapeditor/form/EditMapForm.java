@@ -20,7 +20,7 @@ public class EditMapForm extends CommandForm<MapContextData> {
     private static final Parameter[] parameters = new Parameter[] {
             new Parameter("map", Component.text("map")),
             new Parameter("edit", Component.text("edit")),
-            new Parameter(Regexes.OBJECT_NAME, Component.text("[name]"))
+            new Parameter(Regexes.OBJECT_NAME, Component.text("[name]"), false)
     };
 
     private static final CommandValidator<MapContextData, Player> validator =

@@ -26,8 +26,8 @@ import java.util.Optional;
 public class JoinZombiesGameForm extends CommandForm<Joinable> {
     private static final Parameter[] parameters = new Parameter[] {
             new Parameter("join", Component.text("join")),
-            new Parameter("^([a-zA-Z0-9_ ]+)$", Component.text("[arena-name]")),
-            new Parameter("^([a-zA-Z0-9_ ]+)$", Component.text("[map-name]"))
+            new Parameter("^([a-zA-Z0-9_ ]+)$", Component.text("[arena-name]"), false),
+            new Parameter("^([a-zA-Z0-9_ ]+)$", Component.text("[map-name]"), false)
     };
 
     private static final CommandValidator<Joinable, ?> validator = new CommandValidator<>((context, arguments,

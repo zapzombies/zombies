@@ -27,7 +27,7 @@ public class NewSpawnEntryForm extends CommandForm<SpawnEntryContextData> {
             new Parameter(Regexes.NON_NEGATIVE_INTEGER, Component.text("[round-index]"), Converters.INTEGER_CONVERTER),
             new Parameter(Regexes.NON_NEGATIVE_INTEGER, Component.text("[wave-index]"), Converters.INTEGER_CONVERTER),
             new Parameter(Regexes.NON_NEGATIVE_INTEGER, Component.text("[count]"), Converters.INTEGER_CONVERTER),
-            new Parameter(Regexes.OBJECT_NAME, Component.text("[mob-name]"))
+            new Parameter(Regexes.OBJECT_NAME, Component.text("[mob-name]"), false)
     };
 
     private static final CommandValidator<SpawnEntryContextData, MapContextData> validator = new CommandValidator<>(

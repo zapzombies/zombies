@@ -98,7 +98,6 @@ public class PiglinShop extends Shop<PiglinShopData> {
             dream.teleportAsync(new Location(getArena().getWorld(), getShopData().getPiglinLocation().getX(),
                     getShopData().getPiglinLocation().getY(), getShopData().getPiglinLocation().getZ(),
                     getShopData().getDirection(), 0.0F)).thenAccept(bool -> {
-                        System.out.println(dream.getLocation().getYaw());
             });
             init = true;
         }

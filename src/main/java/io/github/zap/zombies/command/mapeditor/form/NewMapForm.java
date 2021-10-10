@@ -20,7 +20,7 @@ public class NewMapForm extends CommandForm<BoundsContextData> {
     private static final Parameter[] parameters = new Parameter[] {
             new Parameter("map", Component.text("map")),
             new Parameter("create", Component.text("create")),
-            new Parameter(Regexes.OBJECT_NAME, Component.text("[name]"))
+            new Parameter(Regexes.OBJECT_NAME, Component.text("[name]"), false)
     };
 
     private static final CommandValidator<BoundsContextData, BoundsContextData> validator =

@@ -21,7 +21,7 @@ public class NewShopForm extends CommandForm<ShopSelectionData> {
     private static final Parameter[] parameters = new Parameter[] {
             new Parameter("shop", Component.text("shop")),
             new Parameter("create", Component.text("create")),
-            new Parameter(Regexes.OBJECT_NAME, Component.text("[shop-type]"))
+            new Parameter(Regexes.OBJECT_NAME, Component.text("[shop-type]"), false)
     };
 
     private static final CommandValidator<ShopSelectionData, RoomSelectionData> validator = new CommandValidator<>(

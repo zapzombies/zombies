@@ -76,7 +76,7 @@ public class ZombiesArenaManager extends ArenaManager<ZombiesArena> {
 
     private static StatsManager createStatsManager(DataLoader playerStatsLoader, DataLoader mapStatsLoader) {
         StatsManager statsManager = new FileStatsManager(Zombies.getInstance(),
-                Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()),
+                Executors.newFixedThreadPool(1),
                 Map.of(CacheInformation.PLAYER, playerStatsLoader, CacheInformation.MAP, mapStatsLoader));
         statsManager.registerCache(new StatsCache<>(Zombies.getInstance(), CacheInformation.PLAYER,
                 PlayerGeneralStats.class, CacheInformation.MAX_FREE_MAP_CACHE_SIZE));

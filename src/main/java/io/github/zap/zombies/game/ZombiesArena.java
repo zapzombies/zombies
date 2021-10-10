@@ -24,7 +24,6 @@ import io.github.zap.arenaapi.util.MetadataHelper;
 import io.github.zap.arenaapi.util.TimeUtil;
 import io.github.zap.arenaapi.util.WorldUtils;
 import io.github.zap.commons.vectors.Vectors;
-import io.github.zap.zombies.ChunkLoadHandler;
 import io.github.zap.zombies.SpawnMetadata;
 import io.github.zap.zombies.Zombies;
 import io.github.zap.zombies.game.corpse.Corpse;
@@ -495,10 +494,6 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
 
     @Getter
     private final Set<Corpse> availableCorpses = new HashSet<>();
-
-    @Getter
-    private final ChunkLoadHandler chunkLoadHandler = new ChunkLoadHandler();
-
     @Getter
     private final Set<Item> protectedItems = new HashSet<>();
 
@@ -638,7 +633,6 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
 
         resourceManager.addDisposable(gameScoreboard);
         resourceManager.addDisposable(powerUpBossBar);
-        resourceManager.addDisposable(chunkLoadHandler);
     }
 
     private @NotNull Hologram setupTimeLeaderboard() {
@@ -733,7 +727,8 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
     }
 
     public boolean allowPlayerRejoin(List<ZombiesPlayer> players) {
-        return state == ZombiesArenaState.STARTED && map.isAllowRejoin();
+        //return state == ZombiesArenaState.STARTED && map.isAllowRejoin();
+        return false;
     }
 
     private void onPlayerJoin(PlayerListArgs args) {
@@ -986,7 +981,8 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
                         if (player.isInGame() && player.isAlive()) {
                             Player bukkitPlayer = player.getPlayer();
                             if (bukkitPlayer != null) {
-                                String message = knocked.getDeathRoomName();
+                                RoomData roomIn = map.roomAt(bukkitKnocked.getLocation().toVector());
+                                String message = roomIn == null ? "an unknown room" : roomIn.getRoomDisplayName();
 
                                 //display death message only if necessary
                                 for (ZombiesPlayer otherPlayer : getPlayerMap().values()) {

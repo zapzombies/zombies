@@ -25,7 +25,7 @@ public class NewSpawnruleForm extends CommandForm<SpawnRuleContext> {
     private static final Parameter[] parameters = new Parameter[] {
             new Parameter("spawnrule", Component.text("spawnrule")),
             new Parameter("create", Component.text("create")),
-            new Parameter(Regexes.OBJECT_NAME, Component.text("[spawnrule-name]")),
+            new Parameter(Regexes.OBJECT_NAME, Component.text("[spawnrule-name]"), false),
             new Parameter(Regexes.BOOLEAN, Component.text("[is-blacklist]"), Converters.BOOLEAN_CONVERTER),
             new Parameter(Regexes.STRING_LIST, Component.text("[mob-names]"), Converters.newArrayConverter(
                     (form, argument) -> ConversionResult.of(true, argument, null), ",",

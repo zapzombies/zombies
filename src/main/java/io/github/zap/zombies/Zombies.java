@@ -10,6 +10,8 @@ import io.github.zap.arenaapi.ArenaApi;
 import io.github.zap.arenaapi.LoadFailureException;
 import io.github.zap.arenaapi.localization.LocalizationManager;
 import io.github.zap.arenaapi.nms.common.ArenaNMSBridge;
+import io.github.zap.arenaapi.pathfind.engine.PathfinderEngine;
+import io.github.zap.arenaapi.pathfind.engine.PathfinderEngines;
 import io.github.zap.arenaapi.playerdata.FilePlayerDataManager;
 import io.github.zap.arenaapi.playerdata.PlayerDataManager;
 import io.github.zap.arenaapi.serialize.DataLoader;
@@ -97,6 +99,9 @@ public final class Zombies extends JavaPlugin implements Listener {
     @Getter
     private CommandManager commandManager;
 
+    @Getter
+    private PathfinderEngine pathfinderEngine;
+
     private final List<ZombiesNPC> zombiesNPCS = new ArrayList<>();
 
     public static final String DEFAULT_LOCALE = "en_US";
@@ -131,11 +136,12 @@ public final class Zombies extends JavaPlugin implements Listener {
             initArenaManagers();
             initNPCs();
             initCommands();
+            pathfinderEngine = PathfinderEngines.proxyAsync(this, ArenaApi.getInstance().getNmsBridge().worldBridge());
         } catch (LoadFailureException exception) {
             severe(String.format("A fatal error occurred that prevented the plugin from enabling properly: '%s'.",
                     exception.getMessage()));
             getPluginLoader().disablePlugin(this, false);
-            // getServer().shutdown();
+            getServer().shutdown();
             return;
         }
 
