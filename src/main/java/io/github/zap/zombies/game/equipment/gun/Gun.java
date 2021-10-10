@@ -83,7 +83,7 @@ public abstract class Gun<D extends GunData<L>, L extends GunLevel> extends Upgr
      * Reloads the gun
      */
     public void reload() {
-        if (canReload) {
+        if (canReload && currentAmmo > clipAmmo) {
             GunLevel level = getCurrentLevel();
             int clipAmmo = level.getClipAmmo();
 
@@ -116,7 +116,7 @@ public abstract class Gun<D extends GunData<L>, L extends GunLevel> extends Upgr
                             }
                         } else {
                             setItemDamage(0);
-                            setClipAmmo(Math.min(currentClipAmmo, currentAmmo));
+                            setClipAmmo(Math.min(clipAmmo, currentAmmo));
 
                             if (isSelected()) {
                                 getPlayer().sendActionBar(Component.empty());
