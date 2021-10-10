@@ -727,7 +727,8 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
     }
 
     public boolean allowPlayerRejoin(List<ZombiesPlayer> players) {
-        return state == ZombiesArenaState.STARTED && map.isAllowRejoin();
+        //return state == ZombiesArenaState.STARTED && map.isAllowRejoin();
+        return false;
     }
 
     private void onPlayerJoin(PlayerListArgs args) {
@@ -770,7 +771,6 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
     }
 
     private void onPlayerRejoin(ManagedPlayerListArgs args) {
-        /*
         for (ZombiesPlayer player : args.getPlayers()) {
             Player bukkitPlayer = player.getPlayer();
 
@@ -786,7 +786,7 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
                     }
                 }
             }
-        }*/
+        }
     }
 
     private void onPlayerLeave(ManagedPlayerListArgs args) {
