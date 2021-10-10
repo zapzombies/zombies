@@ -80,7 +80,12 @@ public class DefaultPowerUpSpawnRule extends PowerUpSpawnRule<DefaultPowerUpSpaw
         var waves = getArena().getMap().getRounds().get(currentRound).getWaves();
         var waveCount = waves.size();
         var list = getData().getWaves().stream().filter(x -> x <= waveCount).collect(Collectors.toList());
-        chosenWave = waves.get(list.get(random.nextInt(list.size())) - 1);
+        if (list.isEmpty()) {
+            chosenWave = waves.get(waves.size() - 1);
+        }
+        else {
+            chosenWave = waves.get(list.get(random.nextInt(list.size())));
+        }
         final MutableInt waveMobCount = new MutableInt(0);
         chosenWave.getSpawnEntries().stream().map(SpawnEntryData::getMobCount).forEach(waveMobCount::add);
         deathCountUntilDrops = random.nextInt(waveMobCount.getValue());
