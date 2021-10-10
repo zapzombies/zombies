@@ -83,11 +83,11 @@ public abstract class Gun<D extends GunData<L>, L extends GunLevel> extends Upgr
      * Reloads the gun
      */
     public void reload() {
-        if (canReload && currentAmmo > clipAmmo) {
+        if (canReload) {
             GunLevel level = getCurrentLevel();
             int clipAmmo = level.getClipAmmo();
 
-            if (currentClipAmmo < clipAmmo && currentAmmo > 0) {
+            if (currentClipAmmo < clipAmmo && currentAmmo > clipAmmo) {
                 canReload = false;
                 canShoot = false;
 
