@@ -141,6 +141,10 @@ public class SidebarDisplayNameTextWriter implements Iterable<ITextFragment>, Te
      * Removes all text fragments stored in this instance
      */
     public void clear() {
+        for(int i = 0; i < fragments.length; i++) {
+            fragments.get(i).removeWriter(this);
+        }
+
         fragments.clear();
         if(getWriter().isAutoUpdate()) getWriter().update();
     }
