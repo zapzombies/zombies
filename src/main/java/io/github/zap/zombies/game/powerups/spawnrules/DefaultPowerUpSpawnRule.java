@@ -15,6 +15,7 @@ import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.metadata.MetadataValue;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 import java.util.stream.Collectors;
 
@@ -58,11 +59,11 @@ public class DefaultPowerUpSpawnRule extends PowerUpSpawnRule<DefaultPowerUpSpaw
 
         if(isRound) {
             //using new MetadataHelper util class; the old code would have failed if another plugin happened to register metadata to that entity
-            MetadataValue metadataValue = MetadataHelper.getMetadataFor(e.getEvent().getEntity(), Zombies.getInstance(),
-                    Zombies.SPAWNINFO_WAVE_METADATA_NAME);
+            Optional<MetadataValue> metadataValueOptional = MetadataHelper.getMetadataValue(e.getEvent().getEntity(),
+                    Zombies.getInstance(), Zombies.SPAWNINFO_WAVE_METADATA_NAME);
 
-            if(metadataValue != null) {
-                WaveData waveData = (WaveData) metadataValue.value();
+            if(metadataValueOptional.isPresent()) {
+                WaveData waveData = (WaveData) metadataValueOptional.get().value();
 
                 if(waveData == chosenWave) {
                     if(deathCountUntilDrops == roundDeathCount && !isDisabledRound()) {
@@ -79,7 +80,12 @@ public class DefaultPowerUpSpawnRule extends PowerUpSpawnRule<DefaultPowerUpSpaw
         var waves = getArena().getMap().getRounds().get(currentRound).getWaves();
         var waveCount = waves.size();
         var list = getData().getWaves().stream().filter(x -> x <= waveCount).collect(Collectors.toList());
-        chosenWave = waves.get(list.get(random.nextInt(list.size())) - 1);
+        if (list.isEmpty()) {
+            chosenWave = waves.get(waves.size() - 1);
+        }
+        else {
+            chosenWave = waves.get(list.get(random.nextInt(list.size())));
+        }
         final MutableInt waveMobCount = new MutableInt(0);
         chosenWave.getSpawnEntries().stream().map(SpawnEntryData::getMobCount).forEach(waveMobCount::add);
         deathCountUntilDrops = random.nextInt(waveMobCount.getValue());

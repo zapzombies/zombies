@@ -162,7 +162,7 @@ public class Door extends Shop<DoorData> {
             Location playerLocation = bukkitPlayer.getLocation();
 
             for (DoorSide doorSide : doorData.getDoorSides()) {
-                if (doorSide.getTriggerBounds().contains(playerLocation.toVector())) {
+                if (doorSide.getTriggerBounds().clone().expand(0.5).contains(playerLocation.toVector())) {
                     int cost = doorSide.getCost();
 
                     if (player.getCoins() < cost) {
@@ -236,12 +236,14 @@ public class Door extends Shop<DoorData> {
             }
 
             for (ZombiesPlayer player : getArena().getPlayerMap().values()) {
-                Player otherBukkitPlayer = player.getPlayer();
-                if (otherBukkitPlayer != null) {
-                    otherBukkitPlayer.showTitle(Title.title(Component.text(opener.getName(), NamedTextColor.YELLOW),
-                            Component.text(message.toString(), TextColor.color(61, 61, 61)),
-                            Title.Times.of(Duration.ofSeconds(1), Duration.ofSeconds(3),
-                                    Duration.ofSeconds(1))));
+                if (player.isInGame()) {
+                    Player otherBukkitPlayer = player.getPlayer();
+                    if (otherBukkitPlayer != null) {
+                        otherBukkitPlayer.showTitle(Title.title(Component.text(opener.getName(), NamedTextColor.YELLOW),
+                                Component.text(message.toString(), TextColor.color(61, 61, 61)),
+                                Title.Times.of(Duration.ofSeconds(1), Duration.ofSeconds(3),
+                                        Duration.ofSeconds(1))));
+                    }
                 }
             }
         }

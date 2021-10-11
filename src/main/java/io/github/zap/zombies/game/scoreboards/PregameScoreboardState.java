@@ -1,6 +1,6 @@
 package io.github.zap.zombies.game.scoreboards;
 
-import io.github.zap.arenaapi.Disposable;
+import io.github.zap.commons.Disposable;
 import io.github.zap.arenaapi.game.arena.ManagingArena;
 import io.github.zap.zombies.game.ZombiesArena;
 import io.github.zap.zombies.game.ZombiesArenaState;
@@ -49,12 +49,14 @@ public class PregameScoreboardState implements GameScoreboardState, Disposable {
               .line()
               .line(status, ChatColor.GREEN + " ", cd)
               .line()
-              .text(ChatColor.YELLOW + "discord.gg/private-bro");
+              .text(ChatColor.YELLOW + "discord.gg/QgutmgAWQT");
 
         for (var player : gameScoreboard.getZombiesArena().getPlayerMap().values()) {
-            Player bukkitPlayer = player.getPlayer();
-            if (bukkitPlayer != null) {
-                bukkitPlayer.setScoreboard(bukkitScoreboard);
+            if (player.isInGame()) {
+                Player bukkitPlayer = player.getPlayer();
+                if (bukkitPlayer != null) {
+                    bukkitPlayer.setScoreboard(bukkitScoreboard);
+                }
             }
         }
 

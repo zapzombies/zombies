@@ -1,10 +1,9 @@
 package io.github.zap.zombies.nms.common.entity;
 
+import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Mob;
-import org.bukkit.entity.Piglin;
+import org.bukkit.entity.*;
+import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -16,7 +15,7 @@ public interface EntityBridge {
      * Replaces any persistent goals on a mob with dummy goals
      * @param mob The mob to erase goals from
      */
-    boolean replacePersistentGoals(@NotNull Mob mob);
+    void replacePersistentGoals(@NotNull Mob mob) throws NoSuchFieldException, IllegalAccessException;
 
     /**
      * Sets whether a {@link Mob} is aggressive
@@ -74,5 +73,10 @@ public interface EntityBridge {
      */
     void spawnDream(@NotNull Piglin dream, @NotNull World world);
 
-    void shootProjectile(@NotNull LivingEntity livingEntity, @NotNull LivingEntity target, float idk);
+    void shootProjectile(@NotNull LivingEntity livingEntity, @NotNull LivingEntity target, float velocity);
+
+    void setCurrentHandHoldingBow(@NotNull LivingEntity livingEntity);
+
+    @NotNull Vector getCorpseCenter(@NotNull Vector root);
+
 }

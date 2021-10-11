@@ -26,7 +26,7 @@ public class FlamingBullets extends MarkerPerk<FlamingBulletsData, FlamingBullet
     }
 
     @Override
-    public void deactivate() {
+    public void deactivate(boolean saveState) {
         duration = 0;
     }
 

@@ -34,8 +34,8 @@ public class Speed extends RepeatingEventPerk<SpeedPerkData, SpeedPerkLevel> {
     }
 
     @Override
-    public void deactivate() {
-        super.deactivate();
+    public void deactivate(boolean saveState) {
+        super.deactivate(saveState);
         Player player = getZombiesPlayer().getPlayer();
         if (player != null) {
             player.removePotionEffect(PotionEffectType.SPEED);

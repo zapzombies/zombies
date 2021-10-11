@@ -1,6 +1,7 @@
 package io.github.zap.zombies.game.scoreboards;
 
 import io.github.zap.arenaapi.shadow.org.apache.commons.lang3.RandomStringUtils;
+import io.github.zap.commons.Disposable;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.scoreboard.DisplaySlot;
@@ -16,7 +17,7 @@ import java.util.List;
 /**
  * A wrapper that render text to a sidebar objective
  */
-public class SidebarTextWriter implements Iterable<ITextFragment>, TextWriter {
+public class SidebarTextWriter implements Iterable<ITextFragment>, TextWriter, Disposable {
     // implement non-reduced-flicker for 128 + 40 chars (currently 64)
     public static final int MAX_CHAR_REDUCE_FLICKER = 64;
     public static final int MAX_CHAR = 168;
@@ -99,6 +100,7 @@ public class SidebarTextWriter implements Iterable<ITextFragment>, TextWriter {
     public void dispose() {
         lineProvider.dispose();
         if(isGenerated()) objective.unregister();
+        clear();
     }
 
     /* Overloads of adding text fragment */
@@ -346,6 +348,10 @@ public class SidebarTextWriter implements Iterable<ITextFragment>, TextWriter {
      * Removes all text fragments stored in this instance
      */
     public void clear() {
+        for (int i = 0; i < fragments.size(); i++) {
+            fragments.get(i).removeWriter(this);
+        }
+
         fragments.clear();
         if(isAutoUpdate()) update();
     }

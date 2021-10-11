@@ -59,7 +59,8 @@ public class PiglinShop extends Shop<PiglinShopData> {
         super(arena, shopData);
 
         this.dream = Zombies.getInstance().getNmsBridge().entityBridge().makeDream(arena.getWorld());
-        this.hologram = new Hologram(shopData.getPiglinLocation().add(new Vector(0, 1, 0)).toLocation(arena.getWorld()));
+        this.hologram = new Hologram(shopData.getPiglinLocation().clone().add(new Vector(0, 1, 0))
+                .toLocation(arena.getWorld()));
         for (String equipmentName : shopData.getEquipments()) {
             this.equipments.add(arena.getEquipmentManager().getEquipmentData(arena.getMap().getName(), equipmentName));
         }
@@ -96,7 +97,8 @@ public class PiglinShop extends Shop<PiglinShopData> {
             Zombies.getInstance().getNmsBridge().entityBridge().spawnDream(dream, getArena().getWorld());
             dream.teleportAsync(new Location(getArena().getWorld(), getShopData().getPiglinLocation().getX(),
                     getShopData().getPiglinLocation().getY(), getShopData().getPiglinLocation().getZ(),
-                    getShopData().getDirection(), 0.0F));
+                    getShopData().getDirection(), 0.0F)).thenAccept(bool -> {
+            });
             init = true;
         }
 
@@ -119,12 +121,12 @@ public class PiglinShop extends Shop<PiglinShopData> {
 
                 if (bukkitPlayer != null) {
                     if (getShopData().isRequiresPower() && !isPowered()) {
-                        bukkitPlayer.sendMessage(MiniMessage.get().parse("<red>I need some power to trade!"));
+                        bukkitPlayer.sendMessage(MiniMessage.get().parse("<red>I need power to trade!"));
                     } else if (!active) {
                         String notActive = "Shop's not open right now.";
                         String piglinRoom = getArena().getPiglinRoom();
                         if (piglinRoom != null) {
-                            notActive += " Go to " + piglinRoom + ", will ya?";
+                            notActive += " Go to " + piglinRoom + "!";
                         }
 
                         bukkitPlayer.sendMessage(MiniMessage.get().parse("<red>" + notActive));
@@ -136,7 +138,7 @@ public class PiglinShop extends Shop<PiglinShopData> {
                                 }
                             } else {
                                 bukkitPlayer.sendMessage(MiniMessage.get()
-                                        .parse("<red>Hey, let me think what to give you!"));
+                                        .parse("<red>I'm not done choosing your weapon!"));
                             }
                         } else {
                             bukkitPlayer.sendMessage(MiniMessage.get()

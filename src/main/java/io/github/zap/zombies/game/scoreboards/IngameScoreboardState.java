@@ -1,8 +1,8 @@
 package io.github.zap.zombies.game.scoreboards;
 
-import io.github.zap.arenaapi.Disposable;
 import io.github.zap.arenaapi.game.arena.ManagingArena;
 import io.github.zap.arenaapi.shadow.org.apache.commons.lang3.tuple.Pair;
+import io.github.zap.commons.Disposable;
 import io.github.zap.zombies.Zombies;
 import io.github.zap.zombies.game.ZombiesArena;
 import io.github.zap.zombies.game.ZombiesArenaState;
@@ -79,7 +79,7 @@ public class IngameScoreboardState implements GameScoreboardState, Disposable {
                     .line("Time: " + ChatColor.GREEN, time)
                     .line("Map: " + ChatColor.GREEN + map)
                     .line()
-                    .text(ChatColor.YELLOW + "discord.gg/:zzz:");
+                    .text(ChatColor.YELLOW + "discord.gg/QgutmgAWQT");
 
 
             // Health objective
@@ -90,6 +90,7 @@ public class IngameScoreboardState implements GameScoreboardState, Disposable {
             var objKills = bukkitScoreboard.registerNewObjective("objKills", "dummy", "Zombie Kills");
             objKills.setDisplaySlot(DisplaySlot.PLAYER_LIST);
 
+            // Corpse
             Team corpseTeam = bukkitScoreboard.registerNewTeam(gameScoreboard.getZombiesArena().getCorpseTeamName());
             corpseTeam.setOption(Team.Option.COLLISION_RULE, Team.OptionStatus.NEVER);
             corpseTeam.setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.NEVER);
@@ -192,10 +193,12 @@ public class IngameScoreboardState implements GameScoreboardState, Disposable {
                 playerSb.getValue().getSidebarWriter().update();
                 gameScoreboard.getZombiesArena().getPlayerMap()
                         .forEach((l,r) -> {
-                            Player otherPlayer = r.getPlayer();
-                            if (otherPlayer != null) {
-                                playerSb.getValue().getZombiesKillObjective().getScore(otherPlayer.getName()).setScore(r.getKills());
-                                playerSb.getValue().getHealthObjective().getScore(otherPlayer.getName()).setScore((int) otherPlayer.getHealth());
+                            if (r.isInGame()) {
+                                Player otherPlayer = r.getPlayer();
+                                if (otherPlayer != null) {
+                                    playerSb.getValue().getZombiesKillObjective().getScore(otherPlayer.getName()).setScore(r.getKills());
+                                    playerSb.getValue().getHealthObjective().getScore(otherPlayer.getName()).setScore((int) otherPlayer.getHealth());
+                                }
                             }
                         });
             } else {

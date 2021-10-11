@@ -2,6 +2,7 @@ package io.github.zap.zombies.nms.v1_16_R3.entity;
 
 import io.github.zap.zombies.nms.common.entity.EntityBridge;
 import net.minecraft.server.v1_16_R3.*;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_16_R3.CraftWorld;
 import org.bukkit.craftbukkit.v1_16_R3.entity.CraftEntity;
@@ -10,6 +11,7 @@ import org.bukkit.craftbukkit.v1_16_R3.entity.CraftMob;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.*;
 import org.bukkit.event.entity.CreatureSpawnEvent;
+import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -19,33 +21,29 @@ public class EntityBridge_v1_16_R3 implements EntityBridge {
     public static final EntityBridge_v1_16_R3 INSTANCE = new EntityBridge_v1_16_R3();
 
     @Override
-    public boolean replacePersistentGoals(@NotNull Mob mob) {
-        if (((CraftMob) mob).getHandle() instanceof EntitySkeletonAbstract skeleton) {
-            try {
-                Field bowShootGoal = EntitySkeletonAbstract.class.getDeclaredField("b");
-                Field meleeAttackGoal = EntitySkeletonAbstract.class.getDeclaredField("c");
+    public void replacePersistentGoals(@NotNull Mob mob) throws NoSuchFieldException, IllegalAccessException {
+        EntityInsentient entityInsentient = ((CraftMob)mob).getHandle();
 
-                bowShootGoal.setAccessible(true);
-                meleeAttackGoal.setAccessible(true);
+        if (entityInsentient instanceof EntitySkeletonAbstract skeleton) {
+            Field bowShootGoal = EntitySkeletonAbstract.class.getDeclaredField("b");
+            Field meleeAttackGoal = EntitySkeletonAbstract.class.getDeclaredField("c");
 
-                bowShootGoal.set(skeleton, new PathfinderGoalBowShoot<>(skeleton, 0, 0, 0) {
-                    @Override
-                    public boolean a() {
-                        return false;
-                    }
-                });
-                meleeAttackGoal.set(skeleton, new PathfinderGoalMeleeAttack(skeleton, 0, false) {
-                    @Override
-                    public boolean a() {
-                        return false;
-                    }
-                });
-            } catch (NoSuchFieldException | IllegalAccessException e) {
-                return false;
-            }
+            bowShootGoal.setAccessible(true);
+            meleeAttackGoal.setAccessible(true);
+
+            bowShootGoal.set(skeleton, new PathfinderGoalBowShoot<>(skeleton, 0, 0, 0) {
+                @Override
+                public boolean a() {
+                    return false;
+                }
+            });
+            meleeAttackGoal.set(skeleton, new PathfinderGoalMeleeAttack(skeleton, 0, false) {
+                @Override
+                public boolean a() {
+                    return false;
+                }
+            });
         }
-
-        return true;
     }
 
     @Override
@@ -138,5 +136,16 @@ public class EntityBridge_v1_16_R3 implements EntityBridge {
         if(craftLivingEntity.getHandle() instanceof IRangedEntity rangedEntity) {
             rangedEntity.a(((CraftLivingEntity)target).getHandle(), idk);
         }
+    }
+
+    @Override
+    public void setCurrentHandHoldingBow(@NotNull LivingEntity livingEntity) {
+        EntityLiving entityLiving = ((CraftLivingEntity)livingEntity).getHandle();
+        entityLiving.c(ProjectileHelper.a(entityLiving, Items.BOW));
+    }
+
+    @Override
+    public @NotNull Vector getCorpseCenter(@NotNull Vector root) {
+        return root.clone().setX(root.getX() - 0.9D);
     }
 }

@@ -58,8 +58,10 @@ public class ExtraWeapon extends MarkerPerk<ExtraWeaponData, ExtraWeaponLevel> {
     }
 
     @Override
-    public void deactivate() {
-        setLevel(-1);
+    public void deactivate(boolean saveState) {
+        if (!saveState) {
+            setLevel(-1);
+        }
     }
 
 }

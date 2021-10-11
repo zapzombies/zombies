@@ -1,22 +1,25 @@
 package io.github.zap.zombies.command.mapeditor.form;
 
-import io.github.regularcommands.commands.CommandForm;
-import io.github.regularcommands.commands.Context;
-import io.github.regularcommands.converter.Parameter;
-import io.github.regularcommands.util.Permissions;
-import io.github.regularcommands.validator.CommandValidator;
+import io.github.zap.regularcommands.commands.CommandForm;
+import io.github.zap.regularcommands.commands.Context;
+import io.github.zap.regularcommands.commands.RegularCommand;
+import io.github.zap.regularcommands.converter.Parameter;
+import io.github.zap.regularcommands.util.Permissions;
+import io.github.zap.regularcommands.validator.CommandValidator;
 import io.github.zap.zombies.command.mapeditor.MapeditorValidators;
 import io.github.zap.zombies.command.mapeditor.form.data.MapContextData;
 import io.github.zap.zombies.game.data.map.RoundData;
+import net.kyori.adventure.text.Component;
+import org.jetbrains.annotations.NotNull;
 
 public class NewRoundForm extends CommandForm<MapContextData> {
     private static final Parameter[] parameters = new Parameter[] {
-            new Parameter("round"),
-            new Parameter("create"),
+            new Parameter("round", Component.text("round")),
+            new Parameter("create", Component.text("create")),
     };
 
-    public NewRoundForm() {
-        super("Creates a new round.", Permissions.OPERATOR, parameters);
+    public NewRoundForm(@NotNull RegularCommand command) {
+        super(command, Component.text("Creates a new round."), Permissions.OPERATOR, parameters);
     }
 
     @Override
@@ -25,8 +28,8 @@ public class NewRoundForm extends CommandForm<MapContextData> {
     }
 
     @Override
-    public String execute(Context context, Object[] objects, MapContextData waveData) {
+    public Component execute(Context context, Object[] objects, MapContextData waveData) {
         waveData.getMap().getRounds().add(new RoundData());
-        return "Added a new round. Total rounds: " + waveData.getMap().getRounds().size();
+        return Component.text("Added a new round.");
     }
 }

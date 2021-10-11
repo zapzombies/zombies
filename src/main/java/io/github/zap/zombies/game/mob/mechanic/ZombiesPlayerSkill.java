@@ -19,7 +19,7 @@ public abstract class ZombiesPlayerSkill extends ZombiesArenaSkill {
         if(target != null) {
             ZombiesPlayer targetPlayer = arena.getPlayerMap().get(target.getUniqueId());
 
-            if(targetPlayer != null && targetPlayer.isAlive()) {
+            if(targetPlayer != null && targetPlayer.isAlive() && arena.runAI()) {
                 return castAtPlayer(metadata, arena, targetPlayer);
             }
         }

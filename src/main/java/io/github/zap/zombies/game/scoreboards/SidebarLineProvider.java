@@ -1,5 +1,6 @@
 package io.github.zap.zombies.game.scoreboards;
 
+import io.github.zap.commons.Disposable;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,7 +17,7 @@ import java.util.List;
  * Provides a lower level way to write to the scoreboard sidebar by modifying and retrieving each line of the sidebar
  * objectives
  */
-public class SidebarLineProvider {
+public class SidebarLineProvider implements Disposable {
     public static final ChatColor[] TEXT_FORMATTING = ChatColor.values();
 
     // Pretty magic code doc later

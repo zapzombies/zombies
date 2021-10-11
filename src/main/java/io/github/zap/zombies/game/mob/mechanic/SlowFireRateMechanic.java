@@ -33,7 +33,8 @@ public class SlowFireRateMechanic extends ZombiesPlayerSkill {
     }
 
     @Override
-    public boolean castAtPlayer(@NotNull SkillMetadata skillMetadata, @NotNull ZombiesArena arena, @NotNull ZombiesPlayer target) {
+    public boolean castAtPlayer(@NotNull SkillMetadata skillMetadata, @NotNull ZombiesArena arena,
+                                @NotNull ZombiesPlayer target) {
         if(target.getPlayer() != null) {
             Player bukkitPlayer = target.getPlayer();
 
