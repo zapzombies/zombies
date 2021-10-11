@@ -23,7 +23,7 @@ public abstract class DeviatingGoal extends PlayerTargetingGoal {
 
     @Override
     protected @NotNull PathOperation makeOperation(@NotNull ZombiesPlayer zombiesPlayer, @NotNull Player target) {
-        return new PathOperationBuilder(arenaNMS.worldBridge())
+        return new PathOperationBuilder()
                 .withAgent(mob)
                 .withDestination(target, arenaNMS.worldBridge(), zombiesPlayer)
                 .withRange(getArena().getMapBounds())
