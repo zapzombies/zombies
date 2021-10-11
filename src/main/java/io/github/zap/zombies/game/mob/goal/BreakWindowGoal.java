@@ -38,7 +38,7 @@ public class BreakWindowGoal extends ZombiesPathfinderGoal<Vector3D> {
     private void pathToWindow() {
         Vector3D target = getCurrentTarget();
 
-        pathHandler.giveOperation(new PathOperationBuilder()
+        pathHandler.giveOperation(new PathOperationBuilder(arenaNMS.worldBridge())
                 .withAgent(mob)
                 .withDestination(Vectors.asIntFloor(target))
                 .withRange(3)
@@ -104,7 +104,7 @@ public class BreakWindowGoal extends ZombiesPathfinderGoal<Vector3D> {
         }
 
         PathEntityWrapper currentPath = navigator.currentPath();
-        if(currentPath == null || (navigator.isIdle() && ++recalculateCounter >= RECALCULATE_INTERVAL)) {
+        if(currentPath == null || (!navigator.hasActivePath() && ++recalculateCounter >= RECALCULATE_INTERVAL)) {
             pathToWindow();
             recalculateCounter = 0;
         }
