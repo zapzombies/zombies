@@ -1,5 +1,6 @@
 package io.github.zap.zombies.game.scoreboards;
 
+import io.github.zap.commons.Disposable;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
@@ -7,7 +8,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class SidebarDisplayNameTextWriter implements Iterable<ITextFragment>, TextWriter {
+public class SidebarDisplayNameTextWriter implements Iterable<ITextFragment>, TextWriter, Disposable {
     // It seems like there is not limit to the display name
     @Getter
     private final SidebarTextWriter writer;
@@ -141,8 +142,17 @@ public class SidebarDisplayNameTextWriter implements Iterable<ITextFragment>, Te
      * Removes all text fragments stored in this instance
      */
     public void clear() {
+        for(int i = 0; i < fragments.size(); i++) {
+            fragments.get(i).removeWriter(this);
+        }
+
         fragments.clear();
         if(getWriter().isAutoUpdate()) getWriter().update();
+    }
+
+    @Override
+    public void dispose() {
+        clear();
     }
 }
 

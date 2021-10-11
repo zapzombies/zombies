@@ -54,6 +54,10 @@ public class GameScoreboard implements Disposable, Runnable {
     private GameScoreboardState getCurrentState() {
         var arenaState = getZombiesArena().getState();
         if(arenaState != previousState) {
+            if(currentState instanceof Disposable disposable) {
+                disposable.dispose();
+            }
+
             currentState = SCOREBOARD_STATES.get(arenaState).get();
             currentState.stateChangedFrom(previousState, this);
             previousState = arenaState;
@@ -90,8 +94,12 @@ public class GameScoreboard implements Disposable, Runnable {
             }
         }
 
-        if(currentState != null && currentState instanceof Disposable disposable) {
-            disposable.dispose();
+        if(currentState != null) {
+            // Package name for clarification
+            if(currentState instanceof io.github.zap.commons.Disposable disposable )
+                disposable.dispose();
+            else if (currentState instanceof io.github.zap.arenaapi.Disposable disposable2)
+                disposable2.dispose();
         }
     }
 }

@@ -1,6 +1,6 @@
 package io.github.zap.zombies.game.scoreboards;
 
-import io.github.zap.arenaapi.Disposable;
+import io.github.zap.commons.Disposable;
 import io.github.zap.arenaapi.game.arena.ManagingArena;
 import io.github.zap.zombies.game.ZombiesArena;
 import io.github.zap.zombies.game.ZombiesArenaState;
