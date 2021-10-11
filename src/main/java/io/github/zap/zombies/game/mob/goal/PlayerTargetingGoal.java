@@ -2,6 +2,7 @@ package io.github.zap.zombies.game.mob.goal;
 
 import io.github.zap.arenaapi.nms.common.pathfind.MobNavigator;
 import io.github.zap.arenaapi.nms.common.pathfind.PathEntityWrapper;
+import io.github.zap.arenaapi.pathfind.destination.PathDestination;
 import io.github.zap.arenaapi.pathfind.operation.PathOperation;
 import io.github.zap.arenaapi.pathfind.path.PathResult;
 import io.github.zap.commons.vectors.Vector3I;
@@ -20,13 +21,17 @@ import java.util.logging.Level;
 
 public abstract class PlayerTargetingGoal extends ZombiesPathfinderGoal<ZombiesPlayer> {
     private static final int RECALCULATE_INTERVAL = 10;
+    private static final int OFF_PATH_INTERVAL = 15;
     private static final int HALF_INTERVAL = RECALCULATE_INTERVAL / 2;
 
     private final int retargetInterval;
 
     private int retargetCounter = 0;
-    private int recalculateCounter = 0;
+    private int baseRecalculateCounter = 0;
+    private int offPathCounter = 0;
+    boolean pathFail = false;
     private Vector3I lastLocation = null;
+    private PathResult lastResult;
 
     public PlayerTargetingGoal(@NotNull Plugin plugin, @NotNull AbstractEntity entity, @NotNull String line,
                                @NotNull MythicLineConfig mlc) {
@@ -106,7 +111,7 @@ public abstract class PlayerTargetingGoal extends ZombiesPathfinderGoal<ZombiesP
 
     @Override
     protected void begin() {
-        recalculateCounter = 0;
+        baseRecalculateCounter = 0;
         retargetCounter = 0;
         lastLocation = null;
         zombiesNMS.entityBridge().setAggressive(mob, true);
@@ -128,7 +133,7 @@ public abstract class PlayerTargetingGoal extends ZombiesPathfinderGoal<ZombiesP
         if(newTarget != null && (player = newTarget.getPlayer()) != null) {
             mob.setTarget(player);
             lastLocation = null;
-            recalculateCounter = RECALCULATE_INTERVAL; //force recalculate on next tick
+            baseRecalculateCounter = RECALCULATE_INTERVAL; //force recalculate on next tick
         }
         else {
             mob.setTarget(null);
@@ -137,31 +142,77 @@ public abstract class PlayerTargetingGoal extends ZombiesPathfinderGoal<ZombiesP
 
     @Override
     public void tick() {
-        PathResult result = pathHandler.tryTakeResult();
-        MobNavigator navigator = getNavigator();
-
-        if(result != null) {
-            navigator.navigateAlongPath(result.toPathEntity(), 1);
-        }
-
-        PathEntityWrapper currentPath = navigator.currentPath();
         ZombiesPlayer currentTarget = getCurrentTarget();
         Player bukkitPlayer = currentTarget.getPlayer();
 
         if(bukkitPlayer != null) {
+            MobNavigator navigator = getNavigator();
+            PathResult result = pathHandler.tryTakeResult();
+
+            if(result != null) {
+                lastResult = result;
+
+                PathEntityWrapper wrapper = result.toPathEntity();
+                PathDestination destination = result.destination();
+                wrapper.addPoint(destination.x(), destination.y(), destination.z());
+                navigator.navigateAlongPath(wrapper, 1);
+            }
+
+            PathEntityWrapper currentPath = navigator.currentPath();
             mob.lookAt(bukkitPlayer);
+
+            if(++retargetCounter >= retargetInterval) {
+                retarget();
+                retargetCounter = 0;
+            }
+            else if(canRecalculate(currentPath, navigator)) {
+                calculatePath(getCurrentTarget());
+                baseRecalculateCounter = (int)(Math.random() * HALF_INTERVAL);
+
+                if(currentPath != null) {
+                    if(!currentPath.reachesDestination()) {
+                        int visited;
+                        if(lastResult != null && (visited = lastResult.operation().visitedNodes().size()) > 100) {
+                            int delay = visited / 4;
+                            plugin.getLogger().info("Unreachable target in world '" +
+                                    getArena().getWorld().getName() + "', player '" + bukkitPlayer.getName() +
+                                    "', position " + bukkitPlayer.getLocation().toVector());
+                            plugin.getLogger().info("PathDestination '" + lastResult.destination() + "'");
+                            plugin.getLogger().info("Recalculation will be force delayed by " + delay +
+                                    " ticks");
+                            pathFail = true;
+                            baseRecalculateCounter -= delay;
+                            mob.setGlowing(true);
+                        }
+                    }
+                    else {
+                        pathFail = false;
+                        baseRecalculateCounter -= currentPath.pathLength();
+                        mob.setGlowing(false);
+                    }
+                }
+            }
+        }
+    }
+
+    private boolean canRecalculate(PathEntityWrapper currentPath, MobNavigator navigator) {
+        if(!pathFail) {
+            if(currentPath == null || !navigator.hasActivePath()) {
+                return true;
+            }
+
+            if(!navigator.isOnPath()) {
+                offPathCounter++;
+            }
+            else {
+                offPathCounter = 0;
+            }
+
+            if(offPathCounter >= OFF_PATH_INTERVAL) {
+                return true;
+            }
         }
 
-        if(++retargetCounter >= retargetInterval) {
-            retarget();
-            retargetCounter = 0;
-        }
-        else if(currentPath == null || navigator.isIdle() ||
-                (locationChanged() && ++recalculateCounter >= RECALCULATE_INTERVAL)) {
-            calculatePath(getCurrentTarget());
-
-            recalculateCounter = (int)(Math.random() * HALF_INTERVAL) -
-                    (currentPath == null ? 0 : currentPath.pathLength());
-        }
+        return locationChanged() && ++baseRecalculateCounter >= RECALCULATE_INTERVAL;
     }
 }
