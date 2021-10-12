@@ -158,7 +158,8 @@ public class PerkMachine extends BlockShop<PerkMachineData>  {
     private Perk<?, ?, ?, ?> determinePerk(ZombiesPlayer zombiesPlayer) {
         if (zombiesPlayer != null) {
             EquipmentObjectGroup equipmentObjectGroup = (EquipmentObjectGroup)
-                    zombiesPlayer.getHotbarManager().getHotbarObjectGroup(EquipmentObjectGroupType.PERK.name());
+                    zombiesPlayer.getHotbarManager().getProfiles().get(HotbarManager.DEFAULT_PROFILE_NAME)
+                            .getHotbarObjectGroup(EquipmentObjectGroupType.PERK.name());
 
             if (equipmentObjectGroup != null) {
                 for (HotbarObject hotbarObject : equipmentObjectGroup.getHotbarObjectMap().values()) {

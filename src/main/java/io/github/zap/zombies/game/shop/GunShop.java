@@ -112,7 +112,8 @@ public class GunShop extends ArmorStandShop<GunShopData> {
             secondHologramComponent = Component.text("Requires Power!", NamedTextColor.GRAY);
         } else {
             if (zombiesPlayer != null) {
-                HotbarObjectGroup hotbarObjectGroup = zombiesPlayer.getHotbarManager()
+                HotbarObjectGroup hotbarObjectGroup = zombiesPlayer.getHotbarManager().getProfiles()
+                        .get(HotbarManager.DEFAULT_PROFILE_NAME)
                         .getHotbarObjectGroup(EquipmentObjectGroupType.GUN.name());
                 if (hotbarObjectGroup != null) {
                     for (HotbarObject hotbarObject : hotbarObjectGroup.getHotbarObjectMap().values()) {
