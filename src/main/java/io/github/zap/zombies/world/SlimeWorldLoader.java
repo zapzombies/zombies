@@ -36,30 +36,7 @@ public class SlimeWorldLoader implements WorldLoader {
     }
 
     @Override
-    public void preload() {
-        /*
-        Zombies zombies = Zombies.getInstance();
-        File[] files = zombies.getSlimeWorldDirectory().listFiles();
-
-        if (files != null) {
-            for (File worldFile : files) {
-                String worldFileName = worldFile.getName();
-
-                if (worldFileName.endsWith(zombies.getSlimeExtension())) {
-                    String worldName = Files.getNameWithoutExtension(worldFileName);
-                    try {
-                        slimePlugin.generateWorld(slimePlugin.loadWorld(slimeLoader, worldName, true,
-                                new SlimePropertyMap()));
-                    } catch (UnknownWorldException | IOException | CorruptedWorldException | NewerFormatException
-                            | WorldInUseException e) {
-                        plugin.getLogger().log(Level.WARNING, "Exception when preloading world " + worldName, e);
-                    }
-                } else {
-                    plugin.getLogger().log(Level.INFO, "Ignoring non-SWM file " + worldFileName);
-                }
-            }
-        }*/
-    }
+    public void preload() {}
 
     @Override
     public @NotNull CompletableFuture<World> loadWorld(String worldName) {
