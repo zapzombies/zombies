@@ -1248,26 +1248,26 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
 
             Player player = zombiesPlayer.getPlayer();
             if (player != null) {
-                if (map.getRoundTimesShouldSave().contains(targetRound)) {
+                if (map.getRoundTimesShouldSave().contains(lastRoundIndex)) {
                     statsManager.queueCacheRequest(CacheInformation.PLAYER, player.getUniqueId(),
                             PlayerGeneralStats::new, (stats) -> {
                         PlayerMapStats mapStats = stats.getMapStatsForMap(getArena().getMap());
                         mapStats.setRoundsSurvived(mapStats.getRoundsSurvived() + 1);
 
-                        if (mapStats.getBestRound() < lastRoundIndex + 1) {
-                            mapStats.setBestRound(lastRoundIndex + 1);
+                        if (mapStats.getBestRound() < lastRoundIndex) {
+                            mapStats.setBestRound(lastRoundIndex);
                         }
 
                         Component bar = MiniMessage.get().parse("<green>=======================");
                         Map<Integer, Long> bestTimes = mapStats.getBestTimes();
-                        Long bestTime = bestTimes.get(targetRound);
+                        Long bestTime = bestTimes.get(lastRoundIndex);
                         if (bestTime == null || bestTime < approximateTicks) {
-                            bestTimes.put(targetRound, approximateTicks);
+                            bestTimes.put(lastRoundIndex, approximateTicks);
                             Bukkit.getScheduler().runTask(Zombies.getInstance(), () -> {
                                 if (player.isOnline()) {
                                     player.sendMessage(bar);
                                     player.sendMessage(MiniMessage.get()
-                                            .parse(String.format("<red>You beat round %d in %s!", targetRound + 1,
+                                            .parse(String.format("<red>You beat round %d in %s!", lastRoundIndex,
                                                     TimeUtil.convertTicksToSecondsString(approximateTicks))));
                                     player.sendMessage(MiniMessage.get().parse("<gold>NEW PERSONAL BEST!"));
                                     player.sendMessage(bar);
@@ -1279,7 +1279,7 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
                                 if (player.isOnline()) {
                                     player.sendMessage(bar);
                                     player.sendMessage(MiniMessage.get()
-                                            .parse(String.format("<red>You beat round %d in %s!", targetRound + 1,
+                                            .parse(String.format("<red>You beat round %d in %s!", lastRoundIndex,
                                                     TimeUtil.convertTicksToSecondsString(approximateTicks))));
                                     player.sendMessage(bar);
                                 }
@@ -1292,8 +1292,8 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
                         PlayerMapStats mapStats = stats.getMapStatsForMap(getArena().getMap());
                         mapStats.setRoundsSurvived(mapStats.getRoundsSurvived() + 1);
 
-                        if (mapStats.getBestRound() < lastRoundIndex + 1) {
-                            mapStats.setBestRound(lastRoundIndex + 1);
+                        if (mapStats.getBestRound() < lastRoundIndex) {
+                            mapStats.setBestRound(lastRoundIndex);
                         }
                     });
                 }
