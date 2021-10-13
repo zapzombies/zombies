@@ -24,10 +24,13 @@ import lombok.Getter;
 import org.apache.commons.io.FilenameUtils;
 import org.bukkit.GameRule;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 import java.io.File;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 
@@ -115,7 +118,9 @@ public class ZombiesArenaManager extends ArenaManager<ZombiesArena> {
                     Zombies.info(String.format("Loading arena for map '%s'.", mapName));
                     Zombies.info(String.format("JoinInformation that triggered this load: '%s'.", information));
 
-                    Zombies.getInstance().getWorldLoader().loadWorld(mapData.getWorldName(), (world) -> {
+                    CompletableFuture<World> worldFuture = Zombies.getInstance().getWorldLoader().loadWorld(mapData.getWorldName());
+                    try {
+                        World world = worldFuture.get();
                         world.setGameRule(GameRule.DO_FIRE_TICK, false);
                         world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false);
                         world.setGameRule(GameRule.DO_INSOMNIA, false);
@@ -141,7 +146,9 @@ public class ZombiesArenaManager extends ArenaManager<ZombiesArena> {
                             Zombies.warning(String.format("Newly created arena rejected join request '%s'.", information));
                             onCompletion.accept(Pair.of(false, "Tried to make a new arena, but it couldn't accept all of the players!"));
                         }
-                    });
+                    } catch (InterruptedException | ExecutionException e) {
+                        e.printStackTrace();
+                    }
 
                     return;
                 }

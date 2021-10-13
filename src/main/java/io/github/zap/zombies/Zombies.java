@@ -281,7 +281,7 @@ public final class Zombies extends JavaPlugin implements Listener {
         slimeWorldDirectory = new File("slime_worlds");
         slimeExtension = ".slime";
         slimeLoader = new FileLoader(slimeWorldDirectory); // this is the only instance of swm-plugin code, wish we could remove it
-        worldLoader = new SlimeWorldLoader(slimeLoader);
+        worldLoader = new SlimeWorldLoader(this, slimeLoader, SWM);
         worldLoader.preload();
         timer.stop();
 
