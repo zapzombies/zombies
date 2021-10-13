@@ -6,6 +6,9 @@ import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.*;
 import com.comphenix.protocol.wrappers.EnumWrappers;
 import com.comphenix.protocol.wrappers.Pair;
+import com.destroystokyo.paper.event.entity.EntityRemoveFromWorldEvent;
+import io.github.zap.arenaapi.event.EventHandler;
+import io.github.zap.arenaapi.game.arena.ManagingArena;
 import io.github.zap.arenaapi.hologram.Hologram;
 import io.github.zap.arenaapi.hologram.HologramLine;
 import io.github.zap.zombies.Zombies;
@@ -90,6 +93,9 @@ public class ArmorShop extends ArmorStandShop<ArmorShopData> {
     protected void registerArenaEvents() {
         super.registerArenaEvents();
         getArena().getShopEvent(getShopType()).registerHandler(args -> display());
+        getArena().getProxyFor(EntityRemoveFromWorldEvent.class).registerHandler(args -> {
+            ARMOR_STAND_ID_ARMOR_SHOP_MAP.remove(args.getEvent().getEntity().getEntityId());
+        });
     }
 
     @Override
