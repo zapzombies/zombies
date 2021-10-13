@@ -640,6 +640,7 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
                 .add(new Vector(0, Hologram.DEFAULT_LINE_SPACE * map.getBestTimesCount(), 0));
         Hologram hologram = new Hologram(hologramLocation.toLocation(getWorld()));
 
+        /*
         statsManager.queueCacheRequest(CacheInformation.MAP, map.getName(), MapStats::new, (stats) -> {
             ObjectMapper objectMapper = new ObjectMapper();
 
@@ -681,6 +682,7 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
                 }
             }
         });
+         */
 
         return hologram;
     }
