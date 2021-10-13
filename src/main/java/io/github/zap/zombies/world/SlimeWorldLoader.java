@@ -40,8 +40,9 @@ public class SlimeWorldLoader implements WorldLoader {
 
     @Override
     public @NotNull CompletableFuture<World> loadWorld(String worldName) {
+        String randomName = UUID.randomUUID().toString();
+
         try {
-            String randomName = UUID.randomUUID().toString();
             slimePlugin.generateWorld(slimePlugin.loadWorld(slimeLoader, worldName, true,
                     new SlimePropertyMap()).clone(randomName));
             return CompletableFuture.completedFuture(Bukkit.getWorld(randomName));

@@ -247,13 +247,13 @@ public class BasicBeam {
      * @return Whether or not the shot was a headsh5ot
      */
     protected boolean determineIfHeadshot(RayTraceResult rayTraceResult, Mob mob) {
-        double mobY = mob.getLocation().getY();
+        double mobY = mob.getLocation().getY() - HITBOX_EXPANSION;
         double eyeY = mobY + mob.getEyeHeight();
-        double heightY = mobY + mob.getHeight();
+        double heightY = mobY + mob.getHeight() + (HITBOX_EXPANSION * 2);
 
         Vector hitPosition = rayTraceResult.getHitPosition();
-        double yPos = hitPosition.getY();
+        double hitY = hitPosition.getY();
 
-        return (2 * eyeY - heightY <= yPos && yPos <= heightY);
+        return ((2 * eyeY - heightY) + (HITBOX_EXPANSION * 2) <= hitY && hitY <= heightY);
     }
 }
