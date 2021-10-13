@@ -40,21 +40,14 @@ public class SlimeWorldLoader implements WorldLoader {
 
     @Override
     public @NotNull CompletableFuture<World> loadWorld(String worldName) {
-        World bukkitBaseWorld = Bukkit.getWorld(worldName);
-
-        if(bukkitBaseWorld != null) {
-            try {
-                String randomName = UUID.randomUUID().toString();
-                slimePlugin.generateWorld(slimePlugin.loadWorld(slimeLoader, worldName, true,
-                        new SlimePropertyMap()).clone(randomName));
-                return CompletableFuture.completedFuture(Bukkit.getWorld(randomName));
-            } catch (IOException | UnknownWorldException | CorruptedWorldException | NewerFormatException |
-                    WorldInUseException e) {
-                plugin.getLogger().log(Level.WARNING, "World " + worldName + " could not be loaded", e);
-            }
-        }
-        else {
-            plugin.getLogger().warning("World " +  worldName + " could not be found");
+        try {
+            String randomName = UUID.randomUUID().toString();
+            slimePlugin.generateWorld(slimePlugin.loadWorld(slimeLoader, worldName, true,
+                    new SlimePropertyMap()).clone(randomName));
+            return CompletableFuture.completedFuture(Bukkit.getWorld(randomName));
+        } catch (IOException | UnknownWorldException | CorruptedWorldException | NewerFormatException |
+                WorldInUseException e) {
+            plugin.getLogger().log(Level.WARNING, "World " + worldName + " could not be loaded", e);
         }
 
         return CompletableFuture.completedFuture(null);
