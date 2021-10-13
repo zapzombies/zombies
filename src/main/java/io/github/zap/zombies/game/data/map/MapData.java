@@ -163,6 +163,26 @@ public class MapData {
     int mobSpawnLevel = 1;
 
     /**
+     * The time after which mobs should despawn
+     */
+    long despawnTicks = 6000L;
+
+    /**
+     * The level to which mobs should speed up from their initial speed
+     */
+    double maxSpeedup = 2.0;
+
+    /**
+     * The grace period, in ticks, during which mobs should not speed up
+     */
+    long speedupGrace = 0L;
+
+    /**
+     * The time, in ticks, it takes for a mob to speed up a level
+     */
+    long speedupIncrementPeriod = 200L;
+
+    /**
      * The material that should replace door blocks when they are opened.
      */
     Material doorFillMaterial = Material.AIR;

@@ -1318,37 +1318,40 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
                         MetadataHelper.setFixedMetadata(activeMob.getEntity().getBukkitEntity(),
                                 Zombies.getInstance(), Zombies.SPAWNINFO_WAVE_METADATA_NAME, wave);
 
-                        Entity entity = activeMob.getEntity().getBukkitEntity();
-                        if (entity instanceof Mob mob) {
-                            AttributeInstance attributeInstance = mob.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED);
-                            if (attributeInstance == null) {
-                                mob.registerAttribute(Attribute.GENERIC_MOVEMENT_SPEED);
-                                attributeInstance = mob.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED);
-                            }
-                            if (attributeInstance != null) {
-                                AttributeInstance finalAttributeInstance = attributeInstance;
-                                AttributeModifier[] last = new AttributeModifier[] { null };
-                                double[] value = new double[] { 1.0 };
-                                BukkitTask speedupTask = runTaskTimer(0L, 200L, new DisposableBukkitRunnable() {
-                                    @Override
-                                    public void run() {
-                                        if (!mob.isDead()) {
-                                            AttributeModifier finalLast = last[0];
-                                            if (finalLast != null) {
-                                                finalAttributeInstance.removeModifier(finalLast);
-                                            }
-                                            finalAttributeInstance.addModifier(last[0] = new AttributeModifier(MOB_SPEEDUP_ATTRIBUTE_NAME, (value[0] *= 1.0225106035) - 1, AttributeModifier.Operation.MULTIPLY_SCALAR_1));
+                        if (map.getSpeedupGrace() < map.getDespawnTicks()) {
+                            Entity entity = activeMob.getEntity().getBukkitEntity();
+                            if (entity instanceof Mob mob) {
+                                AttributeInstance attributeInstance = mob.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED);
+                                if (attributeInstance == null) {
+                                    mob.registerAttribute(Attribute.GENERIC_MOVEMENT_SPEED);
+                                    attributeInstance = mob.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED);
+                                }
+                                if (attributeInstance != null) {
+                                    AttributeInstance finalAttributeInstance = attributeInstance;
+                                    AttributeModifier[] last = new AttributeModifier[]{null};
+                                    double[] value = new double[]{1.0};
+                                    // (speedupRate^(period / time)) ^ (time/period)
+                                    double rate = Math.pow(map.getMaxSpeedup(), (double) map.getSpeedupIncrementPeriod() / (map.getDespawnTicks() - map.getSpeedupGrace()));
+                                    BukkitTask speedupTask = runTaskTimer(map.getSpeedupGrace(), map.getSpeedupIncrementPeriod(), new DisposableBukkitRunnable() {
+                                        @Override
+                                        public void run() {
+                                            if (!mob.isDead()) {
+                                                AttributeModifier finalLast = last[0];
+                                                if (finalLast != null) {
+                                                    finalAttributeInstance.removeModifier(finalLast);
+                                                }
+                                                finalAttributeInstance.addModifier(last[0] = new AttributeModifier(MOB_SPEEDUP_ATTRIBUTE_NAME, (value[0] *= rate) - 1, AttributeModifier.Operation.MULTIPLY_SCALAR_1));
+                                            } else cancel();
                                         }
-                                        else cancel();
-                                    }
-                                });
+                                    });
 
-                                context.speedupTasks().add(speedupTask);
+                                    context.speedupTasks().add(speedupTask);
+                                }
                             }
                         }
                     }
 
-                    BukkitTask removeMobTask = runTaskLater(6000, () -> {
+                    BukkitTask removeMobTask = runTaskLater(map.getDespawnTicks(), () -> {
                         for(ActiveMob mob : newlySpawned) {
                             Entity entity = mob.getEntity().getBukkitEntity();
 
