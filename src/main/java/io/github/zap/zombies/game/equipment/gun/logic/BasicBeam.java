@@ -80,7 +80,6 @@ public class BasicBeam {
     private final int goldPerShot;
     private final int goldPerHeadshot;
 
-
     public BasicBeam(MapData mapData, ZombiesPlayer zombiesPlayer, Location root, LinearGunLevel level) {
         this.bukkitAPIHelper = MythicMobs.inst().getAPIHelper();
 
@@ -128,8 +127,8 @@ public class BasicBeam {
             if (!wallshot && !targetBlock.isPassable() && targetBlock.getType() != Material.BARRIER
                     && mapData.windowAt(targetBlock.getLocation().toVector()) == null) {
                 BoundingBox boundingBox = targetBlock.getBoundingBox();
-                if (boundingBox.getWidthX() != 1.0D
-                        || boundingBox.getHeight() != 1.0D || boundingBox.getWidthZ() != 1.0D) {
+                if (boundingBox.getWidthX() != 1.0D || boundingBox.getHeight() != 1.0D ||
+                        boundingBox.getWidthZ() != 1.0D) {
                     if (mapData.isAllowWallshooting()) {
                         wallshot = true;
                     } else {
@@ -234,9 +233,7 @@ public class BasicBeam {
                         (stats) -> stats.setHeadShots(stats.getHeadShots() + 1));
             }
 
-            arena.getDamageHandler().damageEntity(getZombiesPlayer(),
-                    new BeamDamageAttempt(isHeadshot), mob);
-
+            arena.getDamageHandler().damageEntity(getZombiesPlayer(), new BeamDamageAttempt(isHeadshot), mob);
         }
     }
 

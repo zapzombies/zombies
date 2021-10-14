@@ -27,7 +27,7 @@ import java.util.concurrent.atomic.AtomicInteger;
         description = "Summons a configurable barrage of arrows."
 )
 public class ArrowBarrageMechanic extends ZombiesPlayerSkill {
-    private static final String TASK = "skill.arrowbarrage.task";
+    private static final String TASK_NAME = "skill.arrowbarrage.task";
 
     private final int arrowCount;
     private final float velocity;
@@ -51,7 +51,6 @@ public class ArrowBarrageMechanic extends ZombiesPlayerSkill {
 
         if(skillMetadata.getCaster().getEntity().getBukkitEntity() instanceof Mob caster && player != null &&
                 !hasTask(caster)) {
-
             caster.playEffect(EntityEffect.ENTITY_POOF);
             Vector direction = player.getEyeLocation().toVector().subtract(caster.getLocation().toVector()).normalize();
 
@@ -67,10 +66,10 @@ public class ArrowBarrageMechanic extends ZombiesPlayerSkill {
                 }
 
                 if(count.incrementAndGet() == arrowCount) {
-                    BukkitTask bukkitTask = MetadataHelper.getMetadataInstance(caster, Zombies.getInstance(), TASK);
+                    BukkitTask bukkitTask = MetadataHelper.getMetadataInstance(caster, Zombies.getInstance(), TASK_NAME);
                     bukkitTask.cancel();
 
-                    MetadataHelper.setFixedMetadata(caster, Zombies.getInstance(), TASK, null);
+                    caster.removeMetadata(TASK_NAME, Zombies.getInstance());
 
                     Bukkit.getScheduler().runTaskLater(Zombies.getInstance(), () -> {
                         for(Arrow spawned : arrows) {
@@ -80,7 +79,7 @@ public class ArrowBarrageMechanic extends ZombiesPlayerSkill {
                 }
             }, 0, fireInterval);
 
-            MetadataHelper.setFixedMetadata(caster, Zombies.getInstance(), TASK, task);
+            MetadataHelper.setFixedMetadata(caster, Zombies.getInstance(), TASK_NAME, task);
             return true;
         }
 
@@ -88,7 +87,7 @@ public class ArrowBarrageMechanic extends ZombiesPlayerSkill {
     }
 
     private boolean hasTask(Mob mob) {
-        Optional<MetadataValue> taskOptional = MetadataHelper.getMetadataValue(mob, Zombies.getInstance(), TASK);
+        Optional<MetadataValue> taskOptional = MetadataHelper.getMetadataValue(mob, Zombies.getInstance(), TASK_NAME);
         return taskOptional.filter(metadataValue -> metadataValue.value() != null).isPresent();
     }
 }

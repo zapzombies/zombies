@@ -33,6 +33,7 @@ import io.github.zap.zombies.stats.player.PlayerMapStats;
 import io.lumine.xikage.mythicmobs.MythicMobs;
 import io.lumine.xikage.mythicmobs.api.bukkit.BukkitAPIHelper;
 import io.lumine.xikage.mythicmobs.mobs.ActiveMob;
+import io.lumine.xikage.mythicmobs.mobs.MythicMob;
 import lombok.Getter;
 import lombok.Setter;
 import net.kyori.adventure.key.Key;
@@ -491,25 +492,37 @@ public class ZombiesPlayer extends ManagedPlayer<ZombiesPlayer, ZombiesArena> im
                 if (hotbarObjectGroup != null) {
                     for (HotbarObject hotbarObject : hotbarObjectGroup.getHotbarObjectMap().values()) {
                         if (hotbarObject instanceof FrozenBullets frozenBullets) {
-                            AttributeInstance speed = damaged.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED);
+                            Optional<ActiveMob> activeMob = MythicMobs.inst().getMobManager().getActiveMob(
+                                    damaged.getUniqueId());
 
-                            if (speed != null) {
-                                Optional<AttributeModifier> optionalAttributeModifier
-                                        = AttributeHelper.getModifier(speed, FROZEN_BULLETS_ATTRIBUTE_NAME);
+                            if(activeMob.isPresent()) {
+                                MythicMob mythicMob = MythicMobs.inst().getMobManager()
+                                        .getMythicMob(activeMob.get().getMobType());
 
-                                if (optionalAttributeModifier.isPresent()) {
-                                    Bukkit.getScheduler().cancelTask(frozenBulletsTaskId);
+                                if(mythicMob == null ||
+                                        !mythicMob.getConfig().getBoolean("ResistFrozenBullets", false)) {
+                                    AttributeInstance speed = damaged.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED);
 
-                                    frozenBulletsTaskId = arena.runTaskLater(frozenBullets.getDuration(),
-                                            () -> speed.removeModifier(optionalAttributeModifier.get())).getTaskId();
-                                } else {
-                                    AttributeModifier modifier = new AttributeModifier(FROZEN_BULLETS_ATTRIBUTE_NAME,
-                                            -frozenBullets.getReducedSpeed(), AttributeModifier.Operation.ADD_SCALAR);
+                                    if (speed != null) {
+                                        Optional<AttributeModifier> optionalAttributeModifier
+                                                = AttributeHelper.getModifier(speed, FROZEN_BULLETS_ATTRIBUTE_NAME);
 
-                                    speed.addModifier(modifier);
+                                        if (optionalAttributeModifier.isPresent()) {
+                                            Bukkit.getScheduler().cancelTask(frozenBulletsTaskId);
 
-                                    frozenBulletsTaskId = arena.runTaskLater(frozenBullets.getDuration(),
-                                            () -> speed.removeModifier(modifier)).getTaskId();
+                                            frozenBulletsTaskId = arena.runTaskLater(frozenBullets.getDuration(), () ->
+                                                    speed.removeModifier(optionalAttributeModifier.get())).getTaskId();
+                                        } else {
+                                            AttributeModifier modifier = new AttributeModifier(
+                                                    FROZEN_BULLETS_ATTRIBUTE_NAME, -frozenBullets.getReducedSpeed(),
+                                                    AttributeModifier.Operation.ADD_SCALAR);
+
+                                            speed.addModifier(modifier);
+
+                                            frozenBulletsTaskId = arena.runTaskLater(frozenBullets.getDuration(),
+                                                    () -> speed.removeModifier(modifier)).getTaskId();
+                                        }
+                                    }
                                 }
                             }
                         } else if (hotbarObject instanceof FlamingBullets flamingBullets) {
