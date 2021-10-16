@@ -5,7 +5,6 @@ import io.github.zap.arenaapi.ArenaApi;
 import io.github.zap.arenaapi.nms.common.ArenaNMSBridge;
 import io.github.zap.arenaapi.nms.common.pathfind.MobNavigator;
 import io.github.zap.arenaapi.pathfind.util.PathHandler;
-import io.github.zap.commons.event.Event;
 import io.github.zap.commons.utils.MetadataHelper;
 import io.github.zap.zombies.MetadataKeys;
 import io.github.zap.zombies.SpawnMetadata;
@@ -22,7 +21,9 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Mob;
+import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.metadata.MetadataValue;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -44,10 +45,27 @@ public abstract class ZombiesPathfinderGoal<T> extends Pathfinder {
     private boolean metadataLoaded = false;
     private ZombiesArena arena;
     private WindowData window;
-    private Event<EntityRemoveFromWorldEvent> entityRemoveFromWorldEvent;
 
     private boolean resetFlag = false;
     private T target;
+
+    @SuppressWarnings("ClassCanBeRecord")
+    private static class Handler implements Listener {
+        private final Zombies zombies;
+
+        Handler(Zombies zombies) {
+            this.zombies = zombies;
+        }
+
+        @EventHandler(priority = EventPriority.MONITOR)
+        private void onEntityRemoveFromWorld(EntityRemoveFromWorldEvent event) {
+            event.getEntity().removeMetadata(MetadataKeys.MOB_SPAWN.getKey(), zombies);
+        }
+    }
+
+    static {
+        new Handler(Zombies.getInstance());
+    }
 
     public ZombiesPathfinderGoal(@NotNull Zombies plugin, @NotNull AbstractEntity entity, @NotNull String line,
                                  @NotNull MythicLineConfig mlc) {
@@ -133,21 +151,12 @@ public abstract class ZombiesPathfinderGoal<T> extends Pathfinder {
                 if(spawnData != null) {
                     arena = spawnData.arena();
                     window = spawnData.windowData();
-                    entityRemoveFromWorldEvent = Event.bukkitProxy(plugin, EntityRemoveFromWorldEvent.class,
-                            EventPriority.MONITOR, true).filter(event -> event.getEntity().getUniqueId()
-                            .equals(mob.getUniqueId()));
-                    entityRemoveFromWorldEvent.addHandler(this::onEntityRemoveFromWorld);
                     metadataLoaded = true;
                 }
             }
         }
 
         return metadataLoaded;
-    }
-
-    private void onEntityRemoveFromWorld(Object sender, EntityRemoveFromWorldEvent event) {
-        event.getEntity().removeMetadata(MetadataKeys.MOB_SPAWN.getKey(), plugin);
-        entityRemoveFromWorldEvent.clearHandlers();
     }
 
     protected @NotNull MobNavigator getNavigator() {
