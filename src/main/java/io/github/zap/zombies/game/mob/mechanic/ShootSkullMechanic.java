@@ -1,14 +1,13 @@
 package io.github.zap.zombies.game.mob.mechanic;
 
 import com.destroystokyo.paper.event.entity.EntityRemoveFromWorldEvent;
-import io.github.zap.arenaapi.util.MetadataHelper;
+import io.github.zap.commons.utils.MetadataHelper;
 import io.github.zap.zombies.MetadataKeys;
 import io.github.zap.zombies.Zombies;
 import io.github.zap.zombies.game.ZombiesArena;
 import io.github.zap.zombies.game.player.ZombiesPlayer;
 import io.lumine.xikage.mythicmobs.io.MythicLineConfig;
 import io.lumine.xikage.mythicmobs.skills.SkillMetadata;
-import io.lumine.xikage.mythicmobs.skills.variables.types.EntityListVariable;
 import io.lumine.xikage.mythicmobs.util.annotations.MythicMechanic;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.*;

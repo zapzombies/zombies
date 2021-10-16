@@ -1,6 +1,6 @@
 package io.github.zap.zombies.game.mob.mechanic;
 
-import io.github.zap.arenaapi.util.MetadataHelper;
+import io.github.zap.commons.utils.MetadataHelper;
 import io.github.zap.zombies.MetadataKeys;
 import io.github.zap.zombies.Zombies;
 import io.github.zap.zombies.game.ZombiesArena;

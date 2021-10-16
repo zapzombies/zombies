@@ -2,7 +2,7 @@ package io.github.zap.zombies.game.powerups.spawnrules;
 
 import io.github.zap.arenaapi.Disposable;
 import io.github.zap.arenaapi.shadow.org.apache.commons.lang3.mutable.MutableInt;
-import io.github.zap.arenaapi.util.MetadataHelper;
+import io.github.zap.commons.utils.MetadataHelper;
 import io.github.zap.zombies.MetadataKeys;
 import io.github.zap.zombies.Zombies;
 import io.github.zap.zombies.game.ZombiesArena;
@@ -73,8 +73,6 @@ public class DefaultPowerUpSpawnRule extends PowerUpSpawnRule<DefaultPowerUpSpaw
 
                     roundDeathCount++;
                 }
-
-                entity.removeMetadata(MetadataKeys.MOB_WAVE.getKey(), Zombies.getInstance());
             }
         }
     }

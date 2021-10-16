@@ -17,13 +17,13 @@ import io.github.zap.arenaapi.nms.common.world.BlockCollisionView;
 import io.github.zap.arenaapi.pathfind.chunk.ChunkBounds;
 import io.github.zap.arenaapi.pathfind.chunk.ChunkCoordinateProviders;
 import io.github.zap.arenaapi.pathfind.util.Utils;
-import io.github.zap.arenaapi.shadow.com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.zap.arenaapi.shadow.org.apache.commons.lang3.tuple.Pair;
 import io.github.zap.arenaapi.stats.StatsManager;
-import io.github.zap.arenaapi.util.MetadataHelper;
 import io.github.zap.arenaapi.util.TimeUtil;
 import io.github.zap.arenaapi.util.WorldUtils;
+import io.github.zap.commons.utils.MetadataHelper;
 import io.github.zap.commons.vectors.Vectors;
+import io.github.zap.zombies.MetadataKeys;
 import io.github.zap.zombies.SpawnMetadata;
 import io.github.zap.zombies.Zombies;
 import io.github.zap.zombies.game.corpse.Corpse;
@@ -262,7 +262,7 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
                 if(activeMob != null) {
                     getEntitySet().add(activeMob.getUniqueId());
                     MetadataHelper.setFixedMetadata(activeMob.getEntity().getBukkitEntity(), Zombies.getInstance(),
-                            Zombies.SPAWN_METADATA_NAME, new SpawnMetadata(ZombiesArena.this, windowData));
+                            MetadataKeys.MOB_SPAWN.getKey(), new SpawnMetadata(ZombiesArena.this, windowData));
 
                     MythicMob type = MythicMobs.inst().getMobManager().getMythicMob(activeMob.getMobType());
                     if(type.getConfig().getBoolean("IsBoss", false)) {
@@ -853,8 +853,11 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
     }
 
     private void onEntityRemoveFromWorldEvent(ProxyArgs<EntityRemoveFromWorldEvent> event) {
-        if (state == ZombiesArenaState.STARTED && getEntitySet().remove(event.getEvent().getEntity().getUniqueId())) {
+        Entity entity = event.getEvent().getEntity();
+        if (state == ZombiesArenaState.STARTED && getEntitySet().remove(entity.getUniqueId())) {
             zombiesLeft--;
+            entity.removeMetadata(MetadataKeys.MOB_WAVE.getKey(), getPlugin());
+            entity.removeMetadata(MetadataKeys.MOB_SPAWN.getKey(), getPlugin());
             checkNextRound();
         }
     }
@@ -945,7 +948,8 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
     }
 
     private void onEntityDeath(ProxyArgs<EntityDeathEvent> args) {
-        if (state == ZombiesArenaState.STARTED && getEntitySet().remove(args.getEvent().getEntity().getUniqueId())) {
+        Entity entity = args.getEvent().getEntity();
+        if (state == ZombiesArenaState.STARTED && getEntitySet().remove(entity.getUniqueId())) {
             zombiesLeft--;
 
             // TODO: THIS IS A HACK NEEDS TO BE FIXED
@@ -1317,8 +1321,8 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
                     context.spawnedMobs().addAll(newlySpawned);
 
                     for(ActiveMob activeMob : newlySpawned) {
-                        MetadataHelper.setFixedMetadata(activeMob.getEntity().getBukkitEntity(),
-                                Zombies.getInstance(), Zombies.SPAWNINFO_WAVE_METADATA_NAME, wave);
+                        MetadataHelper.setFixedMetadata(activeMob.getEntity().getBukkitEntity(), Zombies.getInstance(),
+                                MetadataKeys.MOB_WAVE.getKey(), wave);
 
                         if (map.getSpeedupGrace() < map.getDespawnTicks()) {
                             Entity entity = activeMob.getEntity().getBukkitEntity();
@@ -1333,8 +1337,10 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
                                     AttributeModifier[] last = new AttributeModifier[]{null};
                                     double[] value = new double[]{1.0};
                                     // (speedupRate^(period / time)) ^ (time/period)
-                                    double rate = Math.pow(map.getMaxSpeedup(), (double) map.getSpeedupIncrementPeriod() / (map.getDespawnTicks() - map.getSpeedupGrace()));
-                                    BukkitTask speedupTask = runTaskTimer(map.getSpeedupGrace(), map.getSpeedupIncrementPeriod(), new DisposableBukkitRunnable() {
+                                    double rate = Math.pow(map.getMaxSpeedup(), (double) map.getSpeedupIncrementPeriod()
+                                            / (map.getDespawnTicks() - map.getSpeedupGrace()));
+                                    BukkitTask speedupTask = runTaskTimer(map.getSpeedupGrace(),
+                                            map.getSpeedupIncrementPeriod(), new DisposableBukkitRunnable() {
                                         @Override
                                         public void run() {
                                             if (!mob.isDead()) {
@@ -1342,8 +1348,13 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
                                                 if (finalLast != null) {
                                                     finalAttributeInstance.removeModifier(finalLast);
                                                 }
-                                                finalAttributeInstance.addModifier(last[0] = new AttributeModifier(MOB_SPEEDUP_ATTRIBUTE_NAME, (value[0] *= rate) - 1, AttributeModifier.Operation.MULTIPLY_SCALAR_1));
-                                            } else cancel();
+                                                finalAttributeInstance.addModifier(last[0] =
+                                                        new AttributeModifier(MOB_SPEEDUP_ATTRIBUTE_NAME,
+                                                                (value[0] *= rate) - 1,
+                                                                AttributeModifier.Operation.MULTIPLY_SCALAR_1));
+                                            } else {
+                                                cancel();
+                                            }
                                         }
                                     });
 
