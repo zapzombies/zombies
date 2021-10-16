@@ -7,6 +7,7 @@ import io.github.zap.arenaapi.pathfind.operation.PathOperation;
 import io.github.zap.arenaapi.pathfind.path.PathResult;
 import io.github.zap.commons.vectors.Vector3I;
 import io.github.zap.commons.vectors.Vectors;
+import io.github.zap.zombies.Zombies;
 import io.github.zap.zombies.game.player.ZombiesPlayer;
 import io.lumine.xikage.mythicmobs.adapters.AbstractEntity;
 import io.lumine.xikage.mythicmobs.io.MythicLineConfig;
@@ -33,7 +34,7 @@ public abstract class PlayerTargetingGoal extends ZombiesPathfinderGoal<ZombiesP
     private Vector3I lastLocation = null;
     private PathResult lastResult;
 
-    public PlayerTargetingGoal(@NotNull Plugin plugin, @NotNull AbstractEntity entity, @NotNull String line,
+    public PlayerTargetingGoal(@NotNull Zombies plugin, @NotNull AbstractEntity entity, @NotNull String line,
                                @NotNull MythicLineConfig mlc) {
         super(plugin, entity, line, mlc);
         this.retargetInterval = mlc.getInteger("retargetInterval", 20);

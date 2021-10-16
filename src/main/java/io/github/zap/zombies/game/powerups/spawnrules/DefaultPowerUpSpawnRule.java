@@ -3,6 +3,7 @@ package io.github.zap.zombies.game.powerups.spawnrules;
 import io.github.zap.arenaapi.Disposable;
 import io.github.zap.arenaapi.shadow.org.apache.commons.lang3.mutable.MutableInt;
 import io.github.zap.arenaapi.util.MetadataHelper;
+import io.github.zap.zombies.MetadataKeys;
 import io.github.zap.zombies.Zombies;
 import io.github.zap.zombies.game.ZombiesArena;
 import io.github.zap.zombies.game.data.map.SpawnEntryData;
@@ -58,9 +59,9 @@ public class DefaultPowerUpSpawnRule extends PowerUpSpawnRule<DefaultPowerUpSpaw
         }
 
         if(isRound) {
-            //using new MetadataHelper util class; the old code would have failed if another plugin happened to register metadata to that entity
-            Optional<MetadataValue> metadataValueOptional = MetadataHelper.getMetadataValue(e.getEvent().getEntity(),
-                    Zombies.getInstance(), Zombies.SPAWNINFO_WAVE_METADATA_NAME);
+            Entity entity = e.getEvent().getEntity();
+            Optional<MetadataValue> metadataValueOptional = MetadataHelper.getMetadataValue(entity,
+                    Zombies.getInstance(), MetadataKeys.MOB_WAVE.getKey());
 
             if(metadataValueOptional.isPresent()) {
                 WaveData waveData = (WaveData) metadataValueOptional.get().value();
@@ -72,6 +73,8 @@ public class DefaultPowerUpSpawnRule extends PowerUpSpawnRule<DefaultPowerUpSpaw
 
                     roundDeathCount++;
                 }
+
+                entity.removeMetadata(MetadataKeys.MOB_WAVE.getKey(), Zombies.getInstance());
             }
         }
     }

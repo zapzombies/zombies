@@ -1,6 +1,7 @@
 package io.github.zap.zombies.game.mob.mechanic;
 
 import io.github.zap.arenaapi.util.MetadataHelper;
+import io.github.zap.zombies.MetadataKeys;
 import io.github.zap.zombies.SpawnMetadata;
 import io.github.zap.zombies.Zombies;
 import io.github.zap.zombies.game.ZombiesArena;
@@ -22,7 +23,7 @@ public abstract class ZombiesArenaSkill extends SkillMechanic implements INoTarg
     @Override
     public boolean cast(SkillMetadata skillMetadata) {
        Optional<MetadataValue> metadataOptional = MetadataHelper.getMetadataValue(skillMetadata.getCaster().getEntity()
-               .getBukkitEntity(), Zombies.getInstance(), Zombies.SPAWN_METADATA_NAME);
+               .getBukkitEntity(), Zombies.getInstance(), MetadataKeys.MOB_SPAWN.getKey());
 
         if(metadataOptional.isPresent()) {
             SpawnMetadata metadata = (SpawnMetadata)metadataOptional.get().value();

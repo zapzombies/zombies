@@ -1,12 +1,13 @@
 package io.github.zap.zombies.game.mob.goal;
 
+import com.destroystokyo.paper.event.entity.EntityRemoveFromWorldEvent;
 import io.github.zap.arenaapi.ArenaApi;
 import io.github.zap.arenaapi.nms.common.ArenaNMSBridge;
 import io.github.zap.arenaapi.nms.common.pathfind.MobNavigator;
-import io.github.zap.arenaapi.pathfind.engine.PathfinderEngine;
-import io.github.zap.arenaapi.pathfind.engine.PathfinderEngines;
 import io.github.zap.arenaapi.pathfind.util.PathHandler;
-import io.github.zap.arenaapi.util.MetadataHelper;
+import io.github.zap.commons.event.Event;
+import io.github.zap.commons.utils.MetadataHelper;
+import io.github.zap.zombies.MetadataKeys;
 import io.github.zap.zombies.SpawnMetadata;
 import io.github.zap.zombies.Zombies;
 import io.github.zap.zombies.game.ZombiesArena;
@@ -21,10 +22,8 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Mob;
-import org.bukkit.entity.Projectile;
+import org.bukkit.event.EventPriority;
 import org.bukkit.metadata.MetadataValue;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -32,7 +31,7 @@ import java.util.Optional;
 import java.util.logging.Level;
 
 public abstract class ZombiesPathfinderGoal<T> extends Pathfinder {
-    protected final Plugin plugin;
+    protected final Zombies plugin;
 
     protected final ArenaNMSBridge arenaNMS;
     protected final ZombiesNMSBridge zombiesNMS;
@@ -45,11 +44,12 @@ public abstract class ZombiesPathfinderGoal<T> extends Pathfinder {
     private boolean metadataLoaded = false;
     private ZombiesArena arena;
     private WindowData window;
+    private Event<EntityRemoveFromWorldEvent> entityRemoveFromWorldEvent;
 
     private boolean resetFlag = false;
     private T target;
 
-    public ZombiesPathfinderGoal(@NotNull Plugin plugin, @NotNull AbstractEntity entity, @NotNull String line,
+    public ZombiesPathfinderGoal(@NotNull Zombies plugin, @NotNull AbstractEntity entity, @NotNull String line,
                                  @NotNull MythicLineConfig mlc) {
         super(entity, line, mlc);
 
@@ -125,7 +125,7 @@ public abstract class ZombiesPathfinderGoal<T> extends Pathfinder {
     private boolean loadMetadata() {
         if(!metadataLoaded) {
             Optional<MetadataValue> optionalSpawnData = MetadataHelper.getMetadataValue(mob, plugin,
-                    Zombies.SPAWN_METADATA_NAME);
+                    MetadataKeys.MOB_SPAWN.getKey());
 
             if(optionalSpawnData.isPresent()) {
                 SpawnMetadata spawnData = (SpawnMetadata)optionalSpawnData.get().value();
@@ -133,12 +133,21 @@ public abstract class ZombiesPathfinderGoal<T> extends Pathfinder {
                 if(spawnData != null) {
                     arena = spawnData.arena();
                     window = spawnData.windowData();
+                    entityRemoveFromWorldEvent = Event.bukkitProxy(plugin, EntityRemoveFromWorldEvent.class,
+                            EventPriority.MONITOR, true).filter(event -> event.getEntity().getUniqueId()
+                            .equals(mob.getUniqueId()));
+                    entityRemoveFromWorldEvent.addHandler(this::onEntityRemoveFromWorld);
                     metadataLoaded = true;
                 }
             }
         }
 
         return metadataLoaded;
+    }
+
+    private void onEntityRemoveFromWorld(Object sender, EntityRemoveFromWorldEvent event) {
+        event.getEntity().removeMetadata(MetadataKeys.MOB_SPAWN.getKey(), plugin);
+        entityRemoveFromWorldEvent.clearHandlers();
     }
 
     protected @NotNull MobNavigator getNavigator() {

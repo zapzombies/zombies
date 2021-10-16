@@ -18,7 +18,7 @@ repositories {
 
 dependencies {
     paperApi ("1.16.5-R0.1-SNAPSHOT")
-    compileOnlyApi("io.github.zap:zap-commons:1.1.0", qs())
+    compileOnlyApi("io.github.zap:zap-commons:1.1.0-SNAPSHOT-1634304135", qs())
 
     implementation("com.grinderwolf:slimeworldmanager-api:2.6.2-SNAPSHOT")
     shade(project(":nms:nms-common"))
