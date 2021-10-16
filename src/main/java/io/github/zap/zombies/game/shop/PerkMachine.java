@@ -60,6 +60,10 @@ public class PerkMachine extends BlockShop<PerkMachineData>  {
 
     @Override
     protected void displayToPlayer(Player player) {
+        if (getHologram().getHologramLines().isEmpty()) {
+            return;
+        }
+
         ZombiesPlayer zombiesPlayer = getArena().getPlayerMap().get(player.getUniqueId());
         PerkMachineData perkMachineData = getShopData();
         Perk<?, ?, ?, ?> perk = determinePerk(zombiesPlayer);

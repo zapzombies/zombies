@@ -112,6 +112,10 @@ public class ArmorShop extends ArmorStandShop<ArmorShopData> {
 
     @Override
     protected void displayToPlayer(Player player) {
+        if (getHologram().getHologramLines().isEmpty()) {
+            return;
+        }
+
         Hologram hologram = getHologram();
         ArmorShopData armorShopData = getShopData();
 

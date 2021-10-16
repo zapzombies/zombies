@@ -100,6 +100,10 @@ public class GunShop extends ArmorStandShop<GunShopData> {
 
     @Override
     protected void displayToPlayer(Player player) {
+        if (getHologram().getHologramLines().isEmpty()) {
+            return;
+        }
+
         ZombiesPlayer zombiesPlayer =  getArena().getPlayerMap().get(player.getUniqueId());
         GunShopData gunShopData = getShopData();
         String gunName = gunShopData.getGunName();
