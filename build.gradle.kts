@@ -29,7 +29,7 @@ dependencies {
         exclude("net.kyori", "adventure-api")
     }
 
-    bukkitPlugin("io.github.zap:arena-api:1.0.0-SNAPSHOT-1634566290", qs())
+    bukkitPlugin("io.github.zap:arena-api:1.0.0-SNAPSHOT-1634567530", qs())
     bukkitPlugin("io.github.zap:zap-party:1.0.0-SNAPSHOT-1630956414", qs {
         exclude("io.github.zap", "regular-commands")
     })
