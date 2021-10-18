@@ -175,21 +175,18 @@ public abstract class PlayerTargetingGoal extends ZombiesPathfinderGoal<ZombiesP
                         int visited;
                         if(lastResult != null && (visited = lastResult.operation().visitedNodes().size()) > 100) {
                             int delay = visited / 4;
-                            plugin.getLogger().info("Unreachable target in world '" +
+                            plugin.getLogger().info("Unreachable target detected in world '" +
                                     getArena().getWorld().getName() + "', player '" + bukkitPlayer.getName() +
                                     "', position " + bukkitPlayer.getLocation().toVector());
-                            plugin.getLogger().info("PathDestination '" + lastResult.destination() + "'");
                             plugin.getLogger().info("Recalculation will be force delayed by " + delay +
                                     " ticks");
                             pathFail = true;
                             baseRecalculateCounter -= delay;
-                            mob.setGlowing(true);
                         }
                     }
                     else {
                         pathFail = false;
                         baseRecalculateCounter -= currentPath.pathLength();
-                        mob.setGlowing(false);
                     }
                 }
             }
@@ -202,6 +199,7 @@ public abstract class PlayerTargetingGoal extends ZombiesPathfinderGoal<ZombiesP
                 return true;
             }
 
+            /*
             if(!navigator.isOnPath()) {
                 offPathCounter++;
             }
@@ -210,8 +208,9 @@ public abstract class PlayerTargetingGoal extends ZombiesPathfinderGoal<ZombiesP
             }
 
             if(offPathCounter >= OFF_PATH_INTERVAL) {
+                offPathCounter = 0;
                 return true;
-            }
+            }*/
         }
 
         return locationChanged() && ++baseRecalculateCounter >= RECALCULATE_INTERVAL;

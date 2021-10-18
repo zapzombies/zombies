@@ -1,8 +1,10 @@
 package io.github.zap.zombies.game.mob.goal;
 
 import io.github.zap.arenaapi.pathfind.calculate.SuccessConditions;
+import io.github.zap.arenaapi.pathfind.destination.PathDestinations;
 import io.github.zap.arenaapi.pathfind.operation.PathOperation;
 import io.github.zap.arenaapi.pathfind.operation.PathOperationBuilder;
+import io.github.zap.arenaapi.pathfind.process.PostProcessors;
 import io.github.zap.zombies.Zombies;
 import io.github.zap.zombies.game.player.ZombiesPlayer;
 import io.lumine.xikage.mythicmobs.adapters.AbstractEntity;
@@ -24,9 +26,8 @@ public abstract class DeviatingGoal extends PlayerTargetingGoal {
 
     @Override
     protected @NotNull PathOperation makeOperation(@NotNull ZombiesPlayer zombiesPlayer, @NotNull Player target) {
-        return new PathOperationBuilder()
-                .withAgent(mob)
-                .withDestination(target, arenaNMS.worldBridge(), zombiesPlayer)
+        return new PathOperationBuilder(arenaNMS.worldBridge(), mob, PathDestinations.fromEntity(target,
+                arenaNMS.worldBridge(), zombiesPlayer, true))
                 .withRange(getArena().getMapBounds())
                 .withSuccessCondition(SuccessConditions.whenWithin(targetDeviationSquared > 1 ? (requiresSight ?
                         (mob.hasLineOfSight(target) ? targetDeviationSquared : 2) : targetDeviationSquared) :
