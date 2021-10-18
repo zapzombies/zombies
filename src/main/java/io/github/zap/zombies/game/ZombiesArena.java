@@ -212,7 +212,8 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
                 while(true) {
                     int startAmt = amt;
                     for(SpawnContext context : spawns) {
-                        if(method == SpawnMethod.IGNORE_SPAWNRULE || context.spawnpoint.canSpawn(spawnEntryData.getMobName(), map)) {
+                        if(method == SpawnMethod.IGNORE_SPAWNRULE || context.spawnpoint.canSpawn(spawnEntryData
+                                .getMobName(), map)) {
                             ActiveMob mob = spawnMob(spawnEntryData.getMobName(), context.spawnpoint.getSpawn(), context.window);
 
                             if(mob != null) {
@@ -346,7 +347,7 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
             for(ZombiesPlayer player : getPlayerMap().values()) {
                 Player bukkitPlayer = player.getPlayer();
 
-                if(bukkitPlayer != null) {
+                if(bukkitPlayer != null && player.isInGame() && player.isAlive()) {
                     if(bukkitPlayer.getLocation().toVector().distanceSquared(target.getSpawn()) <= slaSquared) {
                         return true;
                     }
