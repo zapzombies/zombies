@@ -1275,7 +1275,7 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
                                 if (player.isOnline()) {
                                     player.sendMessage(bar);
                                     player.sendMessage(MiniMessage.get()
-                                            .parse(String.format("<red>You beat round %d in %s!", lastRoundIndex,
+                                            .parse(String.format("<red>You beat round %d in %s!", targetRound,
                                                     TimeUtil.convertTicksToSecondsString(approximateTicks))));
                                     player.sendMessage(MiniMessage.get().parse("<gold>NEW PERSONAL BEST!"));
                                     player.sendMessage(bar);
@@ -1287,7 +1287,7 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
                                 if (player.isOnline()) {
                                     player.sendMessage(bar);
                                     player.sendMessage(MiniMessage.get()
-                                            .parse(String.format("<red>You beat round %d in %s!", lastRoundIndex,
+                                            .parse(String.format("<red>You beat round %d in %s!", targetRound,
                                                     TimeUtil.convertTicksToSecondsString(approximateTicks))));
                                     player.sendMessage(bar);
                                 }
