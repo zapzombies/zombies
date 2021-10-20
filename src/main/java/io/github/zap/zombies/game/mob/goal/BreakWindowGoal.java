@@ -46,7 +46,7 @@ public class BreakWindowGoal extends ZombiesPathfinderGoal<Vector3D> {
     private void pathToWindow() {
         Vector3I target = Vectors.asIntFloor(getCurrentTarget());
 
-        pathHandler.giveOperation(new PathOperationBuilder(worldBridge, mob, PathDestinations.basic(target))
+        pathHandler.giveOperation(new PathOperationBuilder(mob, PathDestinations.basic(target))
                 .withRange(3)
                 .build(), mob.getWorld());
     }

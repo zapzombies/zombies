@@ -891,8 +891,9 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
                     if (player.getHealth() <= event.getFinalDamage()) {
                         Location location = player.getLocation();
 
-                        BlockCollisionView collisionView = Utils.highestBlockBelow(world,
-                                ArenaApi.getInstance().getNmsBridge().worldBridge(), player.getBoundingBox());
+                        BlockCollisionView collisionView = Utils.highestBlockBelow((x, y, z) -> ArenaApi.getInstance()
+                                        .getNmsBridge().worldBridge().collisionFor(world.getBlockAt(x, y, z)),
+                                player.getBoundingBox());
                         location.setY(collisionView.exactY());
 
                         player.teleportAsync(location);

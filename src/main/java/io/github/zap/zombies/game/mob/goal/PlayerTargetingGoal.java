@@ -199,7 +199,6 @@ public abstract class PlayerTargetingGoal extends ZombiesPathfinderGoal<ZombiesP
                 return true;
             }
 
-            /*
             if(!navigator.isOnPath()) {
                 offPathCounter++;
             }
@@ -210,7 +209,7 @@ public abstract class PlayerTargetingGoal extends ZombiesPathfinderGoal<ZombiesP
             if(offPathCounter >= OFF_PATH_INTERVAL) {
                 offPathCounter = 0;
                 return true;
-            }*/
+            }
         }
 
         return locationChanged() && ++baseRecalculateCounter >= RECALCULATE_INTERVAL;

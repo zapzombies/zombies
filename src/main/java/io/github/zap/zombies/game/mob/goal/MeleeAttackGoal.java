@@ -32,8 +32,8 @@ public class MeleeAttackGoal extends PlayerTargetingGoal {
 
     @Override
     protected @NotNull PathOperation makeOperation(@NotNull ZombiesPlayer zombiesPlayer, @NotNull Player target) {
-        return new PathOperationBuilder(arenaNMS.worldBridge(), mob, PathDestinations.fromEntity(target,
-                arenaNMS.worldBridge(), zombiesPlayer, true))
+        return new PathOperationBuilder(mob, PathDestinations.fromEntity(target, arenaNMS.worldBridge(), zombiesPlayer,
+                true))
                 .withRange(getArena().getMapBounds())
                 .withSuccessCondition(SuccessConditions.whenWithin(2))
                 .build();
