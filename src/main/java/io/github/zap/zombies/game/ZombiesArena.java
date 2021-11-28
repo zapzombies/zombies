@@ -27,6 +27,7 @@ import io.github.zap.zombies.MetadataKeys;
 import io.github.zap.zombies.SpawnMetadata;
 import io.github.zap.zombies.Zombies;
 import io.github.zap.zombies.game.corpse.Corpse;
+import io.github.zap.zombies.game.damage.DamageHandler;
 import io.github.zap.zombies.game.data.equipment.EquipmentData;
 import io.github.zap.zombies.game.data.equipment.EquipmentManager;
 import io.github.zap.zombies.game.data.map.*;
@@ -132,17 +133,6 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
          * @return The mob that was spawned, or null if it failed to spawn
          */
         ActiveMob spawnMobAt(@NotNull String mobType, @NotNull Vector vector, boolean updateCount);
-    }
-
-    /**
-     * General interface for an implementation that handles damaging all entities.
-     */
-    public interface DamageHandler {
-        /**
-         * Damages an entity.
-         * @param target The ActiveMob to damage
-         */
-        void damageEntity(@NotNull Damager comesFrom, @NotNull DamageAttempt with, @NotNull Mob target);
     }
 
     /**
@@ -358,86 +348,6 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
         }
     }
 
-    public class BasicDamageHandler implements DamageHandler {
-        @Override
-        public void damageEntity(@NotNull Damager damager, @NotNull DamageAttempt with, @NotNull Mob target) {
-            if (hasEntity(target.getUniqueId()) && !target.isDead()) {
-                target.playEffect(EntityEffect.HURT);
-
-                Optional<ActiveMob> activeMob = MythicMobs.inst().getMobManager().getActiveMob(target.getUniqueId());
-                double mobKbFactor = 1;
-                if(activeMob.isPresent()) {
-                    mobKbFactor = activeMob.get().getType().getConfig().getDouble("KnockbackFactor", 1);
-                }
-
-                Player player = null;
-                if(damager instanceof ZombiesPlayer zp) {
-                    player = zp.getPlayer();
-                }
-
-                double deltaHealth = inflictDamage(player, target, with.damageAmount(damager, target), with.ignoresArmor(damager, target));
-                Vector resultingVelocity = target.getVelocity().add(with.directionVector(damager, target)
-                        .multiply(with.knockbackFactor(damager, target)).multiply(mobKbFactor));
-
-                try {
-                    target.setVelocity(resultingVelocity);
-                }
-                catch (IllegalArgumentException ignored) {
-                    Zombies.warning("Attempted to set velocity for entity " + target.getUniqueId() + " to a vector " +
-                            "with a non-finite value " + resultingVelocity);
-                }
-
-                damager.onDealsDamage(with, target, deltaHealth);
-            }
-        }
-
-        private double inflictDamage(Entity damager, Damageable mob, double damage, boolean ignoreArmor) {
-            boolean instaKill = false;
-
-            for(PowerUp powerup : getPowerUps()) {
-                if(powerup instanceof DamageModificationPowerUp && powerup.getState() == PowerUpState.ACTIVATED) {
-                    var data = (DamageModificationPowerUpData) powerup.getData();
-                    if(data.isInstaKill()) {
-                        instaKill = true;
-                        break;
-                    }
-
-                    damage = damage * data.getMultiplier() + data.getAdditionalDamage();
-                }
-            }
-
-            double before = mob.getHealth();
-
-            Optional<ActiveMob> activeMob = MythicMobs.inst().getMobManager().getActiveMob(mob.getUniqueId());
-            boolean resistInstakill = false;
-            if(activeMob.isPresent()) {
-                resistInstakill = activeMob.get().getType().getConfig().getBoolean("ResistInstakill", false);
-            }
-
-            if(instaKill && !resistInstakill) {
-                double health = mob.getHealth();
-                mob.setHealth(0);
-
-                if(damager != null) {
-                    Bukkit.getPluginManager().callEvent(new EntityDamageByEntityEvent(damager, mob,
-                            EntityDamageEvent.DamageCause.CUSTOM, health));
-                }
-            } else if(ignoreArmor) {
-                mob.setHealth(Math.max(mob.getHealth() - damage, 0D));
-
-                if(damager != null) {
-                    Bukkit.getPluginManager().callEvent(new EntityDamageByEntityEvent(damager, mob,
-                            EntityDamageEvent.DamageCause.CUSTOM, damage));
-                }
-            } else {
-                mob.damage(damage, null);
-            }
-
-            mob.playEffect(EntityEffect.HURT);
-            return before - mob.getHealth();
-        }
-    }
-
     private static final String MOB_SPEEDUP_ATTRIBUTE_NAME = "mob_speedup";
 
     @Getter
@@ -573,7 +483,7 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
      * @param world        The world to use
      * @param emptyTimeout The time it will take the arena to close, if it is empty and in the pregame state
      */
-    public ZombiesArena(ZombiesArenaManager manager, World world, MapData map, long emptyTimeout) {
+    public ZombiesArena(ZombiesArenaManager manager, World world, MapData map, @NotNull DamageHandler damageHandler, long emptyTimeout) {
         super(Zombies.getInstance(), manager, world, ZombiesPlayer::new, emptyTimeout);
 
         this.map = map;
@@ -583,7 +493,7 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
         this.statsManager = manager.getStatsManager();
         this.emptyTimeout = emptyTimeout;
         this.spawner = new BasicSpawner();
-        this.damageHandler = new BasicDamageHandler();
+        this.damageHandler = damageHandler;
         this.gameScoreboard = new GameScoreboard(this);
         gameScoreboard.initialize();
 

@@ -9,6 +9,9 @@ import io.github.zap.arenaapi.stats.FileStatsManager;
 import io.github.zap.arenaapi.stats.StatsCache;
 import io.github.zap.arenaapi.stats.StatsManager;
 import io.github.zap.zombies.Zombies;
+import io.github.zap.zombies.game.damage.BasicDamageHandler;
+import io.github.zap.zombies.game.damage.DamageHandler;
+import io.github.zap.zombies.game.damage.MythicMobsKnockbackModifier;
 import io.github.zap.zombies.game.data.equipment.EquipmentManager;
 import io.github.zap.zombies.game.data.equipment.JacksonEquipmentManager;
 import io.github.zap.zombies.game.data.map.MapData;
@@ -20,12 +23,15 @@ import io.github.zap.zombies.game.powerups.managers.PowerUpManager;
 import io.github.zap.zombies.stats.CacheInformation;
 import io.github.zap.zombies.stats.map.MapStats;
 import io.github.zap.zombies.stats.player.PlayerGeneralStats;
+import io.lumine.xikage.mythicmobs.MythicMobs;
 import lombok.Getter;
 import org.apache.commons.io.FilenameUtils;
 import org.bukkit.GameRule;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.util.*;
@@ -40,6 +46,8 @@ import java.util.function.Consumer;
  */
 public class ZombiesArenaManager extends ArenaManager<ZombiesArena> {
     private static final String NAME = "zombies";
+
+    private final Plugin plugin;
 
     @Getter
     private final EquipmentManager equipmentManager;
@@ -63,10 +71,11 @@ public class ZombiesArenaManager extends ArenaManager<ZombiesArena> {
 
     private final Set<String> markedForDeletion = new HashSet<>();
 
-    public ZombiesArenaManager(Location hubLocation, DataLoader mapLoader, DataLoader equipmentLoader,
-                               DataLoader powerUpLoader, DataLoader playerStatsLoader, DataLoader mapStatsLoader,
-                               int arenaCapacity, int arenaTimeout) {
+    public ZombiesArenaManager(@NotNull Plugin plugin, Location hubLocation, DataLoader mapLoader,
+                               DataLoader equipmentLoader, DataLoader powerUpLoader, DataLoader playerStatsLoader,
+                               DataLoader mapStatsLoader, int arenaCapacity, int arenaTimeout) {
         super(NAME, hubLocation, createStatsManager(playerStatsLoader, mapStatsLoader));
+        this.plugin = plugin;
         this.equipmentManager = new JacksonEquipmentManager(equipmentLoader);
         this.powerUpManager = new JacksonPowerUpManager(powerUpLoader, new JacksonPowerUpManagerOptions());
         ((JacksonPowerUpManager) this.powerUpManager).load();
@@ -136,6 +145,8 @@ public class ZombiesArenaManager extends ArenaManager<ZombiesArena> {
 
                         world.setTime(mapData.getWorldTime());
 
+                        DamageHandler damageHandler = new BasicDamageHandler(plugin, ,
+                                List.of(new MythicMobsKnockbackModifier(MythicMobs.inst().getMobManager())),);
                         ZombiesArena arena = new ZombiesArena(this, world, maps.get(mapName), arenaTimeout);
                         managedArenas.put(arena.getId(), arena);
                         getArenaCreated().callEvent(arena);
