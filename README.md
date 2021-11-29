@@ -28,7 +28,7 @@ Not so important one
 - Setup Maven local: Setup maven packages that doesn't host publicaly (ex: NMS)
 - Setup PAT: Prompt user to provide Personal Access Token
 
-## Interproject manual testing
+## ~~Interproject manual testing~~ (No longer requried with `qs`)
 Since we split our monolithic project into multiple smaller project, editing 2 projects at the same time will be a bit harder, here how we can simplify it a bit
 Suppose you have a project `A` depends on project `B`:
 - Making changes to `A`
