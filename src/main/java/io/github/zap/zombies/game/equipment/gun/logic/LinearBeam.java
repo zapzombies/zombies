@@ -8,6 +8,8 @@ import lombok.Getter;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.World;
+import org.bukkit.entity.Player;
+import org.bukkit.entity.Snowball;
 
 /**
  * Sends lines of particles from guns
@@ -20,6 +22,7 @@ public class LinearBeam extends BasicBeam {
     private final Particle particle;
     private final ParticleDataWrapper<?> particleDataWrapper;
     private final int particleCount;
+    private final boolean snowy;
 
 
     public LinearBeam(MapData mapData, ZombiesPlayer zombiesPlayer, Location root, LinearGunLevel level,
@@ -29,6 +32,7 @@ public class LinearBeam extends BasicBeam {
         this.particle = particle;
         this.particleDataWrapper = particleDataWrapper;
         this.particleCount = particleCount;
+        this.snowy = level.isSnowy();
     }
 
     public LinearBeam(MapData mapData, ZombiesPlayer zombiesPlayer, Location root, LinearGunLevel level,
@@ -51,36 +55,42 @@ public class LinearBeam extends BasicBeam {
         World world = getWorld();
         Location rootLocation = getRoot().toLocation(world);
 
-        if (particleDataWrapper != null) {
-            for (int i = 0; i < particleCount; i++) {
-                world.spawnParticle(
-                        particle,
-                        rootLocation,
-                        1,
-                        0,
-                        0,
-                        0,
-                        0,
-                        particleDataWrapper.getData()
-                );
-                rootLocation.add(getDirectionVector());
-            }
-        } else {
-            for (int i = 0; i < particleCount; i++) {
-                world.spawnParticle(
-                        particle,
-                        rootLocation,
-                        1,
-                        0,
-                        0,
-                        0,
-                        0
-                );
-                rootLocation.add(getDirectionVector());
+        if (!snowy) {
+            if (particleDataWrapper != null) {
+                for (int i = 0; i < particleCount; i++) {
+                    world.spawnParticle(
+                            particle,
+                            rootLocation,
+                            1,
+                            0,
+                            0,
+                            0,
+                            0,
+                            particleDataWrapper.getData()
+                    );
+                    rootLocation.add(getDirectionVector());
+                }
+            } else {
+                for (int i = 0; i < particleCount; i++) {
+                    world.spawnParticle(
+                            particle,
+                            rootLocation,
+                            1,
+                            0,
+                            0,
+                            0,
+                            0
+                    );
+                    rootLocation.add(getDirectionVector());
+                }
             }
         }
-
-
+        else {
+            Player player = getZombiesPlayer().getPlayer();
+            if (player != null) {
+                player.launchProjectile(Snowball.class);
+            }
+        }
     }
 
 }

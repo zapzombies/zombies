@@ -10,4 +10,6 @@ public class LinearGunLevel extends ParticleGunLevel {
 
     private int maxPierceableEntities;
 
+    private boolean snowy = false;
+
 }
