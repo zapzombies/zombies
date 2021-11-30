@@ -56,6 +56,8 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.logging.Level;
 
+//This is a comment to test commiting to staging (remove if I forget to)
+
 public final class Zombies extends JavaPlugin implements Listener {
     @Getter
     private static Zombies instance; //singleton for our main plugin class
