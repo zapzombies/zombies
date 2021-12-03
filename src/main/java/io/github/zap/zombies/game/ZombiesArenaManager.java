@@ -268,7 +268,7 @@ public class ZombiesArenaManager extends ArenaManager<ZombiesArena> {
                                             Leaderboard leaderboard2 = new Leaderboard(lineSource2, view2);
                                             leaderboard2.updateAll();
 
-                                            future2.complete(leaderboard);
+                                            future2.complete(leaderboard2);
 
                                             ZombiesArena arena = new ZombiesArena(this, world, maps.get(mapName),
                                                     leaderboard, leaderboard2, arenaTimeout);

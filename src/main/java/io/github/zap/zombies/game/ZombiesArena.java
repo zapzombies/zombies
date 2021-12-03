@@ -1408,12 +1408,18 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
                             playerMapStats.setBestTime(approximateTicks);
                             statsManager.queueCacheRequest(CacheInformation.MAP, map.getName(), MapStats::new,
                                     (mapStats) -> {
-                                        Map<UUID, Long> bestTimes = mapStats.getBestTimes(), bestDecember2021Times = mapStats.getDecember2021Event();
+                                        Map<UUID, Long> bestTimes = mapStats.getBestTimes();
                                         bestTimes.put(r.getOfflinePlayer().getUniqueId(), approximateTicks);
-                                        bestDecember2021Times.put(r.getOfflinePlayer().getUniqueId(), approximateTicks);
                                     });
                         }
                     });
+            statsManager.queueCacheRequest(CacheInformation.MAP, map.getName(), MapStats::new, (mapStats) -> {
+                Map<UUID, Long> bestTimes = mapStats.getDecember2021Event();
+                Long time = bestTimes.get(r.getOfflinePlayer().getUniqueId());
+                if (time == null || approximateTicks < time) {
+                    bestTimes.put(r.getOfflinePlayer().getUniqueId(), approximateTicks);
+                }
+            });
         });
         runTaskLater(200L, this::dispose);
     }
