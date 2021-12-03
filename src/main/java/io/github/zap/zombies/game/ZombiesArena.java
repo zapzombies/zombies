@@ -9,7 +9,6 @@ import io.github.zap.arenaapi.ResourceManager;
 import io.github.zap.arenaapi.event.Event;
 import io.github.zap.arenaapi.event.EventHandler;
 import io.github.zap.arenaapi.game.arena.ManagingArena;
-import io.github.zap.arenaapi.hologram.Hologram;
 import io.github.zap.arenaapi.hotbar.HotbarManager;
 import io.github.zap.arenaapi.hotbar.HotbarObject;
 import io.github.zap.arenaapi.hotbar.HotbarObjectGroup;
@@ -47,6 +46,7 @@ import io.github.zap.zombies.game.powerups.spawnrules.DefaultPowerUpSpawnRule;
 import io.github.zap.zombies.game.powerups.spawnrules.PowerUpSpawnRule;
 import io.github.zap.zombies.game.scoreboards.GameScoreboard;
 import io.github.zap.zombies.game.shop.*;
+import io.github.zap.zombies.leaderboard.Leaderboard;
 import io.github.zap.zombies.stats.CacheInformation;
 import io.github.zap.zombies.stats.map.MapStats;
 import io.github.zap.zombies.stats.player.PlayerGeneralStats;
@@ -65,7 +65,6 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.title.Title;
-import org.apache.commons.io.IOUtils;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
@@ -84,9 +83,6 @@ import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
-import java.net.URL;
-import java.nio.charset.Charset;
 import java.time.Duration;
 import java.util.*;
 import java.util.function.Predicate;
@@ -443,8 +439,6 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
     @Getter
     private final MapData map;
 
-    private final Hologram bestTimesHologram;
-
     @Getter
     private final EquipmentManager equipmentManager;
 
@@ -534,6 +528,8 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
 
     };
 
+    private final Leaderboard timesLeaderboard;
+
     /**
      * Indicate when the game start using System.currentTimeMillis()
      * return -1 if the game hasn't start
@@ -573,7 +569,8 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
      * @param world        The world to use
      * @param emptyTimeout The time it will take the arena to close, if it is empty and in the pregame state
      */
-    public ZombiesArena(ZombiesArenaManager manager, World world, MapData map, long emptyTimeout) {
+    public ZombiesArena(ZombiesArenaManager manager, World world, MapData map, @NotNull Leaderboard timesLeaderboard,
+                        long emptyTimeout) {
         super(Zombies.getInstance(), manager, world, ZombiesPlayer::new, emptyTimeout);
 
         this.map = map;
@@ -586,11 +583,10 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
         this.damageHandler = new BasicDamageHandler();
         this.gameScoreboard = new GameScoreboard(this);
         gameScoreboard.initialize();
+        this.timesLeaderboard = timesLeaderboard;
 
         registerArenaEvents();
         registerDisposables();
-
-        bestTimesHologram = setupTimeLeaderboard();
 
         getMap().getPowerUpSpawnRules().forEach(x -> powerUpSpawnRules.add(Pair.of(getPowerUpManager()
                 .createSpawnRule(x.getLeft(), x.getRight(), this), x.getRight())));
@@ -634,58 +630,6 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
 
         resourceManager.addDisposable(gameScoreboard);
         resourceManager.addDisposable(powerUpBossBar);
-    }
-
-    private @NotNull Hologram setupTimeLeaderboard() {
-        Vector hologramLocation = map.getBestTimesLocation().clone()
-                .add(new Vector(0, Hologram.DEFAULT_LINE_SPACE * map.getBestTimesCount(), 0));
-        Hologram hologram = new Hologram(hologramLocation.toLocation(getWorld()));
-
-        /*
-        statsManager.queueCacheRequest(CacheInformation.MAP, map.getName(), MapStats::new, (stats) -> {
-            ObjectMapper objectMapper = new ObjectMapper();
-
-            List<Map.Entry<UUID, Long>> bestTimes = new ArrayList<>(stats.getBestTimes().entrySet());
-            bestTimes.sort((a, b) -> b.getValue().compareTo(a.getValue()));
-
-            int bound = Math.min(map.getBestTimesCount(), bestTimes.size());
-            for (int i = 0; i < bound; i++) {
-                Map.Entry<UUID, Long> time = bestTimes.get(i);
-                int finalI = i;
-
-                Bukkit.getScheduler().runTask(Zombies.getInstance(), () -> {
-                    if (startTimeStamp != -1) {
-                        hologram.addLine(MiniMessage.get()
-                                .parse(String.format("<yellow>#%d <white>- <gray>Loading... <white>- <yellow>%s",
-                                        finalI, TimeUtil.convertTicksToSecondsString(time.getValue()))));
-                    }
-                });
-            }
-            for (int i = 0; i < bound; i++) {
-                Map.Entry<UUID, Long> time = bestTimes.get(i);
-                int finalI = i;
-
-                try {
-                    String message =
-                            IOUtils.toString(new URL("https://sessionserver.mojang.com/session/minecraft/profile/"
-                            + time.getKey().toString()), Charset.defaultCharset());
-
-                    String name = objectMapper.readTree(message).get("name").textValue();
-                    Bukkit.getScheduler().runTask(Zombies.getInstance(), () -> {
-                        if (startTimeStamp != -1) {
-                            hologram.updateLine(finalI, MiniMessage.get()
-                                    .parse(String.format("<yellow>#%d <white>- <gray>%s <white>- <yellow>%s",
-                                            finalI, name, TimeUtil.convertTicksToSecondsString(time.getValue()))));
-                        }
-                    });
-                } catch (IOException e) {
-                    Zombies.warning("Failed to get name of player with UUID " + time.getKey().toString());
-                }
-            }
-        });
-         */
-
-        return hologram;
     }
 
     @Override
@@ -749,13 +693,11 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
                                 : Component.text(map.getSplashScreenSubtitles()
                                 .get(random.nextInt(map.getSplashScreenSubtitles().size())))));
             }
-            Bukkit.getScheduler().runTask(Zombies.getInstance(), () -> {
-                if (startTimeStamp != -1) {
-                    for (Player player : args.getPlayers()) {
-                        bestTimesHologram.renderToPlayer(player);
-                    }
+            if (startTimeStamp == -1) {
+                for (Player player : args.getPlayers()) {
+                    timesLeaderboard.displayToPlayer(player);
                 }
-            });
+            }
         }
 
 
@@ -1180,7 +1122,7 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
             state = ZombiesArenaState.STARTED;
             startTimeStamp = System.currentTimeMillis();
 
-            Bukkit.getScheduler().runTask(Zombies.getInstance(), bestTimesHologram::destroy);
+            Bukkit.getScheduler().runTask(Zombies.getInstance(), timesLeaderboard::destroy);
 
             for(ZombiesPlayer zombiesPlayer : getPlayerMap().values()) {
                 Player bukkitPlayer = zombiesPlayer.getPlayer();

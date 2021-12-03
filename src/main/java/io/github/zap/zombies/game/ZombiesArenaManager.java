@@ -3,11 +3,13 @@ package io.github.zap.zombies.game;
 import io.github.zap.arenaapi.LoadFailureException;
 import io.github.zap.arenaapi.game.arena.ArenaManager;
 import io.github.zap.arenaapi.game.arena.JoinInformation;
+import io.github.zap.arenaapi.hologram.Hologram;
 import io.github.zap.arenaapi.serialize.DataLoader;
 import io.github.zap.arenaapi.shadow.org.apache.commons.lang3.tuple.Pair;
 import io.github.zap.arenaapi.stats.FileStatsManager;
 import io.github.zap.arenaapi.stats.StatsCache;
 import io.github.zap.arenaapi.stats.StatsManager;
+import io.github.zap.zapcommons.shadow.com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.zap.zombies.Zombies;
 import io.github.zap.zombies.game.data.equipment.EquipmentManager;
 import io.github.zap.zombies.game.data.equipment.JacksonEquipmentManager;
@@ -17,22 +19,43 @@ import io.github.zap.zombies.game.data.map.shop.ShopManager;
 import io.github.zap.zombies.game.powerups.managers.JacksonPowerUpManager;
 import io.github.zap.zombies.game.powerups.managers.JacksonPowerUpManagerOptions;
 import io.github.zap.zombies.game.powerups.managers.PowerUpManager;
+import io.github.zap.zombies.leaderboard.BasicLeaderboardEntrySource;
+import io.github.zap.zombies.leaderboard.BasicLeaderboardLineSource;
+import io.github.zap.zombies.leaderboard.HologramLeaderboardView;
+import io.github.zap.zombies.leaderboard.Leaderboard;
+import io.github.zap.zombies.leaderboard.LeaderboardEntry;
+import io.github.zap.zombies.leaderboard.LeaderboardEntrySource;
+import io.github.zap.zombies.leaderboard.LeaderboardLineCreator;
+import io.github.zap.zombies.leaderboard.LeaderboardView;
+import io.github.zap.zombies.leaderboard.times.TimesFormatter;
 import io.github.zap.zombies.stats.CacheInformation;
 import io.github.zap.zombies.stats.map.MapStats;
 import io.github.zap.zombies.stats.player.PlayerGeneralStats;
 import lombok.Getter;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.GameRule;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
+import java.util.logging.Level;
 
 /**
  * This class manages active arenas and loads new ones as required, up to a specified limit. It is also responsible for
@@ -136,16 +159,100 @@ public class ZombiesArenaManager extends ArenaManager<ZombiesArena> {
 
                         world.setTime(mapData.getWorldTime());
 
-                        ZombiesArena arena = new ZombiesArena(this, world, maps.get(mapName), arenaTimeout);
-                        managedArenas.put(arena.getId(), arena);
-                        getArenaCreated().callEvent(arena);
-                        if(arena.handleJoin(information.getJoinable().getPlayers())) {
-                            onCompletion.accept(Pair.of(true, null));
-                        }
-                        else {
-                            Zombies.warning(String.format("Newly created arena rejected join request '%s'.", information));
-                            onCompletion.accept(Pair.of(false, "Tried to make a new arena, but it couldn't accept all of the players!"));
-                        }
+                        statsManager.queueCacheRequest(CacheInformation.MAP, mapData.getName(), MapStats::new,
+                                (stats) -> {
+                            List<Map.Entry<UUID, Long>> bestTimes = new ArrayList<>(stats.getBestTimes().entrySet());
+                            bestTimes.sort(Comparator.comparingLong(Map.Entry::getValue));
+                            int bestTimesCount = Math.min(mapData.getBestTimesCount(), bestTimes.size());
+
+                            ConcurrentMap<UUID, Component> playerNames = new ConcurrentHashMap<>();
+
+                            List<LeaderboardEntry> entries = new ArrayList<>();
+                            LeaderboardEntrySource entrySource = new BasicLeaderboardEntrySource(entries);
+                            BasicLeaderboardLineSource lineSource = new BasicLeaderboardLineSource(entrySource,
+                                    LeaderboardLineCreator.defaultCreator());
+
+                            Vector delta = new Vector(0,
+                                    Hologram.DEFAULT_LINE_SPACE * bestTimesCount, 0);
+                            Vector hologramLocation = mapData
+                                    .getBestTimesLocation()
+                                    .clone()
+                                    .add(delta);
+
+                            CompletableFuture<Leaderboard> future = new CompletableFuture<>();
+                            Bukkit.getServer().getScheduler().runTask(Zombies.getInstance(), () -> {
+                                Hologram hologram = new Hologram(hologramLocation.toLocation(world));
+
+                                TimesFormatter formatter = TimesFormatter.defaultFormatter();
+                                for (int i = 0; i < Math.min(bestTimes.size(), bestTimesCount); i++) {
+                                    Map.Entry<UUID, Long> bestTime = bestTimes.get(i);
+                                    Component time = formatter.format(bestTime.getValue());
+
+                                    LeaderboardEntry entry = new LeaderboardEntry() {
+                                        @Override
+                                        public @NotNull Component player() {
+                                            return playerNames.getOrDefault(bestTime.getKey(),
+                                                    Component.text("Loading...", NamedTextColor.GRAY));
+                                        }
+
+                                        @Override
+                                        public @NotNull Component value() {
+                                            return time;
+                                        }
+                                    };
+
+                                    entries.add(entry);
+                                    hologram.addLine(lineSource.getEntry(i));
+                                }
+
+                                LeaderboardView view = new HologramLeaderboardView(hologram);
+
+                                Leaderboard leaderboard = new Leaderboard(lineSource, view);
+                                leaderboard.updateAll();
+
+                                future.complete(leaderboard);
+
+                                ZombiesArena arena = new ZombiesArena(this, world, maps.get(mapName),
+                                        leaderboard, arenaTimeout);
+                                managedArenas.put(arena.getId(), arena);
+
+                                getArenaCreated().callEvent(arena);
+                                if (arena.handleJoin(information.getJoinable().getPlayers())) {
+                                    onCompletion.accept(Pair.of(true, null));
+                                }
+                                else {
+                                    Zombies.warning(String.format("Newly created arena rejected join request '%s'.",
+                                            information));
+                                    onCompletion.accept(Pair.of(false, "Tried to make a new arena," +
+                                            " but it couldn't accept all of the players!"));
+                                }
+                            });
+
+                            future.whenCompleteAsync((leaderboard, throwable) -> {
+                                if (throwable != null) {
+                                    Zombies.getInstance().getLogger().log(Level.WARNING, "Error while creating " +
+                                            "times leaderboard", throwable);
+                                }
+                                else {
+                                    ObjectMapper objectMapper = new ObjectMapper();
+                                    for (int i = 0; i < bestTimesCount; i++) {
+                                        UUID uuid = bestTimes.get(i).getKey();
+
+                                        try {
+                                            URL url = new URL("https://sessionserver.mojang.com/" +
+                                                    "session/minecraft/profile/" + uuid);
+                                            String message = IOUtils.toString(url, Charset.defaultCharset());
+                                            String name = objectMapper.readTree(message).get("name").textValue();
+
+                                            playerNames.put(uuid, Component.text(name, NamedTextColor.GRAY));
+                                            leaderboard.update(i);
+                                        } catch (IOException e) {
+                                            Zombies.warning("Failed to get name of player with UUID " + uuid);
+                                        }
+                                    }
+                                }
+                            });
+                        });
                     } catch (InterruptedException | ExecutionException e) {
                         e.printStackTrace();
                     }
