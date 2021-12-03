@@ -5,6 +5,7 @@ Recreation of the Hypixel Arcade minigame Zombies. Seeks to fix bugs and add fea
 What you will need
 - [JDK 16](https://www.oracle.com/java/technologies/javase-jdk16-downloads.html)
 - [Gradle](https://gradle.org/install/) version 7 or higher (if you are using gradle bundled with IntelliJ, make sure to update your Environment Variable)
+- [Maven](https://maven.apache.org/download.cgi) (if you are using maven bundled with IntelliJ, make sure to update your Environment Variable)
 - IDE of choice, [IntelliJ](https://www.jetbrains.com/idea/) is recomended
 
 Steps
