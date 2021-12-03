@@ -159,179 +159,279 @@ public class ZombiesArenaManager extends ArenaManager<ZombiesArena> {
 
                         world.setTime(mapData.getWorldTime());
 
-                        statsManager.queueCacheRequest(CacheInformation.MAP, mapData.getName(), MapStats::new,
-                                (stats) -> {
-                            ConcurrentMap<UUID, Component> playerNames = new ConcurrentHashMap<>();
+                        if (mapData.isDecember2021Event()) {
+                            statsManager.queueCacheRequest(CacheInformation.MAP, mapData.getName(), MapStats::new,
+                                    (stats) -> {
+                                        ConcurrentMap<UUID, Component> playerNames = new ConcurrentHashMap<>();
 
-                            List<Map.Entry<UUID, Long>> bestTimes = new ArrayList<>(stats.getBestTimes().entrySet());
-                            bestTimes.sort(Comparator.comparingLong(Map.Entry::getValue));
-                            int bestTimesCount = Math.min(mapData.getBestTimesCount(), bestTimes.size());
+                                        List<Map.Entry<UUID, Long>> bestTimes = new ArrayList<>(stats.getBestTimes().entrySet());
+                                        bestTimes.sort(Comparator.comparingLong(Map.Entry::getValue));
+                                        int bestTimesCount = Math.min(mapData.getBestTimesCount(), bestTimes.size());
 
-                            List<LeaderboardEntry> entries = new ArrayList<>();
-                            LeaderboardEntrySource entrySource = new BasicLeaderboardEntrySource(entries);
-                            BasicLeaderboardLineSource lineSource = new BasicLeaderboardLineSource(entrySource,
-                                    LeaderboardLineCreator.defaultCreator());
+                                        List<LeaderboardEntry> entries = new ArrayList<>();
+                                        LeaderboardEntrySource entrySource = new BasicLeaderboardEntrySource(entries);
+                                        BasicLeaderboardLineSource lineSource = new BasicLeaderboardLineSource(entrySource,
+                                                LeaderboardLineCreator.defaultCreator());
 
-                            Vector delta = new Vector(0,
-                                    Hologram.DEFAULT_LINE_SPACE * bestTimesCount, 0);
-                            Vector hologramLocation = mapData
-                                    .getBestTimesLocation()
-                                    .clone()
-                                    .add(delta);
+                                        Vector delta = new Vector(0,
+                                                Hologram.DEFAULT_LINE_SPACE * bestTimesCount, 0);
+                                        Vector hologramLocation = mapData
+                                                .getBestTimesLocation()
+                                                .clone()
+                                                .add(delta);
 
-                            // December 2021 event
-                            List<Map.Entry<UUID, Long>> bestTimes2 = new ArrayList<>(stats.getDecember2021Event().entrySet());
-                            bestTimes2.sort(Comparator.comparingLong(Map.Entry::getValue));
-                            int bestTimesCount2 = Math.min(mapData.getBestTimesCount(), bestTimes2.size());
+                                        // December 2021 event
+                                        List<Map.Entry<UUID, Long>> bestTimes2 = new ArrayList<>(stats.getDecember2021Event().entrySet());
+                                        bestTimes2.sort(Comparator.comparingLong(Map.Entry::getValue));
+                                        int bestTimesCount2 = Math.min(mapData.getBestTimesCount(), bestTimes2.size());
 
-                            List<LeaderboardEntry> entries2 = new ArrayList<>();
-                            LeaderboardEntrySource entrySource2 = new BasicLeaderboardEntrySource(entries2);
-                            BasicLeaderboardLineSource lineSource2 = new BasicLeaderboardLineSource(entrySource2,
-                                    LeaderboardLineCreator.defaultCreator());
+                                        List<LeaderboardEntry> entries2 = new ArrayList<>();
+                                        LeaderboardEntrySource entrySource2 = new BasicLeaderboardEntrySource(entries2);
+                                        BasicLeaderboardLineSource lineSource2 = new BasicLeaderboardLineSource(entrySource2,
+                                                LeaderboardLineCreator.defaultCreator());
 
-                            Vector delta2 = new Vector(0,
-                                    Hologram.DEFAULT_LINE_SPACE * bestTimesCount2, 0);
-                            Vector hologramLocation2 = mapData
-                                    .getDecember2021BestTimesLocation()
-                                    .clone()
-                                    .add(delta2);
+                                        Vector delta2 = new Vector(0,
+                                                Hologram.DEFAULT_LINE_SPACE * bestTimesCount2, 0);
+                                        Vector hologramLocation2 = mapData
+                                                .getDecember2021BestTimesLocation()
+                                                .clone()
+                                                .add(delta2);
 
-                            CompletableFuture<Leaderboard> future = new CompletableFuture<>();
-                            // December 2021 event
-                            CompletableFuture<Leaderboard> future2 = new CompletableFuture<>();
-                            Bukkit.getServer().getScheduler().runTask(Zombies.getInstance(), () -> {
-                                Hologram hologram = new Hologram(hologramLocation.toLocation(world));
-                                hologram.addLine(Component.text("Best Times", NamedTextColor.BLUE));
+                                        CompletableFuture<Leaderboard> future = new CompletableFuture<>();
+                                        // December 2021 event
+                                        CompletableFuture<Leaderboard> future2 = new CompletableFuture<>();
+                                        Bukkit.getServer().getScheduler().runTask(Zombies.getInstance(), () -> {
+                                            Hologram hologram = new Hologram(hologramLocation.toLocation(world));
+                                            hologram.addLine(Component.text("Best Times", NamedTextColor.BLUE));
 
-                                // December 2021 event
-                                Hologram hologram2 = new Hologram(hologramLocation2.toLocation(world));
-                                hologram2.addLine(Component.text("December 2021 Event", NamedTextColor.GOLD));
+                                            // December 2021 event
+                                            Hologram hologram2 = new Hologram(hologramLocation2.toLocation(world));
+                                            hologram2.addLine(Component.text("December 2021 Event", NamedTextColor.GOLD));
 
-                                TimesFormatter formatter = TimesFormatter.defaultFormatter();
-                                for (int i = 0; i < bestTimesCount; i++) {
-                                    Map.Entry<UUID, Long> bestTime = bestTimes.get(i);
-                                    Component time = formatter.format(bestTime.getValue());
+                                            TimesFormatter formatter = TimesFormatter.defaultFormatter();
+                                            for (int i = 0; i < bestTimesCount; i++) {
+                                                Map.Entry<UUID, Long> bestTime = bestTimes.get(i);
+                                                Component time = formatter.format(bestTime.getValue());
 
-                                    LeaderboardEntry entry = new LeaderboardEntry() {
-                                        @Override
-                                        public @NotNull Component player() {
-                                            return playerNames.getOrDefault(bestTime.getKey(),
-                                                    Component.text("Loading...", NamedTextColor.GRAY));
-                                        }
+                                                LeaderboardEntry entry = new LeaderboardEntry() {
+                                                    @Override
+                                                    public @NotNull
+                                                    Component player() {
+                                                        return playerNames.getOrDefault(bestTime.getKey(),
+                                                                Component.text("Loading...", NamedTextColor.GRAY));
+                                                    }
 
-                                        @Override
-                                        public @NotNull Component value() {
-                                            return time;
-                                        }
-                                    };
+                                                    @Override
+                                                    public @NotNull
+                                                    Component value() {
+                                                        return time;
+                                                    }
+                                                };
 
-                                    entries.add(entry);
-                                    hologram.addLine(lineSource.getEntry(i));
-                                }
-                                // December 2021 event
-                                for (int i = 0; i < bestTimesCount2; i++) {
-                                    Map.Entry<UUID, Long> bestTime = bestTimes2.get(i);
-                                    Component time = formatter.format(bestTime.getValue());
+                                                entries.add(entry);
+                                                hologram.addLine(lineSource.getEntry(i));
+                                            }
+                                            // December 2021 event
+                                            for (int i = 0; i < bestTimesCount2; i++) {
+                                                Map.Entry<UUID, Long> bestTime = bestTimes2.get(i);
+                                                Component time = formatter.format(bestTime.getValue());
 
-                                    LeaderboardEntry entry = new LeaderboardEntry() {
-                                        @Override
-                                        public @NotNull Component player() {
-                                            return playerNames.getOrDefault(bestTime.getKey(),
-                                                    Component.text("Loading...", NamedTextColor.GRAY));
-                                        }
+                                                LeaderboardEntry entry = new LeaderboardEntry() {
+                                                    @Override
+                                                    public @NotNull
+                                                    Component player() {
+                                                        return playerNames.getOrDefault(bestTime.getKey(),
+                                                                Component.text("Loading...", NamedTextColor.GRAY));
+                                                    }
 
-                                        @Override
-                                        public @NotNull Component value() {
-                                            return time;
-                                        }
-                                    };
+                                                    @Override
+                                                    public @NotNull
+                                                    Component value() {
+                                                        return time;
+                                                    }
+                                                };
 
-                                    entries2.add(entry);
-                                    hologram2.addLine(lineSource2.getEntry(i));
-                                }
+                                                entries2.add(entry);
+                                                hologram2.addLine(lineSource2.getEntry(i));
+                                            }
 
-                                LeaderboardView view = new HologramLeaderboardView(hologram, 1);
+                                            LeaderboardView view = new HologramLeaderboardView(hologram, 1);
 
-                                Leaderboard leaderboard = new Leaderboard(lineSource, view);
-                                leaderboard.updateAll();
+                                            Leaderboard leaderboard = new Leaderboard(lineSource, view);
+                                            leaderboard.updateAll();
 
-                                future.complete(leaderboard);
+                                            future.complete(leaderboard);
 
-                                // December 2021 event
-                                LeaderboardView view2 = new HologramLeaderboardView(hologram2, 1);
+                                            // December 2021 event
+                                            LeaderboardView view2 = new HologramLeaderboardView(hologram2, 1);
 
-                                Leaderboard leaderboard2 = new Leaderboard(lineSource2, view2);
-                                leaderboard2.updateAll();
+                                            Leaderboard leaderboard2 = new Leaderboard(lineSource2, view2);
+                                            leaderboard2.updateAll();
 
-                                future2.complete(leaderboard);
+                                            future2.complete(leaderboard);
 
-                                ZombiesArena arena = new ZombiesArena(this, world, maps.get(mapName),
-                                        leaderboard, leaderboard2, arenaTimeout);
-                                managedArenas.put(arena.getId(), arena);
+                                            ZombiesArena arena = new ZombiesArena(this, world, maps.get(mapName),
+                                                    leaderboard, leaderboard2, arenaTimeout);
+                                            managedArenas.put(arena.getId(), arena);
 
-                                getArenaCreated().callEvent(arena);
-                                if (arena.handleJoin(information.getJoinable().getPlayers())) {
-                                    onCompletion.accept(Pair.of(true, null));
-                                }
-                                else {
-                                    Zombies.warning(String.format("Newly created arena rejected join request '%s'.",
-                                            information));
-                                    onCompletion.accept(Pair.of(false, "Tried to make a new arena," +
-                                            " but it couldn't accept all of the players!"));
-                                }
-                            });
+                                            getArenaCreated().callEvent(arena);
+                                            if (arena.handleJoin(information.getJoinable().getPlayers())) {
+                                                onCompletion.accept(Pair.of(true, null));
+                                            } else {
+                                                Zombies.warning(String.format("Newly created arena rejected join request '%s'.",
+                                                        information));
+                                                onCompletion.accept(Pair.of(false, "Tried to make a new arena," +
+                                                        " but it couldn't accept all of the players!"));
+                                            }
+                                        });
 
-                            future.whenCompleteAsync((leaderboard, throwable) -> {
-                                if (throwable != null) {
-                                    Zombies.getInstance().getLogger().log(Level.WARNING, "Error while creating " +
-                                            "times leaderboard", throwable);
-                                }
-                                else {
-                                    ObjectMapper objectMapper = new ObjectMapper();
-                                    for (int i = 0; i < bestTimesCount; i++) {
-                                        UUID uuid = bestTimes.get(i).getKey();
+                                        future.whenCompleteAsync((leaderboard, throwable) -> {
+                                            if (throwable != null) {
+                                                Zombies.getInstance().getLogger().log(Level.WARNING, "Error while creating " +
+                                                        "times leaderboard", throwable);
+                                            } else {
+                                                ObjectMapper objectMapper = new ObjectMapper();
+                                                for (int i = 0; i < bestTimesCount; i++) {
+                                                    UUID uuid = bestTimes.get(i).getKey();
 
-                                        try {
-                                            URL url = new URL("https://sessionserver.mojang.com/" +
-                                                    "session/minecraft/profile/" + uuid);
-                                            String message = IOUtils.toString(url, Charset.defaultCharset());
-                                            String name = objectMapper.readTree(message).get("name").textValue();
+                                                    try {
+                                                        URL url = new URL("https://sessionserver.mojang.com/" +
+                                                                "session/minecraft/profile/" + uuid);
+                                                        String message = IOUtils.toString(url, Charset.defaultCharset());
+                                                        String name = objectMapper.readTree(message).get("name").textValue();
 
-                                            playerNames.put(uuid, Component.text(name, NamedTextColor.GRAY));
-                                            leaderboard.update(i);
-                                        } catch (IOException e) {
-                                            Zombies.warning("Failed to get name of player with UUID " + uuid);
-                                        }
-                                    }
-                                }
-                            });
+                                                        playerNames.put(uuid, Component.text(name, NamedTextColor.GRAY));
+                                                        leaderboard.update(i);
+                                                    } catch (IOException e) {
+                                                        Zombies.warning("Failed to get name of player with UUID " + uuid);
+                                                    }
+                                                }
+                                            }
+                                        });
 
-                            // December 2021 event
-                            future2.whenCompleteAsync((leaderboard, throwable) -> {
-                                if (throwable != null) {
-                                    Zombies.getInstance().getLogger().log(Level.WARNING, "Error while creating " +
-                                            "times leaderboard", throwable);
-                                }
-                                else {
-                                    ObjectMapper objectMapper = new ObjectMapper();
-                                    for (int i = 0; i < bestTimesCount2; i++) {
-                                        UUID uuid = bestTimes2.get(i).getKey();
+                                        // December 2021 event
+                                        future2.whenCompleteAsync((leaderboard, throwable) -> {
+                                            if (throwable != null) {
+                                                Zombies.getInstance().getLogger().log(Level.WARNING, "Error while creating " +
+                                                        "times leaderboard", throwable);
+                                            } else {
+                                                ObjectMapper objectMapper = new ObjectMapper();
+                                                for (int i = 0; i < bestTimesCount2; i++) {
+                                                    UUID uuid = bestTimes2.get(i).getKey();
 
-                                        try {
-                                            URL url = new URL("https://sessionserver.mojang.com/" +
-                                                    "session/minecraft/profile/" + uuid);
-                                            String message = IOUtils.toString(url, Charset.defaultCharset());
-                                            String name = objectMapper.readTree(message).get("name").textValue();
+                                                    try {
+                                                        URL url = new URL("https://sessionserver.mojang.com/" +
+                                                                "session/minecraft/profile/" + uuid);
+                                                        String message = IOUtils.toString(url, Charset.defaultCharset());
+                                                        String name = objectMapper.readTree(message).get("name").textValue();
 
-                                            playerNames.put(uuid, Component.text(name, NamedTextColor.GRAY));
-                                            leaderboard.update(i);
-                                        } catch (IOException e) {
-                                            Zombies.warning("Failed to get name of player with UUID " + uuid);
-                                        }
-                                    }
-                                }
-                            });
-                        });
+                                                        playerNames.put(uuid, Component.text(name, NamedTextColor.GRAY));
+                                                        leaderboard.update(i);
+                                                    } catch (IOException e) {
+                                                        Zombies.warning("Failed to get name of player with UUID " + uuid);
+                                                    }
+                                                }
+                                            }
+                                        });
+                                    });
+                        }
+                        else {
+                            statsManager.queueCacheRequest(CacheInformation.MAP, mapData.getName(), MapStats::new,
+                                    (stats) -> {
+                                        ConcurrentMap<UUID, Component> playerNames = new ConcurrentHashMap<>();
+
+                                        List<Map.Entry<UUID, Long>> bestTimes = new ArrayList<>(stats.getBestTimes().entrySet());
+                                        bestTimes.sort(Comparator.comparingLong(Map.Entry::getValue));
+                                        int bestTimesCount = Math.min(mapData.getBestTimesCount(), bestTimes.size());
+
+                                        List<LeaderboardEntry> entries = new ArrayList<>();
+                                        LeaderboardEntrySource entrySource = new BasicLeaderboardEntrySource(entries);
+                                        BasicLeaderboardLineSource lineSource = new BasicLeaderboardLineSource(entrySource,
+                                                LeaderboardLineCreator.defaultCreator());
+
+                                        Vector delta = new Vector(0,
+                                                Hologram.DEFAULT_LINE_SPACE * bestTimesCount, 0);
+                                        Vector hologramLocation = mapData
+                                                .getBestTimesLocation()
+                                                .clone()
+                                                .add(delta);
+
+                                        CompletableFuture<Leaderboard> future = new CompletableFuture<>();
+                                        Bukkit.getServer().getScheduler().runTask(Zombies.getInstance(), () -> {
+                                            Hologram hologram = new Hologram(hologramLocation.toLocation(world));
+                                            hologram.addLine(Component.text("Best Times", NamedTextColor.BLUE));
+
+                                            TimesFormatter formatter = TimesFormatter.defaultFormatter();
+                                            for (int i = 0; i < bestTimesCount; i++) {
+                                                Map.Entry<UUID, Long> bestTime = bestTimes.get(i);
+                                                Component time = formatter.format(bestTime.getValue());
+
+                                                LeaderboardEntry entry = new LeaderboardEntry() {
+                                                    @Override
+                                                    public @NotNull
+                                                    Component player() {
+                                                        return playerNames.getOrDefault(bestTime.getKey(),
+                                                                Component.text("Loading...", NamedTextColor.GRAY));
+                                                    }
+
+                                                    @Override
+                                                    public @NotNull
+                                                    Component value() {
+                                                        return time;
+                                                    }
+                                                };
+
+                                                entries.add(entry);
+                                                hologram.addLine(lineSource.getEntry(i));
+                                            }
+
+                                            LeaderboardView view = new HologramLeaderboardView(hologram, 1);
+
+                                            Leaderboard leaderboard = new Leaderboard(lineSource, view);
+                                            leaderboard.updateAll();
+
+                                            future.complete(leaderboard);
+
+                                            ZombiesArena arena = new ZombiesArena(this, world, maps.get(mapName),
+                                                    leaderboard, null, arenaTimeout);
+                                            managedArenas.put(arena.getId(), arena);
+
+                                            getArenaCreated().callEvent(arena);
+                                            if (arena.handleJoin(information.getJoinable().getPlayers())) {
+                                                onCompletion.accept(Pair.of(true, null));
+                                            } else {
+                                                Zombies.warning(String.format("Newly created arena rejected join request '%s'.",
+                                                        information));
+                                                onCompletion.accept(Pair.of(false, "Tried to make a new arena," +
+                                                        " but it couldn't accept all of the players!"));
+                                            }
+                                        });
+
+                                        future.whenCompleteAsync((leaderboard, throwable) -> {
+                                            if (throwable != null) {
+                                                Zombies.getInstance().getLogger().log(Level.WARNING, "Error while creating " +
+                                                        "times leaderboard", throwable);
+                                            } else {
+                                                ObjectMapper objectMapper = new ObjectMapper();
+                                                for (int i = 0; i < bestTimesCount; i++) {
+                                                    UUID uuid = bestTimes.get(i).getKey();
+
+                                                    try {
+                                                        URL url = new URL("https://sessionserver.mojang.com/" +
+                                                                "session/minecraft/profile/" + uuid);
+                                                        String message = IOUtils.toString(url, Charset.defaultCharset());
+                                                        String name = objectMapper.readTree(message).get("name").textValue();
+
+                                                        playerNames.put(uuid, Component.text(name, NamedTextColor.GRAY));
+                                                        leaderboard.update(i);
+                                                    } catch (IOException e) {
+                                                        Zombies.warning("Failed to get name of player with UUID " + uuid);
+                                                    }
+                                                }
+                                            }
+                                        });
+                                    });
+                        }
                     } catch (InterruptedException | ExecutionException e) {
                         e.printStackTrace();
                     }

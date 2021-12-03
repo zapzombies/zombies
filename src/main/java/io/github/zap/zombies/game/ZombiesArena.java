@@ -82,8 +82,11 @@ import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -572,7 +575,7 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
      * @param emptyTimeout The time it will take the arena to close, if it is empty and in the pregame state
      */
     public ZombiesArena(ZombiesArenaManager manager, World world, MapData map, @NotNull Leaderboard timesLeaderboard,
-                        @NotNull Leaderboard timesLeaderboard2, long emptyTimeout) {
+                        @Nullable Leaderboard timesLeaderboard2, long emptyTimeout) {
         super(Zombies.getInstance(), manager, world, ZombiesPlayer::new, emptyTimeout);
 
         this.map = map;
@@ -699,7 +702,9 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
             if (startTimeStamp == -1) {
                 for (Player player : args.getPlayers()) {
                     timesLeaderboard.displayToPlayer(player);
-                    timesLeaderboard2.displayToPlayer(player);
+                    if (timesLeaderboard2 != null) {
+                        timesLeaderboard2.displayToPlayer(player);
+                    }
                 }
             }
         }
@@ -1126,10 +1131,10 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
             state = ZombiesArenaState.STARTED;
             startTimeStamp = System.currentTimeMillis();
 
-            Bukkit.getScheduler().runTask(Zombies.getInstance(), () -> {
-                timesLeaderboard.destroy();
+            timesLeaderboard.destroy();
+            if (timesLeaderboard2 != null) {
                 timesLeaderboard2.destroy();
-            });
+            }
 
             for(ZombiesPlayer zombiesPlayer : getPlayerMap().values()) {
                 Player bukkitPlayer = zombiesPlayer.getPlayer();
@@ -1175,6 +1180,12 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
                             PlayerGeneralStats::new, (stats) -> {
                         PlayerMapStats mapStats = stats.getMapStatsForMap(map);
                         mapStats.setTimesPlayed(mapStats.getTimesPlayed() + 1);
+                    });
+                    statsManager.queueCacheRequest(CacheInformation.MAP, map.getName(), MapStats::new, (stats) -> {
+                        LocalDateTime dateTime = LocalDateTime.now(ZoneId.of("America/New_York"));
+
+                        stats.getDecember2021Players().computeIfAbsent(dateTime.getDayOfMonth(), HashSet::new)
+                                .add(bukkitPlayer.getUniqueId());
                     });
 
                     zombiesPlayer.startTasks();

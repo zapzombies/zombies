@@ -8,6 +8,7 @@ import lombok.experimental.FieldDefaults;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -29,5 +30,7 @@ public class MapStats extends Stats<String> {
     Map<UUID, Long> bestTimes = new HashMap<>();
 
     Map<UUID, Long> december2021Event = new HashMap<>();
+
+    Map<Integer, Set<UUID>> december2021Players = new HashMap<>();
 
 }
