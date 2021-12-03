@@ -286,6 +286,16 @@ public class MapData {
      */
     List<ShopData> shops = new ArrayList<>();
 
+    /**
+     * The vector to the bottom of where records should be displayed for the december 2021 event
+     */
+    Vector december2021BestTimesLocation = new Vector();
+
+    /**
+     * Whether the map is marked for the december 2021 event
+     */
+    boolean december2021Event = false;
+
     transient final Property<Integer> currentRoundProperty = new Property<>(0);
 
     @SuppressWarnings("unused")

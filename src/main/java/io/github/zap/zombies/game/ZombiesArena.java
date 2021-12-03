@@ -530,6 +530,8 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
 
     private final Leaderboard timesLeaderboard;
 
+    private final Leaderboard timesLeaderboard2;
+
     /**
      * Indicate when the game start using System.currentTimeMillis()
      * return -1 if the game hasn't start
@@ -570,7 +572,7 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
      * @param emptyTimeout The time it will take the arena to close, if it is empty and in the pregame state
      */
     public ZombiesArena(ZombiesArenaManager manager, World world, MapData map, @NotNull Leaderboard timesLeaderboard,
-                        long emptyTimeout) {
+                        @NotNull Leaderboard timesLeaderboard2, long emptyTimeout) {
         super(Zombies.getInstance(), manager, world, ZombiesPlayer::new, emptyTimeout);
 
         this.map = map;
@@ -584,6 +586,7 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
         this.gameScoreboard = new GameScoreboard(this);
         gameScoreboard.initialize();
         this.timesLeaderboard = timesLeaderboard;
+        this.timesLeaderboard2 = timesLeaderboard2;
 
         registerArenaEvents();
         registerDisposables();
@@ -696,6 +699,7 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
             if (startTimeStamp == -1) {
                 for (Player player : args.getPlayers()) {
                     timesLeaderboard.displayToPlayer(player);
+                    timesLeaderboard2.displayToPlayer(player);
                 }
             }
         }
@@ -1122,7 +1126,10 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
             state = ZombiesArenaState.STARTED;
             startTimeStamp = System.currentTimeMillis();
 
-            Bukkit.getScheduler().runTask(Zombies.getInstance(), timesLeaderboard::destroy);
+            Bukkit.getScheduler().runTask(Zombies.getInstance(), () -> {
+                timesLeaderboard.destroy();
+                timesLeaderboard2.destroy();
+            });
 
             for(ZombiesPlayer zombiesPlayer : getPlayerMap().values()) {
                 Player bukkitPlayer = zombiesPlayer.getPlayer();
@@ -1390,8 +1397,9 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
                             playerMapStats.setBestTime(approximateTicks);
                             statsManager.queueCacheRequest(CacheInformation.MAP, map.getName(), MapStats::new,
                                     (mapStats) -> {
-                                        Map<UUID, Long> bestTimes = mapStats.getBestTimes();
+                                        Map<UUID, Long> bestTimes = mapStats.getBestTimes(), bestDecember2021Times = mapStats.getDecember2021Event();
                                         bestTimes.put(r.getOfflinePlayer().getUniqueId(), approximateTicks);
+                                        bestDecember2021Times.put(r.getOfflinePlayer().getUniqueId(), approximateTicks);
                                     });
                         }
                     });

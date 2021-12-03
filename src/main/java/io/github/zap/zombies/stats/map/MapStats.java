@@ -28,4 +28,6 @@ public class MapStats extends Stats<String> {
 
     Map<UUID, Long> bestTimes = new HashMap<>();
 
+    Map<UUID, Long> december2021Event = new HashMap<>();
+
 }

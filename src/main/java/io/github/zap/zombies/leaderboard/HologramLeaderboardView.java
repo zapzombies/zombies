@@ -10,13 +10,16 @@ public class HologramLeaderboardView implements LeaderboardView {
 
     private final Hologram hologram;
 
-    public HologramLeaderboardView(@NotNull Hologram hologram) {
+    private final int startIndex;
+
+    public HologramLeaderboardView(@NotNull Hologram hologram, int startIndex) {
         this.hologram = hologram;
+        this.startIndex = startIndex;
     }
 
     @Override
     public void push(int index, @NotNull Component message) {
-        hologram.updateLine(index, message);
+        hologram.updateLine(index + startIndex, message);
     }
 
     @Override
