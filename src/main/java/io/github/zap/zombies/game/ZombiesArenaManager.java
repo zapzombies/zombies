@@ -184,7 +184,7 @@ public class ZombiesArenaManager extends ArenaManager<ZombiesArena> {
                                 Hologram hologram = new Hologram(hologramLocation.toLocation(world));
 
                                 TimesFormatter formatter = TimesFormatter.defaultFormatter();
-                                for (int i = 0; i < Math.min(bestTimes.size(), bestTimesCount); i++) {
+                                for (int i = 0; i < bestTimesCount; i++) {
                                     Map.Entry<UUID, Long> bestTime = bestTimes.get(i);
                                     Component time = formatter.format(bestTime.getValue());
 

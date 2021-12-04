@@ -2,7 +2,7 @@ import io.github.zap.build.gradle.convention.*
 
 // Uncomment to use local maven version - help local testing faster
 plugins {
-    id("io.github.zap.build.gradle.convention.shadow-mc-plugin") version "1.1.0-SNAPSHOT-1633613339"
+    id("io.github.zap.build.gradle.convention.shadow-mc-plugin") version "1.1.1"
 }
 
 repositories {
@@ -17,21 +17,21 @@ repositories {
 }
 
 dependencies {
-    paperApi ("1.16.5-R0.1-SNAPSHOT")
-    compileOnlyApi("io.github.zap:zap-commons:1.1.0-SNAPSHOT-1634304135", qs())
+    paperApi("1.16.5-R0.1-SNAPSHOT")
+    compileOnlyApi("io.github.zap:zap-commons:1.1.0-SNAPSHOT-1634304479", qs())
 
     implementation("com.grinderwolf:slimeworldmanager-api:2.6.2-SNAPSHOT")
     shade(project(":nms:nms-common"))
     shade(project("nms:nms-1_16_R3"))
 
-    shade("io.github.zap:regular-commands:1.0.1-SNAPSHOT-1633760633", qs())
+    shade("io.github.zap:regular-commands:1.0.1-SNAPSHOT-1633911875", qs())
     shade("net.kyori:adventure-text-minimessage:4.1.0-SNAPSHOT") {
         exclude("net.kyori", "adventure-api")
     }
 
 
-    bukkitPlugin("io.github.zap:arena-api:1.0.0-SNAPSHOT-1634699168", qs())
-    bukkitPlugin("io.github.zap:zap-party:1.0.0-SNAPSHOT-1630956414", qs {
+    bukkitPlugin("io.github.zap:arena-api:1.0.0-SNAPSHOT-1638594870", qs())
+    bukkitPlugin("io.github.zap:zap-party:1.0.0-SNAPSHOT-1638545602", qs {
         exclude("io.github.zap", "regular-commands")
     })
     bukkitPlugin("io.lumine.xikage:MythicMobs:4.12.0")
@@ -39,8 +39,8 @@ dependencies {
     bukkitPlugin("com.comphenix.protocol:ProtocolLib:4.7.0")
     serverArtifactVerless("com.grinderwolf:slimeworldmanager-classmodifier:2.6.2-SNAPSHOT")
 
-    compileOnly("org.projectlombok:lombok:1.18.20")
-    annotationProcessor("org.projectlombok:lombok:1.18.20")
+    compileOnly("org.projectlombok:lombok:1.18.22")
+    annotationProcessor("org.projectlombok:lombok:1.18.22")
 }
 
 tasks.relocate {
