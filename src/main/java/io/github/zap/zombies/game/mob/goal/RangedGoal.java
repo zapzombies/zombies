@@ -1,6 +1,7 @@
 package io.github.zap.zombies.game.mob.goal;
 
 import com.destroystokyo.paper.entity.RangedEntity;
+import io.github.zap.zombies.Zombies;
 import io.lumine.xikage.mythicmobs.adapters.AbstractEntity;
 import io.lumine.xikage.mythicmobs.io.MythicLineConfig;
 import org.bukkit.plugin.Plugin;
@@ -11,7 +12,7 @@ public abstract class RangedGoal extends DeviatingGoal {
     protected final int shootInterval;
     protected final double shootRangeSquared;
 
-    public RangedGoal(@NotNull Plugin plugin, @NotNull AbstractEntity entity, @NotNull String line,
+    public RangedGoal(@NotNull Zombies plugin, @NotNull AbstractEntity entity, @NotNull String line,
                       @NotNull MythicLineConfig mlc) {
         super(plugin, entity, line, mlc);
 

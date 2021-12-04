@@ -1,5 +1,6 @@
 package io.github.zap.zombies;
 
+import com.destroystokyo.paper.event.entity.EntityRemoveFromWorldEvent;
 import com.github.luben.zstd.ZstdCompressCtx;
 import com.grinderwolf.swm.api.SlimePlugin;
 import com.grinderwolf.swm.api.loaders.SlimeLoader;
@@ -19,6 +20,7 @@ import io.github.zap.arenaapi.serialize.JacksonDataLoader;
 import io.github.zap.arenaapi.shadow.org.apache.commons.lang3.time.StopWatch;
 import io.github.zap.arenaapi.util.WorldUtils;
 import io.github.zap.arenaapi.world.WorldLoader;
+import io.github.zap.commons.metadata.MetadataStore;
 import io.github.zap.regularcommands.commands.CommandManager;
 import io.github.zap.zombies.command.ZombiesCommand;
 import io.github.zap.zombies.command.mapeditor.ContextManager;
@@ -112,11 +114,6 @@ public final class Zombies extends JavaPlugin implements Listener {
     public static final String MAP_STATS_FOLDER_NAME = "stats/map";
     public static final String POWERUPS_FOLDER_NAME = "powerups";
     public static final String PLAYER_DATA_FOLDER_NAME = "playerdata";
-
-    public static final String SPAWN_METADATA_NAME = "spawn_metadata";
-    public static final String ARENA_METADATA_NAME = "zombies_arena";
-    public static final String SPAWNINFO_WAVE_METADATA_NAME = "spawninfo_wave_metadata";
-    public static final String WINDOW_METADATA_NAME = "spawn_window";
 
     @Override
     public void onEnable() {
@@ -281,7 +278,7 @@ public final class Zombies extends JavaPlugin implements Listener {
         slimeWorldDirectory = new File("slime_worlds");
         slimeExtension = ".slime";
         slimeLoader = new FileLoader(slimeWorldDirectory); // this is the only instance of swm-plugin code, wish we could remove it
-        worldLoader = new SlimeWorldLoader(slimeLoader);
+        worldLoader = new SlimeWorldLoader(this, slimeLoader, SWM);
         worldLoader.preload();
         timer.stop();
 

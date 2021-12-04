@@ -16,9 +16,6 @@ import java.util.UUID;
         description = "Slows the fire rate of the target player by a configurable amount."
 )
 public class SlowFireRateMechanic extends ZombiesPlayerSkill {
-    private static final UUID AVERAGE = UUID.fromString("ade229bf-d062-46e8-99d8-97b667d5a127");
-    private static final UUID BIGDIP = UUID.fromString("a7db1c97-6064-46a1-91c6-77a4c974b692");
-
     private static final String SLOW_FIRE_RATE_MODIFIER_NAME = "zz_slow_low_iq";
 
     private final double speedModifier;
@@ -36,26 +33,18 @@ public class SlowFireRateMechanic extends ZombiesPlayerSkill {
     public boolean castAtPlayer(@NotNull SkillMetadata skillMetadata, @NotNull ZombiesArena arena,
                                 @NotNull ZombiesPlayer target) {
         if(target.getPlayer() != null) {
-            Player bukkitPlayer = target.getPlayer();
-
-            final double modifier;
-            if(bukkitPlayer.getUniqueId().equals(AVERAGE) || bukkitPlayer.getUniqueId().equals(BIGDIP)) {
-                //bigdip and average experience more slowdown
-                modifier = speedModifier * 0.75;
-            }
-            else {
-                modifier = speedModifier;
-            }
-
             if(!target.getFireRateMultiplier().hasModifier(SLOW_FIRE_RATE_MODIFIER_NAME)) {
-                target.getFireRateMultiplier().registerModifier(SLOW_FIRE_RATE_MODIFIER_NAME, d -> d == null ? 0D : d * modifier);
+                target.getFireRateMultiplier().registerModifier(SLOW_FIRE_RATE_MODIFIER_NAME, d -> d == null ? 0D :
+                        d * speedModifier);
 
-                slowdownTaskId = arena.runTaskLater(duration, () -> target.getFireRateMultiplier().removeModifier(SLOW_FIRE_RATE_MODIFIER_NAME)).getTaskId();
+                slowdownTaskId = arena.runTaskLater(duration, () -> target.getFireRateMultiplier()
+                        .removeModifier(SLOW_FIRE_RATE_MODIFIER_NAME)).getTaskId();
             }
             else {
                 Bukkit.getScheduler().cancelTask(slowdownTaskId);
 
-                slowdownTaskId = arena.runTaskLater(duration, () -> target.getFireRateMultiplier().removeModifier(SLOW_FIRE_RATE_MODIFIER_NAME)).getTaskId();
+                slowdownTaskId = arena.runTaskLater(duration, () -> target.getFireRateMultiplier()
+                        .removeModifier(SLOW_FIRE_RATE_MODIFIER_NAME)).getTaskId();
             }
         }
 

@@ -4,18 +4,26 @@ import io.github.zap.zombies.nms.common.entity.EntityBridge;
 import net.minecraft.server.v1_16_R3.*;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.craftbukkit.v1_16_R3.CraftServer;
 import org.bukkit.craftbukkit.v1_16_R3.CraftWorld;
 import org.bukkit.craftbukkit.v1_16_R3.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_16_R3.entity.CraftLivingEntity;
 import org.bukkit.craftbukkit.v1_16_R3.entity.CraftMob;
+import org.bukkit.craftbukkit.v1_16_R3.metadata.EntityMetadataStore;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.*;
 import org.bukkit.event.entity.CreatureSpawnEvent;
+import org.bukkit.metadata.MetadataStoreBase;
+import org.bukkit.metadata.MetadataValue;
+import org.bukkit.metadata.Metadatable;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Field;
+import java.util.Map;
+import java.util.logging.Level;
 
 public class EntityBridge_v1_16_R3 implements EntityBridge {
     public static final EntityBridge_v1_16_R3 INSTANCE = new EntityBridge_v1_16_R3();

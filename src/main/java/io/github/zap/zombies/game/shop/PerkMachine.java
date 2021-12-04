@@ -60,6 +60,10 @@ public class PerkMachine extends BlockShop<PerkMachineData>  {
 
     @Override
     protected void displayToPlayer(Player player) {
+        if (getHologram().getHologramLines().isEmpty()) {
+            return;
+        }
+
         ZombiesPlayer zombiesPlayer = getArena().getPlayerMap().get(player.getUniqueId());
         PerkMachineData perkMachineData = getShopData();
         Perk<?, ?, ?, ?> perk = determinePerk(zombiesPlayer);
@@ -158,7 +162,8 @@ public class PerkMachine extends BlockShop<PerkMachineData>  {
     private Perk<?, ?, ?, ?> determinePerk(ZombiesPlayer zombiesPlayer) {
         if (zombiesPlayer != null) {
             EquipmentObjectGroup equipmentObjectGroup = (EquipmentObjectGroup)
-                    zombiesPlayer.getHotbarManager().getHotbarObjectGroup(EquipmentObjectGroupType.PERK.name());
+                    zombiesPlayer.getHotbarManager().getProfiles().get(HotbarManager.DEFAULT_PROFILE_NAME)
+                            .getHotbarObjectGroup(EquipmentObjectGroupType.PERK.name());
 
             if (equipmentObjectGroup != null) {
                 for (HotbarObject hotbarObject : equipmentObjectGroup.getHotbarObjectMap().values()) {

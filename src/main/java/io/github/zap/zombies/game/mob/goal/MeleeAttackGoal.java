@@ -1,8 +1,13 @@
 package io.github.zap.zombies.game.mob.goal;
 
+import io.github.zap.arenaapi.pathfind.calculate.SuccessCondition;
 import io.github.zap.arenaapi.pathfind.calculate.SuccessConditions;
+import io.github.zap.arenaapi.pathfind.context.PathfinderContext;
+import io.github.zap.arenaapi.pathfind.destination.PathDestination;
+import io.github.zap.arenaapi.pathfind.destination.PathDestinations;
 import io.github.zap.arenaapi.pathfind.operation.PathOperation;
 import io.github.zap.arenaapi.pathfind.operation.PathOperationBuilder;
+import io.github.zap.arenaapi.pathfind.path.PathNode;
 import io.github.zap.zombies.Zombies;
 import io.github.zap.zombies.game.player.ZombiesPlayer;
 import io.lumine.xikage.mythicmobs.adapters.AbstractEntity;
@@ -27,9 +32,8 @@ public class MeleeAttackGoal extends PlayerTargetingGoal {
 
     @Override
     protected @NotNull PathOperation makeOperation(@NotNull ZombiesPlayer zombiesPlayer, @NotNull Player target) {
-        return new PathOperationBuilder(arenaNMS.worldBridge())
-                .withAgent(mob)
-                .withDestination(target, arenaNMS.worldBridge(), zombiesPlayer)
+        return new PathOperationBuilder(mob, PathDestinations.fromEntity(target, arenaNMS.worldBridge(), zombiesPlayer,
+                true))
                 .withRange(getArena().getMapBounds())
                 .withSuccessCondition(SuccessConditions.whenWithin(2))
                 .build();
@@ -53,14 +57,15 @@ public class MeleeAttackGoal extends PlayerTargetingGoal {
     }
 
     private void tryAttack(LivingEntity target) {
-        if(this.attackTimer <= 0 && target.getLocation().distanceSquared(mob.getLocation()) <= checkDistance(target)) {
+        if(this.attackTimer <= 0 && canHit(target)) {
             this.attackTimer = attackInterval;
             mob.swingMainHand();
             mob.attack(target);
         }
     }
 
-    private double checkDistance(LivingEntity target) {
-        return (mob.getWidth() * mob.getWidth() * attackReachSquared + target.getWidth());
+    private boolean canHit(LivingEntity target) {
+        return target.getLocation().distanceSquared(mob.getLocation()) <= (mob.getWidth() * mob.getWidth() *
+                attackReachSquared + target.getWidth());
     }
 }

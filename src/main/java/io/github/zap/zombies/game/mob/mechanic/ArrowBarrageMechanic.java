@@ -1,6 +1,7 @@
 package io.github.zap.zombies.game.mob.mechanic;
 
-import io.github.zap.arenaapi.util.MetadataHelper;
+import io.github.zap.commons.utils.MetadataHelper;
+import io.github.zap.zombies.MetadataKeys;
 import io.github.zap.zombies.Zombies;
 import io.github.zap.zombies.game.ZombiesArena;
 import io.github.zap.zombies.game.player.ZombiesPlayer;
@@ -27,8 +28,6 @@ import java.util.concurrent.atomic.AtomicInteger;
         description = "Summons a configurable barrage of arrows."
 )
 public class ArrowBarrageMechanic extends ZombiesPlayerSkill {
-    private static final String TASK = "skill.arrowbarrage.task";
-
     private final int arrowCount;
     private final float velocity;
     private final int onFireDuration;
@@ -51,7 +50,6 @@ public class ArrowBarrageMechanic extends ZombiesPlayerSkill {
 
         if(skillMetadata.getCaster().getEntity().getBukkitEntity() instanceof Mob caster && player != null &&
                 !hasTask(caster)) {
-
             caster.playEffect(EntityEffect.ENTITY_POOF);
             Vector direction = player.getEyeLocation().toVector().subtract(caster.getLocation().toVector()).normalize();
 
@@ -67,10 +65,11 @@ public class ArrowBarrageMechanic extends ZombiesPlayerSkill {
                 }
 
                 if(count.incrementAndGet() == arrowCount) {
-                    BukkitTask bukkitTask = MetadataHelper.getMetadataInstance(caster, Zombies.getInstance(), TASK);
+                    BukkitTask bukkitTask = MetadataHelper.getMetadataInstance(caster, Zombies.getInstance(),
+                            MetadataKeys.SKILL_ARROWBARRAGE.getKey());
                     bukkitTask.cancel();
 
-                    MetadataHelper.setFixedMetadata(caster, Zombies.getInstance(), TASK, null);
+                    caster.removeMetadata(MetadataKeys.SKILL_ARROWBARRAGE.getKey(), Zombies.getInstance());
 
                     Bukkit.getScheduler().runTaskLater(Zombies.getInstance(), () -> {
                         for(Arrow spawned : arrows) {
@@ -80,7 +79,8 @@ public class ArrowBarrageMechanic extends ZombiesPlayerSkill {
                 }
             }, 0, fireInterval);
 
-            MetadataHelper.setFixedMetadata(caster, Zombies.getInstance(), TASK, task);
+            MetadataHelper.setFixedMetadata(caster, Zombies.getInstance(), MetadataKeys.SKILL_ARROWBARRAGE.getKey(),
+                    task);
             return true;
         }
 
@@ -88,7 +88,8 @@ public class ArrowBarrageMechanic extends ZombiesPlayerSkill {
     }
 
     private boolean hasTask(Mob mob) {
-        Optional<MetadataValue> taskOptional = MetadataHelper.getMetadataValue(mob, Zombies.getInstance(), TASK);
+        Optional<MetadataValue> taskOptional = MetadataHelper.getMetadataValue(mob, Zombies.getInstance(),
+                MetadataKeys.SKILL_ARROWBARRAGE.getKey());
         return taskOptional.filter(metadataValue -> metadataValue.value() != null).isPresent();
     }
 }

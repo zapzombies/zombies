@@ -26,7 +26,8 @@ public class StealCoinsMechanic extends ZombiesPlayerSkill {
     }
 
     @Override
-    public boolean castAtPlayer(@NotNull SkillMetadata skillMetadata, @NotNull ZombiesArena arena, @NotNull ZombiesPlayer target) {
+    public boolean castAtPlayer(@NotNull SkillMetadata skillMetadata, @NotNull ZombiesArena arena,
+                                @NotNull ZombiesPlayer target) {
         target.setCoins(target.getCoins() - (stealMin + RNG.nextInt(stealMax - stealMin)));
         return true;
     }

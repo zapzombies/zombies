@@ -100,6 +100,10 @@ public class GunShop extends ArmorStandShop<GunShopData> {
 
     @Override
     protected void displayToPlayer(Player player) {
+        if (getHologram().getHologramLines().isEmpty()) {
+            return;
+        }
+
         ZombiesPlayer zombiesPlayer =  getArena().getPlayerMap().get(player.getUniqueId());
         GunShopData gunShopData = getShopData();
         String gunName = gunShopData.getGunName();
@@ -112,7 +116,8 @@ public class GunShop extends ArmorStandShop<GunShopData> {
             secondHologramComponent = Component.text("Requires Power!", NamedTextColor.GRAY);
         } else {
             if (zombiesPlayer != null) {
-                HotbarObjectGroup hotbarObjectGroup = zombiesPlayer.getHotbarManager()
+                HotbarObjectGroup hotbarObjectGroup = zombiesPlayer.getHotbarManager().getProfiles()
+                        .get(HotbarManager.DEFAULT_PROFILE_NAME)
                         .getHotbarObjectGroup(EquipmentObjectGroupType.GUN.name());
                 if (hotbarObjectGroup != null) {
                     for (HotbarObject hotbarObject : hotbarObjectGroup.getHotbarObjectMap().values()) {

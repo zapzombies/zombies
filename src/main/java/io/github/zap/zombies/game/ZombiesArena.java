@@ -2,6 +2,7 @@ package io.github.zap.zombies.game;
 
 import com.destroystokyo.paper.event.entity.EntityAddToWorldEvent;
 import com.destroystokyo.paper.event.entity.EntityRemoveFromWorldEvent;
+import com.destroystokyo.paper.event.entity.ProjectileCollideEvent;
 import io.github.zap.arenaapi.ArenaApi;
 import io.github.zap.arenaapi.DisposableBukkitRunnable;
 import io.github.zap.arenaapi.Property;
@@ -9,7 +10,6 @@ import io.github.zap.arenaapi.ResourceManager;
 import io.github.zap.arenaapi.event.Event;
 import io.github.zap.arenaapi.event.EventHandler;
 import io.github.zap.arenaapi.game.arena.ManagingArena;
-import io.github.zap.arenaapi.hologram.Hologram;
 import io.github.zap.arenaapi.hotbar.HotbarManager;
 import io.github.zap.arenaapi.hotbar.HotbarObject;
 import io.github.zap.arenaapi.hotbar.HotbarObjectGroup;
@@ -17,13 +17,13 @@ import io.github.zap.arenaapi.nms.common.world.BlockCollisionView;
 import io.github.zap.arenaapi.pathfind.chunk.ChunkBounds;
 import io.github.zap.arenaapi.pathfind.chunk.ChunkCoordinateProviders;
 import io.github.zap.arenaapi.pathfind.util.Utils;
-import io.github.zap.arenaapi.shadow.com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.zap.arenaapi.shadow.org.apache.commons.lang3.tuple.Pair;
 import io.github.zap.arenaapi.stats.StatsManager;
-import io.github.zap.arenaapi.util.MetadataHelper;
 import io.github.zap.arenaapi.util.TimeUtil;
 import io.github.zap.arenaapi.util.WorldUtils;
+import io.github.zap.commons.utils.MetadataHelper;
 import io.github.zap.commons.vectors.Vectors;
+import io.github.zap.zombies.MetadataKeys;
 import io.github.zap.zombies.SpawnMetadata;
 import io.github.zap.zombies.Zombies;
 import io.github.zap.zombies.game.corpse.Corpse;
@@ -47,6 +47,7 @@ import io.github.zap.zombies.game.powerups.spawnrules.DefaultPowerUpSpawnRule;
 import io.github.zap.zombies.game.powerups.spawnrules.PowerUpSpawnRule;
 import io.github.zap.zombies.game.scoreboards.GameScoreboard;
 import io.github.zap.zombies.game.shop.*;
+import io.github.zap.zombies.leaderboard.Leaderboard;
 import io.github.zap.zombies.stats.CacheInformation;
 import io.github.zap.zombies.stats.map.MapStats;
 import io.github.zap.zombies.stats.player.PlayerGeneralStats;
@@ -65,7 +66,6 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.title.Title;
-import org.apache.commons.io.IOUtils;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
@@ -84,9 +84,6 @@ import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
-import java.net.URL;
-import java.nio.charset.Charset;
 import java.time.Duration;
 import java.util.*;
 import java.util.function.Predicate;
@@ -212,7 +209,8 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
                 while(true) {
                     int startAmt = amt;
                     for(SpawnContext context : spawns) {
-                        if(method == SpawnMethod.IGNORE_SPAWNRULE || context.spawnpoint.canSpawn(spawnEntryData.getMobName(), map)) {
+                        if(method == SpawnMethod.IGNORE_SPAWNRULE || context.spawnpoint.canSpawn(spawnEntryData
+                                .getMobName(), map)) {
                             ActiveMob mob = spawnMob(spawnEntryData.getMobName(), context.spawnpoint.getSpawn(), context.window);
 
                             if(mob != null) {
@@ -262,7 +260,7 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
                 if(activeMob != null) {
                     getEntitySet().add(activeMob.getUniqueId());
                     MetadataHelper.setFixedMetadata(activeMob.getEntity().getBukkitEntity(), Zombies.getInstance(),
-                            Zombies.SPAWN_METADATA_NAME, new SpawnMetadata(ZombiesArena.this, windowData));
+                            MetadataKeys.MOB_SPAWN.getKey(), new SpawnMetadata(ZombiesArena.this, windowData));
 
                     MythicMob type = MythicMobs.inst().getMobManager().getMythicMob(activeMob.getMobType());
                     if(type.getConfig().getBoolean("IsBoss", false)) {
@@ -346,7 +344,7 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
             for(ZombiesPlayer player : getPlayerMap().values()) {
                 Player bukkitPlayer = player.getPlayer();
 
-                if(bukkitPlayer != null) {
+                if(bukkitPlayer != null && player.isInGame() && player.isAlive()) {
                     if(bukkitPlayer.getLocation().toVector().distanceSquared(target.getSpawn()) <= slaSquared) {
                         return true;
                     }
@@ -442,8 +440,6 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
     @Getter
     private final MapData map;
 
-    private final Hologram bestTimesHologram;
-
     @Getter
     private final EquipmentManager equipmentManager;
 
@@ -533,6 +529,8 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
 
     };
 
+    private final Leaderboard timesLeaderboard;
+
     /**
      * Indicate when the game start using System.currentTimeMillis()
      * return -1 if the game hasn't start
@@ -572,7 +570,8 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
      * @param world        The world to use
      * @param emptyTimeout The time it will take the arena to close, if it is empty and in the pregame state
      */
-    public ZombiesArena(ZombiesArenaManager manager, World world, MapData map, long emptyTimeout) {
+    public ZombiesArena(ZombiesArenaManager manager, World world, MapData map, @NotNull Leaderboard timesLeaderboard,
+                        long emptyTimeout) {
         super(Zombies.getInstance(), manager, world, ZombiesPlayer::new, emptyTimeout);
 
         this.map = map;
@@ -585,11 +584,10 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
         this.damageHandler = new BasicDamageHandler();
         this.gameScoreboard = new GameScoreboard(this);
         gameScoreboard.initialize();
+        this.timesLeaderboard = timesLeaderboard;
 
         registerArenaEvents();
         registerDisposables();
-
-        bestTimesHologram = setupTimeLeaderboard();
 
         getMap().getPowerUpSpawnRules().forEach(x -> powerUpSpawnRules.add(Pair.of(getPowerUpManager()
                 .createSpawnRule(x.getLeft(), x.getRight(), this), x.getRight())));
@@ -635,56 +633,6 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
         resourceManager.addDisposable(powerUpBossBar);
     }
 
-    private @NotNull Hologram setupTimeLeaderboard() {
-        Vector hologramLocation = map.getBestTimesLocation().clone()
-                .add(new Vector(0, Hologram.DEFAULT_LINE_SPACE * map.getBestTimesCount(), 0));
-        Hologram hologram = new Hologram(hologramLocation.toLocation(getWorld()));
-
-        statsManager.queueCacheRequest(CacheInformation.MAP, map.getName(), MapStats::new, (stats) -> {
-            ObjectMapper objectMapper = new ObjectMapper();
-
-            List<Map.Entry<UUID, Long>> bestTimes = new ArrayList<>(stats.getBestTimes().entrySet());
-            bestTimes.sort((a, b) -> b.getValue().compareTo(a.getValue()));
-
-            int bound = Math.min(map.getBestTimesCount(), bestTimes.size());
-            for (int i = 0; i < bound; i++) {
-                Map.Entry<UUID, Long> time = bestTimes.get(i);
-                int finalI = i;
-
-                Bukkit.getScheduler().runTask(Zombies.getInstance(), () -> {
-                    if (startTimeStamp != -1) {
-                        hologram.addLine(MiniMessage.get()
-                                .parse(String.format("<yellow>#%d <white>- <gray>Loading... <white>- <yellow>%s",
-                                        finalI, TimeUtil.convertTicksToSecondsString(time.getValue()))));
-                    }
-                });
-            }
-            for (int i = 0; i < bound; i++) {
-                Map.Entry<UUID, Long> time = bestTimes.get(i);
-                int finalI = i;
-
-                try {
-                    String message =
-                            IOUtils.toString(new URL("https://sessionserver.mojang.com/session/minecraft/profile/"
-                            + time.getKey().toString()), Charset.defaultCharset());
-
-                    String name = objectMapper.readTree(message).get("name").textValue();
-                    Bukkit.getScheduler().runTask(Zombies.getInstance(), () -> {
-                        if (startTimeStamp != -1) {
-                            hologram.updateLine(finalI, MiniMessage.get()
-                                    .parse(String.format("<yellow>#%d <white>- <gray>%s <white>- <yellow>%s",
-                                            finalI, name, TimeUtil.convertTicksToSecondsString(time.getValue()))));
-                        }
-                    });
-                } catch (IOException e) {
-                    Zombies.warning("Failed to get name of player with UUID " + time.getKey().toString());
-                }
-            }
-        });
-
-        return hologram;
-    }
-
     @Override
     public ZombiesArena getArena() {
         return this;
@@ -709,6 +657,7 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
         Property.removeMappingsFor(this);
         manager.unloadArena(getArena());
 
+        ProjectileCollideEvent.getHandlerList().unregister(this);
         EntityAddToWorldEvent.getHandlerList().unregister(this);
         EntityDamageEvent.getHandlerList().unregister(this);
         ItemDespawnEvent.getHandlerList().unregister(this);
@@ -746,13 +695,11 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
                                 : Component.text(map.getSplashScreenSubtitles()
                                 .get(random.nextInt(map.getSplashScreenSubtitles().size())))));
             }
-            Bukkit.getScheduler().runTask(Zombies.getInstance(), () -> {
-                if (startTimeStamp != -1) {
-                    for (Player player : args.getPlayers()) {
-                        bestTimesHologram.renderToPlayer(player);
-                    }
+            if (startTimeStamp == -1) {
+                for (Player player : args.getPlayers()) {
+                    timesLeaderboard.displayToPlayer(player);
                 }
-            });
+            }
         }
 
 
@@ -850,9 +797,19 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
         }
     }
 
+    @org.bukkit.event.EventHandler
+    private void onEntitySomething(ProjectileCollideEvent event) {
+        if (event.getEntity() instanceof Snowball) {
+            event.setCancelled(true);
+        }
+    }
+
     private void onEntityRemoveFromWorldEvent(ProxyArgs<EntityRemoveFromWorldEvent> event) {
-        if (state == ZombiesArenaState.STARTED && getEntitySet().remove(event.getEvent().getEntity().getUniqueId())) {
+        Entity entity = event.getEvent().getEntity();
+        if (state == ZombiesArenaState.STARTED && getEntitySet().remove(entity.getUniqueId())) {
             zombiesLeft--;
+            entity.removeMetadata(MetadataKeys.MOB_WAVE.getKey(), getPlugin());
+            entity.removeMetadata(MetadataKeys.MOB_SPAWN.getKey(), getPlugin());
             checkNextRound();
         }
     }
@@ -885,8 +842,9 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
                     if (player.getHealth() <= event.getFinalDamage()) {
                         Location location = player.getLocation();
 
-                        BlockCollisionView collisionView = Utils.highestBlockBelow(world,
-                                ArenaApi.getInstance().getNmsBridge().worldBridge(), player.getBoundingBox());
+                        BlockCollisionView collisionView = Utils.highestBlockBelow((x, y, z) -> ArenaApi.getInstance()
+                                        .getNmsBridge().worldBridge().collisionFor(world.getBlockAt(x, y, z)),
+                                player.getBoundingBox());
                         location.setY(collisionView.exactY());
 
                         player.teleportAsync(location);
@@ -943,7 +901,8 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
     }
 
     private void onEntityDeath(ProxyArgs<EntityDeathEvent> args) {
-        if (state == ZombiesArenaState.STARTED && getEntitySet().remove(args.getEvent().getEntity().getUniqueId())) {
+        Entity entity = args.getEvent().getEntity();
+        if (state == ZombiesArenaState.STARTED && getEntitySet().remove(entity.getUniqueId())) {
             zombiesLeft--;
 
             // TODO: THIS IS A HACK NEEDS TO BE FIXED
@@ -1172,7 +1131,7 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
             state = ZombiesArenaState.STARTED;
             startTimeStamp = System.currentTimeMillis();
 
-            Bukkit.getScheduler().runTask(Zombies.getInstance(), bestTimesHologram::destroy);
+            Bukkit.getScheduler().runTask(Zombies.getInstance(), timesLeaderboard::destroy);
 
             for(ZombiesPlayer zombiesPlayer : getPlayerMap().values()) {
                 Player bukkitPlayer = zombiesPlayer.getPlayer();
@@ -1248,26 +1207,26 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
 
             Player player = zombiesPlayer.getPlayer();
             if (player != null) {
-                if (map.getRoundTimesShouldSave().contains(targetRound)) {
+                if (map.getRoundTimesShouldSave().contains(lastRoundIndex)) {
                     statsManager.queueCacheRequest(CacheInformation.PLAYER, player.getUniqueId(),
                             PlayerGeneralStats::new, (stats) -> {
                         PlayerMapStats mapStats = stats.getMapStatsForMap(getArena().getMap());
                         mapStats.setRoundsSurvived(mapStats.getRoundsSurvived() + 1);
 
-                        if (mapStats.getBestRound() < lastRoundIndex + 1) {
-                            mapStats.setBestRound(lastRoundIndex + 1);
+                        if (mapStats.getBestRound() < lastRoundIndex) {
+                            mapStats.setBestRound(lastRoundIndex);
                         }
 
                         Component bar = MiniMessage.get().parse("<green>=======================");
                         Map<Integer, Long> bestTimes = mapStats.getBestTimes();
-                        Long bestTime = bestTimes.get(targetRound);
+                        Long bestTime = bestTimes.get(lastRoundIndex);
                         if (bestTime == null || bestTime < approximateTicks) {
-                            bestTimes.put(targetRound, approximateTicks);
+                            bestTimes.put(lastRoundIndex, approximateTicks);
                             Bukkit.getScheduler().runTask(Zombies.getInstance(), () -> {
                                 if (player.isOnline()) {
                                     player.sendMessage(bar);
                                     player.sendMessage(MiniMessage.get()
-                                            .parse(String.format("<red>You beat round %d in %s!", targetRound + 1,
+                                            .parse(String.format("<red>You beat round %d in %s!", targetRound,
                                                     TimeUtil.convertTicksToSecondsString(approximateTicks))));
                                     player.sendMessage(MiniMessage.get().parse("<gold>NEW PERSONAL BEST!"));
                                     player.sendMessage(bar);
@@ -1279,7 +1238,7 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
                                 if (player.isOnline()) {
                                     player.sendMessage(bar);
                                     player.sendMessage(MiniMessage.get()
-                                            .parse(String.format("<red>You beat round %d in %s!", targetRound + 1,
+                                            .parse(String.format("<red>You beat round %d in %s!", targetRound,
                                                     TimeUtil.convertTicksToSecondsString(approximateTicks))));
                                     player.sendMessage(bar);
                                 }
@@ -1292,8 +1251,8 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
                         PlayerMapStats mapStats = stats.getMapStatsForMap(getArena().getMap());
                         mapStats.setRoundsSurvived(mapStats.getRoundsSurvived() + 1);
 
-                        if (mapStats.getBestRound() < lastRoundIndex + 1) {
-                            mapStats.setBestRound(lastRoundIndex + 1);
+                        if (mapStats.getBestRound() < lastRoundIndex) {
+                            mapStats.setBestRound(lastRoundIndex);
                         }
                     });
                 }
@@ -1315,40 +1274,50 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
                     context.spawnedMobs().addAll(newlySpawned);
 
                     for(ActiveMob activeMob : newlySpawned) {
-                        MetadataHelper.setFixedMetadata(activeMob.getEntity().getBukkitEntity(),
-                                Zombies.getInstance(), Zombies.SPAWNINFO_WAVE_METADATA_NAME, wave);
+                        MetadataHelper.setFixedMetadata(activeMob.getEntity().getBukkitEntity(), Zombies.getInstance(),
+                                MetadataKeys.MOB_WAVE.getKey(), wave);
 
-                        Entity entity = activeMob.getEntity().getBukkitEntity();
-                        if (entity instanceof Mob mob) {
-                            AttributeInstance attributeInstance = mob.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED);
-                            if (attributeInstance == null) {
-                                mob.registerAttribute(Attribute.GENERIC_MOVEMENT_SPEED);
-                                attributeInstance = mob.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED);
-                            }
-                            if (attributeInstance != null) {
-                                AttributeInstance finalAttributeInstance = attributeInstance;
-                                AttributeModifier[] last = new AttributeModifier[] { null };
-                                double[] value = new double[] { 1.0 };
-                                BukkitTask speedupTask = runTaskTimer(0L, 200L, new DisposableBukkitRunnable() {
-                                    @Override
-                                    public void run() {
-                                        if (!mob.isDead()) {
-                                            AttributeModifier finalLast = last[0];
-                                            if (finalLast != null) {
-                                                finalAttributeInstance.removeModifier(finalLast);
+                        if (map.getSpeedupGrace() < map.getDespawnTicks()) {
+                            Entity entity = activeMob.getEntity().getBukkitEntity();
+                            if (entity instanceof Mob mob) {
+                                AttributeInstance attributeInstance = mob.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED);
+                                if (attributeInstance == null) {
+                                    mob.registerAttribute(Attribute.GENERIC_MOVEMENT_SPEED);
+                                    attributeInstance = mob.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED);
+                                }
+                                if (attributeInstance != null) {
+                                    AttributeInstance finalAttributeInstance = attributeInstance;
+                                    AttributeModifier[] last = new AttributeModifier[]{null};
+                                    double[] value = new double[]{1.0};
+                                    // (speedupRate^(period / time)) ^ (time/period)
+                                    double rate = Math.pow(map.getMaxSpeedup(), (double) map.getSpeedupIncrementPeriod()
+                                            / (map.getDespawnTicks() - map.getSpeedupGrace()));
+                                    BukkitTask speedupTask = runTaskTimer(map.getSpeedupGrace(),
+                                            map.getSpeedupIncrementPeriod(), new DisposableBukkitRunnable() {
+                                        @Override
+                                        public void run() {
+                                            if (!mob.isDead()) {
+                                                AttributeModifier finalLast = last[0];
+                                                if (finalLast != null) {
+                                                    finalAttributeInstance.removeModifier(finalLast);
+                                                }
+                                                finalAttributeInstance.addModifier(last[0] =
+                                                        new AttributeModifier(MOB_SPEEDUP_ATTRIBUTE_NAME,
+                                                                (value[0] *= rate) - 1,
+                                                                AttributeModifier.Operation.MULTIPLY_SCALAR_1));
+                                            } else {
+                                                cancel();
                                             }
-                                            finalAttributeInstance.addModifier(last[0] = new AttributeModifier(MOB_SPEEDUP_ATTRIBUTE_NAME, (value[0] *= 1.0225106035) - 1, AttributeModifier.Operation.MULTIPLY_SCALAR_1));
                                         }
-                                        else cancel();
-                                    }
-                                });
+                                    });
 
-                                context.speedupTasks().add(speedupTask);
+                                    context.speedupTasks().add(speedupTask);
+                                }
                             }
                         }
                     }
 
-                    BukkitTask removeMobTask = runTaskLater(6000, () -> {
+                    BukkitTask removeMobTask = runTaskLater(map.getDespawnTicks(), () -> {
                         for(ActiveMob mob : newlySpawned) {
                             Entity entity = mob.getEntity().getBukkitEntity();
 
