@@ -5,11 +5,23 @@ import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Formats ticks into a {@link Component}
+ */
 @FunctionalInterface
 public interface TimesFormatter {
 
+    /**
+     * Formats a number of ticks
+     * @param ticks The number of ticks to format
+     * @return A {@link Component} representation of the number of ticks
+     */
     @NotNull Component format(long ticks);
 
+    /**
+     * Default formatter with the form h:mm:ss
+     * @return A new {@link TimesFormatter}
+     */
     static @NotNull TimesFormatter defaultFormatter() {
         return (ticks) -> {
             long seconds = ticks / 20;

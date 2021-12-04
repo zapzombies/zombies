@@ -182,6 +182,7 @@ public class ZombiesArenaManager extends ArenaManager<ZombiesArena> {
                             CompletableFuture<Leaderboard> future = new CompletableFuture<>();
                             Bukkit.getServer().getScheduler().runTask(Zombies.getInstance(), () -> {
                                 Hologram hologram = new Hologram(hologramLocation.toLocation(world));
+                                hologram.addLine(Component.text("Best Times", NamedTextColor.BLUE));
 
                                 TimesFormatter formatter = TimesFormatter.defaultFormatter();
                                 for (int i = 0; i < bestTimesCount; i++) {
@@ -205,7 +206,7 @@ public class ZombiesArenaManager extends ArenaManager<ZombiesArena> {
                                     hologram.addLine(lineSource.getEntry(i));
                                 }
 
-                                LeaderboardView view = new HologramLeaderboardView(hologram);
+                                LeaderboardView view = new HologramLeaderboardView(hologram, 1);
 
                                 Leaderboard leaderboard = new Leaderboard(lineSource, view);
                                 leaderboard.updateAll();
@@ -245,7 +246,10 @@ public class ZombiesArenaManager extends ArenaManager<ZombiesArena> {
                                             String name = objectMapper.readTree(message).get("name").textValue();
 
                                             playerNames.put(uuid, Component.text(name, NamedTextColor.GRAY));
-                                            leaderboard.update(i);
+                                            int finalI = i;
+                                            Bukkit.getScheduler().runTask(Zombies.getInstance(), () -> {
+                                                leaderboard.update(finalI);
+                                            });
                                         } catch (IOException e) {
                                             Zombies.warning("Failed to get name of player with UUID " + uuid);
                                         }

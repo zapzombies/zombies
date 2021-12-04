@@ -3,6 +3,9 @@ package io.github.zap.zombies.leaderboard;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Basic implementation of a {@link LeaderboardLineSource}
+ */
 @SuppressWarnings("ClassCanBeRecord")
 public class BasicLeaderboardLineSource implements LeaderboardLineSource {
 
@@ -10,6 +13,11 @@ public class BasicLeaderboardLineSource implements LeaderboardLineSource {
 
     private final LeaderboardLineCreator lineCreator;
 
+    /**
+     * Creates a basic line source
+     * @param source A {@link LeaderboardEntrySource} with entries to create lines of
+     * @param lineCreator A {@link LeaderboardLineCreator} to create lines for entries
+     */
     public BasicLeaderboardLineSource(@NotNull LeaderboardEntrySource source,
                                       @NotNull LeaderboardLineCreator lineCreator) {
         this.source = source;
