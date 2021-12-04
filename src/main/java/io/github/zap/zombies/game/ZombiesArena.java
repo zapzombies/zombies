@@ -2,6 +2,7 @@ package io.github.zap.zombies.game;
 
 import com.destroystokyo.paper.event.entity.EntityAddToWorldEvent;
 import com.destroystokyo.paper.event.entity.EntityRemoveFromWorldEvent;
+import com.destroystokyo.paper.event.entity.ProjectileCollideEvent;
 import io.github.zap.arenaapi.ArenaApi;
 import io.github.zap.arenaapi.DisposableBukkitRunnable;
 import io.github.zap.arenaapi.Property;
@@ -656,6 +657,7 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
         Property.removeMappingsFor(this);
         manager.unloadArena(getArena());
 
+        ProjectileCollideEvent.getHandlerList().unregister(this);
         EntityAddToWorldEvent.getHandlerList().unregister(this);
         EntityDamageEvent.getHandlerList().unregister(this);
         ItemDespawnEvent.getHandlerList().unregister(this);
@@ -792,6 +794,12 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
         if(zombiesLeft == 0 && state == ZombiesArenaState.STARTED) {
             Property<Integer> currentRound = map.getCurrentRoundProperty();
             doRound(currentRound.getValue(this) + 1);
+        }
+    }
+
+    private void onEntitySomething(ProjectileCollideEvent event) {
+        if (event.getEntity() instanceof Snowball) {
+            event.setCancelled(true);
         }
     }
 
