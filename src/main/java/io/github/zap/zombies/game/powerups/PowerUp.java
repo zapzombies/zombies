@@ -114,44 +114,48 @@ public abstract class PowerUp {
         MutableBoolean isPickedUp = new MutableBoolean(false);
         checkForDistTask = arena.runTaskTimer(0L, getRefreshRate(), () -> {
             // Check for despawn timer
-            if((System.currentTimeMillis() - spawnedTimeStamp) / 50 > getData().getDespawnDuration()) {
+            long delta = getData().getDespawnDuration() - (System.currentTimeMillis() - spawnedTimeStamp) / 50;
+            if(delta < 0) {
                 deactivate();
                 checkForDistTask.cancel();
             }
+            else {
+                boolean flash = delta <= getData().getFlashCount() * 20 && (delta / 10) % 2 == 1;
 
-            BoundingBox itemBox = new BoundingBox(powerUpItemLocation.getX(), powerUpItemLocation.getY(),
-                    powerUpItemLocation.getZ(), powerUpItemLocation.getX(), powerUpItemLocation.getY(),
-                    powerUpItemLocation.getZ()).expand(getData().getPickupRange());
-            for (ZombiesPlayer player : getArena().getPlayerMap().values()) {
-                Player bukkitPlayer = player.getPlayer();
-                if (bukkitPlayer != null && player.isInGame() && player.getState() == ZombiesPlayerState.ALIVE) {
-                    boolean collide = bukkitPlayer.getBoundingBox().overlaps(itemBox);
-                    itemEntity.setCustomName(getData().getDisplayName());
-                    if (collide && !(boolean) isPickedUp.getValue() && getState() == PowerUpState.DROPPED) {
-                        if (!checkForDistTask.isCancelled()) checkForDistTask.cancel();
-                        var sameType = getSamePowerUp();
-                        if (sameType != null) sameType.deactivate();
-                        isPickedUp.setValue(true);
-                        removePowerUpItem();
-                        var eventArgs = new PowerUpChangedEventArgs(ChangedAction.ACTIVATED, Collections.singleton(getCurrent()));
-                        getArena().getPowerUpChangedEvent().callEvent(eventArgs);
-                        getArena().getPlayerMap().forEach((id, otherPlayer) -> {
-                            if (otherPlayer.isInGame()) {
-                                Player otherBukkitPlayer = otherPlayer.getPlayer();
-                                Title title = Title.title(LegacyComponentSerializer.legacySection()
-                                        .deserialize(getData().getDisplayName()), Component.empty());
-                                if (otherBukkitPlayer != null) {
-                                    otherBukkitPlayer.showTitle(title);
-                                    otherBukkitPlayer.sendMessage(ChatColor.YELLOW + bukkitPlayer.getName() + " activated " + getData().getDisplayName() + ChatColor.RESET + ChatColor.YELLOW + "!");
-                                    otherBukkitPlayer.playSound(player.getPlayer().getLocation(), getData().getPickupSound(), getData().getPickupSoundVolume(), getData().getPickupSoundPitch());
+                BoundingBox itemBox = new BoundingBox(powerUpItemLocation.getX(), powerUpItemLocation.getY(),
+                        powerUpItemLocation.getZ(), powerUpItemLocation.getX(), powerUpItemLocation.getY(),
+                        powerUpItemLocation.getZ()).expand(getData().getPickupRange());
+                for (ZombiesPlayer player : getArena().getPlayerMap().values()) {
+                    Player bukkitPlayer = player.getPlayer();
+                    if (bukkitPlayer != null && player.isInGame() && player.getState() == ZombiesPlayerState.ALIVE) {
+                        boolean collide = bukkitPlayer.getBoundingBox().overlaps(itemBox);
+                        itemEntity.setCustomName(flash ? getData().getFlashDisplayName() : getData().getDisplayName());
+                        if (collide && !(boolean) isPickedUp.getValue() && getState() == PowerUpState.DROPPED) {
+                            if (!checkForDistTask.isCancelled()) checkForDistTask.cancel();
+                            var sameType = getSamePowerUp();
+                            if (sameType != null) sameType.deactivate();
+                            isPickedUp.setValue(true);
+                            removePowerUpItem();
+                            var eventArgs = new PowerUpChangedEventArgs(ChangedAction.ACTIVATED, Collections.singleton(getCurrent()));
+                            getArena().getPowerUpChangedEvent().callEvent(eventArgs);
+                            getArena().getPlayerMap().forEach((id, otherPlayer) -> {
+                                if (otherPlayer.isInGame()) {
+                                    Player otherBukkitPlayer = otherPlayer.getPlayer();
+                                    Title title = Title.title(LegacyComponentSerializer.legacySection()
+                                            .deserialize(getData().getDisplayName()), Component.empty());
+                                    if (otherBukkitPlayer != null) {
+                                        otherBukkitPlayer.showTitle(title);
+                                        otherBukkitPlayer.sendMessage(ChatColor.YELLOW + bukkitPlayer.getName() + " activated " + getData().getDisplayName() + ChatColor.RESET + ChatColor.YELLOW + "!");
+                                        otherBukkitPlayer.playSound(player.getPlayer().getLocation(), getData().getPickupSound(), getData().getPickupSoundVolume(), getData().getPickupSoundPitch());
+                                    }
                                 }
-                            }
-                        });
+                            });
 
-                        state = PowerUpState.ACTIVATED;
-                        activatedTimeStamp = System.currentTimeMillis();
-                        activate();
-                        break;
+                            state = PowerUpState.ACTIVATED;
+                            activatedTimeStamp = System.currentTimeMillis();
+                            activate();
+                            break;
+                        }
                     }
                 }
             }
