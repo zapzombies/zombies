@@ -8,7 +8,9 @@ import io.github.zap.arenaapi.hotbar.HotbarManager;
 import io.github.zap.arenaapi.hotbar.HotbarObject;
 import io.github.zap.arenaapi.hotbar.HotbarObjectGroup;
 import io.github.zap.arenaapi.hotbar.HotbarProfile;
+import io.github.zap.arenaapi.nms.common.world.BlockCollisionView;
 import io.github.zap.arenaapi.pathfind.path.PathTarget;
+import io.github.zap.arenaapi.pathfind.util.Utils;
 import io.github.zap.arenaapi.util.AttributeHelper;
 import io.github.zap.arenaapi.util.WorldUtils;
 import io.github.zap.zombies.game.*;
@@ -54,6 +56,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.util.BoundingBox;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -308,6 +311,13 @@ public class ZombiesPlayer extends ManagedPlayer<ZombiesPlayer, ZombiesArena> im
                 mapStats.setKnockDowns(mapStats.getKnockDowns() + 1);
             });
 
+            Player player = getPlayer();
+            if (player != null) {
+                Location location = player.getLocation();
+                location.setY(location.getY() - 1);
+                player.teleportAsync(location);
+            }
+
             setKnockedState();
         }
     }
@@ -426,6 +436,20 @@ public class ZombiesPlayer extends ManagedPlayer<ZombiesPlayer, ZombiesArena> im
 
             for (ZombiesTask zombiesTask : tasks) {
                 zombiesTask.notifyChange();
+            }
+
+            Player player = getPlayer();
+            if (player != null) {
+                Location location = player.getLocation();
+                BoundingBox boundingBox = player.getBoundingBox();
+                boundingBox.shift(0, 1, 0);
+
+                BlockCollisionView collisionView = Utils.highestBlockBelow((x, y, z) -> ArenaApi.getInstance()
+                                .getNmsBridge().worldBridge().collisionFor(player.getWorld().getBlockAt(x, y, z)),
+                        boundingBox);
+                location.setY(collisionView.exactY());
+
+                player.teleportAsync(location);
             }
 
             setAliveState();
