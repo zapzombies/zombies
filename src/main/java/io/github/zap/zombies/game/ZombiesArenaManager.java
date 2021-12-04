@@ -184,7 +184,8 @@ public class ZombiesArenaManager extends ArenaManager<ZombiesArena> {
                                 Hologram hologram = new Hologram(hologramLocation.toLocation(world));
                                 hologram.addLine(Component.text("Best Times", NamedTextColor.BLUE));
 
-                                TimesFormatter formatter = TimesFormatter.defaultFormatter();
+                                TimesFormatter formatter = TimesFormatter.defaultFormatter(NamedTextColor.YELLOW,
+                                        NamedTextColor.YELLOW);
                                 for (int i = 0; i < bestTimesCount; i++) {
                                     Map.Entry<UUID, Long> bestTime = bestTimes.get(i);
                                     Component time = formatter.format(bestTime.getValue());
