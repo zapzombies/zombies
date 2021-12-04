@@ -311,13 +311,6 @@ public class ZombiesPlayer extends ManagedPlayer<ZombiesPlayer, ZombiesArena> im
                 mapStats.setKnockDowns(mapStats.getKnockDowns() + 1);
             });
 
-            Player player = getPlayer();
-            if (player != null) {
-                Location location = player.getLocation();
-                location.setY(location.getY() - 1);
-                player.teleportAsync(location);
-            }
-
             setKnockedState();
         }
     }

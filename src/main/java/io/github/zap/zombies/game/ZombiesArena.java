@@ -849,9 +849,9 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
                         BlockCollisionView collisionView = Utils.highestBlockBelow((x, y, z) -> ArenaApi.getInstance()
                                         .getNmsBridge().worldBridge().collisionFor(world.getBlockAt(x, y, z)),
                                 player.getBoundingBox());
-                        location.setY(collisionView.exactY());
+                        location.setY(collisionView.exactY() - 1);
 
-                        player.teleportAsync(location);
+                        player.teleport(location);
                     }
                 } else {
                     event.setCancelled(true);
