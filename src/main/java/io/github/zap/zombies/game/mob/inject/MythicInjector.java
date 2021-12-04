@@ -17,10 +17,9 @@ public interface MythicInjector {
 
     void injectSkills(@NotNull Iterable<Class<? extends SkillMechanic>> skillClasses);
 
-    @SuppressWarnings("SwitchStatementWithTooFewBranches")
     static @Nullable MythicInjector forInstance(@NotNull Logger logger, @NotNull MythicMobs mythicMobs) {
         return switch (mythicMobs.getVersion()) {
-            case "4.12.0" -> new MythicInjector_v4_12_R0(logger, mythicMobs);
+            case "4.12.0", "4.13.1" -> new MythicInjector_v4_12_R0(logger, mythicMobs);
             default -> null;
         };
     }

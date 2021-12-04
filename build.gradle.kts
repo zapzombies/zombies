@@ -34,7 +34,7 @@ dependencies {
     bukkitPlugin("io.github.zap:zap-party:1.0.0-SNAPSHOT-1638545602", qs {
         exclude("io.github.zap", "regular-commands")
     })
-    bukkitPlugin("io.lumine.xikage:MythicMobs:4.13.1")
+    bukkitPlugin("io.lumine:Mythic-Dist:4.13.1")
     bukkitPlugin("com.grinderwolf:slimeworldmanager-plugin:2.6.2-SNAPSHOT")
     bukkitPlugin("com.comphenix.protocol:ProtocolLib:4.7.0")
     serverArtifactVerless("com.grinderwolf:slimeworldmanager-classmodifier:2.6.2-SNAPSHOT")
