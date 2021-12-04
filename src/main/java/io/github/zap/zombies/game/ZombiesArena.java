@@ -797,6 +797,7 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
         }
     }
 
+    @org.bukkit.event.EventHandler
     private void onEntitySomething(ProjectileCollideEvent event) {
         if (event.getEntity() instanceof Snowball) {
             event.setCancelled(true);
