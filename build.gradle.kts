@@ -14,6 +14,7 @@ repositories {
     maven("https://repo.glaremasters.me/repository/concuncan/")
     maven("https://repo.dmulloy2.net/repository/public/")
     maven("https://mvn.lumine.io/repository/maven-public/")
+    maven( "https://jitpack.io/")
 }
 
 dependencies {
@@ -28,6 +29,7 @@ dependencies {
     shade("net.kyori:adventure-text-minimessage:4.1.0-SNAPSHOT") {
         exclude("net.kyori", "adventure-api")
     }
+    shade("com.github.Obliviated:ObliviateInvs:3.0.1")
 
     bukkitPlugin("io.github.zap:arena-api:1.0.0-SNAPSHOT-1633937424", qs())
     bukkitPlugin("io.github.zap:zap-party:1.0.0-SNAPSHOT-1630956414", qs {
