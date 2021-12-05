@@ -48,6 +48,7 @@ import io.github.zap.zombies.game.powerups.spawnrules.PowerUpSpawnRule;
 import io.github.zap.zombies.game.scoreboards.GameScoreboard;
 import io.github.zap.zombies.game.shop.*;
 import io.github.zap.zombies.leaderboard.Leaderboard;
+import io.github.zap.zombies.leaderboard.times.TimesFormatter;
 import io.github.zap.zombies.stats.CacheInformation;
 import io.github.zap.zombies.stats.map.MapStats;
 import io.github.zap.zombies.stats.player.PlayerGeneralStats;
@@ -64,8 +65,11 @@ import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.Template;
 import net.kyori.adventure.title.Title;
+import org.apache.commons.lang3.StringUtils;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
@@ -846,9 +850,9 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
                         BlockCollisionView collisionView = Utils.highestBlockBelow((x, y, z) -> ArenaApi.getInstance()
                                         .getNmsBridge().worldBridge().collisionFor(world.getBlockAt(x, y, z)),
                                 player.getBoundingBox());
-                        location.setY(collisionView.exactY());
+                        location.setY(collisionView.exactY() - 1);
 
-                        player.teleportAsync(location);
+                        player.teleport(location);
                     }
                 } else {
                     event.setCancelled(true);
@@ -1218,18 +1222,26 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
                             mapStats.setBestRound(lastRoundIndex);
                         }
 
-                        Component bar = MiniMessage.get().parse("<green>=======================");
+                        Component bar = Component.text(StringUtils.repeat('\u2014', 29),
+                                NamedTextColor.GREEN);
                         Map<Integer, Long> bestTimes = mapStats.getBestTimes();
                         Long bestTime = bestTimes.get(lastRoundIndex);
+
+                        TimesFormatter formatter = TimesFormatter.defaultFormatter(NamedTextColor.YELLOW,
+                                NamedTextColor.GREEN);
+                        Component message = MiniMessage.get().parse("            <yellow>You completed " +
+                                        "<red><bold>Round " + targetRound + " <reset><yellow>in <reset><time><yellow>!",
+                                Template.of("time", formatter.format(approximateTicks)));
                         if (bestTime == null || bestTime < approximateTicks) {
                             bestTimes.put(lastRoundIndex, approximateTicks);
+
+                            Component newPersonalBest = MiniMessage.get().parse("            " +
+                                    "<yellow>*** <gold><bold>NEW PERSONAL BEST! <reset><yellow>***");
                             Bukkit.getScheduler().runTask(Zombies.getInstance(), () -> {
                                 if (player.isOnline()) {
                                     player.sendMessage(bar);
-                                    player.sendMessage(MiniMessage.get()
-                                            .parse(String.format("<red>You beat round %d in %s!", targetRound,
-                                                    TimeUtil.convertTicksToSecondsString(approximateTicks))));
-                                    player.sendMessage(MiniMessage.get().parse("<gold>NEW PERSONAL BEST!"));
+                                    player.sendMessage(message);
+                                    player.sendMessage(newPersonalBest);
                                     player.sendMessage(bar);
                                 }
                             });
@@ -1238,9 +1250,7 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
                             Bukkit.getScheduler().runTask(Zombies.getInstance(), () -> {
                                 if (player.isOnline()) {
                                     player.sendMessage(bar);
-                                    player.sendMessage(MiniMessage.get()
-                                            .parse(String.format("<red>You beat round %d in %s!", targetRound,
-                                                    TimeUtil.convertTicksToSecondsString(approximateTicks))));
+                                    player.sendMessage(message);
                                     player.sendMessage(bar);
                                 }
                             });
@@ -1420,7 +1430,7 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
             if (r.isInGame()) {
                 Player bukkitPlayer = r.getPlayer();
                 if (bukkitPlayer != null) {
-                    bukkitPlayer.showTitle(Title.title(Component.text("Game Over!", NamedTextColor.GREEN),
+                    bukkitPlayer.showTitle(Title.title(Component.text("Game Over!", NamedTextColor.RED),
                             Component.text("You made it to Round " + (round + 1) + "!", NamedTextColor.GRAY)));
                     bukkitPlayer.sendActionBar(Component.empty());
                 }

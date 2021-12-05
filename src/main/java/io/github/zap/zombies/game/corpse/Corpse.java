@@ -91,6 +91,7 @@ public class Corpse {
             EntityBridge entityBridge = ArenaApi.getInstance().getNmsBridge().entityBridge();
 
             this.location = player.getPlayer().getLocation();
+            location.setY(location.getY() + 1);
             this.center = Zombies.getInstance().getNmsBridge().entityBridge().getCorpseCenter(this.location.toVector());
             this.defaultDeathTime = player.getArena().getMap().getCorpseDeathTime();
             this.hologram = new Hologram(location.clone().add(0, 1, 0));
@@ -391,8 +392,7 @@ public class Corpse {
 
         Player bukkitPlayer = zombiesPlayer.getPlayer();
 
-        if(bukkitPlayer != null) {
-            Location location = zombiesPlayer.getPlayer().getLocation();
+        if (bukkitPlayer != null) {
             packetContainer.getDoubles()
                     .write(0, location.getX())
                     .write(1, location.getY())
