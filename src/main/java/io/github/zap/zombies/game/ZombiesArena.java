@@ -598,6 +598,7 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
 
         mapBounds = ChunkCoordinateProviders.boundedSquare(Vectors.of(min.getBlockX() >> 4, min.getBlockZ() >> 4),
                 Vectors.of((max.getBlockX() >> 4) + 1, (max.getBlockZ() >> 4) + 1));
+
     }
 
     private void registerArenaEvents() {

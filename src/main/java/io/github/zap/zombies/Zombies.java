@@ -38,6 +38,7 @@ import io.github.zap.zombies.nms.v1_16_R3.ZombiesNMSBridge_v1_16_R3;
 import io.github.zap.zombies.world.SlimeWorldLoader;
 import io.lumine.xikage.mythicmobs.MythicMobs;
 import lombok.Getter;
+import mc.obliviate.inventory.InventoryAPI;
 import net.kyori.adventure.translation.GlobalTranslator;
 import org.apache.commons.io.FilenameUtils;
 import org.bukkit.Bukkit;
@@ -100,6 +101,9 @@ public final class Zombies extends JavaPlugin implements Listener {
 
     @Getter
     private CommandManager commandManager;
+
+    @Getter
+    private final InventoryAPI inventoryAPI = new InventoryAPI(this);
 
     @Getter
     private PathfinderEngine pathfinderEngine;
@@ -239,6 +243,7 @@ public final class Zombies extends JavaPlugin implements Listener {
         arenaApi = ArenaApi.getDependentPlugin(PluginNames.ARENA_API, true, true);
         SWM = ArenaApi.getDependentPlugin(PluginNames.SLIME_WORLD_MANAGER, true, true);
         mythicMobs = ArenaApi.getDependentPlugin(PluginNames.MYTHIC_MOBS, true, false);
+        inventoryAPI.init();
         fixAswm();
     }
 
