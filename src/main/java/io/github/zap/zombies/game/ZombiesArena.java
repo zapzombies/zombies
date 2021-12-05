@@ -20,9 +20,9 @@ import io.github.zap.arenaapi.pathfind.util.Utils;
 import io.github.zap.arenaapi.shadow.com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.zap.arenaapi.shadow.org.apache.commons.lang3.tuple.Pair;
 import io.github.zap.arenaapi.stats.StatsManager;
-import io.github.zap.arenaapi.util.MetadataHelper;
 import io.github.zap.arenaapi.util.TimeUtil;
 import io.github.zap.arenaapi.util.WorldUtils;
+import io.github.zap.commons.utils.MetadataHelper;
 import io.github.zap.commons.vectors.Vectors;
 import io.github.zap.zombies.SpawnMetadata;
 import io.github.zap.zombies.Zombies;
@@ -600,6 +600,7 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
 
         mapBounds = ChunkCoordinateProviders.boundedSquare(Vectors.of(min.getBlockX() >> 4, min.getBlockZ() >> 4),
                 Vectors.of((max.getBlockX() >> 4) + 1, (max.getBlockZ() >> 4) + 1));
+
     }
 
     private void registerArenaEvents() {

@@ -31,8 +31,8 @@ dependencies {
     }
     shade("com.github.Obliviated:ObliviateInvs:3.0.1")
 
-    bukkitPlugin("io.github.zap:arena-api:1.0.0-SNAPSHOT-1633937424", qs())
-    bukkitPlugin("io.github.zap:zap-party:1.0.0-SNAPSHOT-1630956414", qs {
+    bukkitPlugin("io.github.zap:arena-api:1.0.0-SNAPSHOT-1638073148", qs())
+    bukkitPlugin("io.github.zap:zap-party:1.0.0-SNAPSHOT-1638065973", qs {
         exclude("io.github.zap", "regular-commands")
     })
     bukkitPlugin("io.lumine.xikage:MythicMobs:4.12.0")
