@@ -33,7 +33,7 @@ import java.util.function.Predicate;
  */
 @Getter
 public class BasicBeam {
-    private static final double HITBOX_EXPANSION = 0.1;
+    private static final double HITBOX_EXPANSION = 0.2;
 
     @RequiredArgsConstructor
     protected class BeamDamageAttempt implements DamageAttempt {
