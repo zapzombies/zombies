@@ -98,11 +98,17 @@ public class DefaultPowerUpSpawnRule extends PowerUpSpawnRule<DefaultPowerUpSpaw
             if(window.getFaceBounds().overlaps(entity.getBoundingBox()) ||
                     window.getInteriorBounds().overlaps(entity.getBoundingBox())) {
                 var newSpawnVec = window.getTarget();
-                return newSpawnVec.toLocation(entity.getWorld());
+                Location location = newSpawnVec.toLocation(entity.getWorld());
+                location.setY(location.getY() + 1);
+
+                return location;
             }
         }
 
-        return entity.getLocation();
+        Location location = entity.getLocation();
+        location.setY(location.getY() + 1);
+
+        return location;
     }
 
 

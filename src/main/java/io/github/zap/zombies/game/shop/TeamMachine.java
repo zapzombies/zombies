@@ -6,25 +6,14 @@ import io.github.zap.arenaapi.Unique;
 import io.github.zap.arenaapi.hologram.Hologram;
 import io.github.zap.zombies.game.ZombiesArena;
 import io.github.zap.zombies.game.data.map.shop.TeamMachineData;
-import io.github.zap.zombies.game.data.map.shop.tmtask.TeamMachineTask;
 import io.github.zap.zombies.game.player.ZombiesPlayer;
+import io.github.zap.zombies.gui.TeamMachineGUI;
 import lombok.Getter;
-import net.kyori.adventure.key.Key;
-import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
-import org.bukkit.Bukkit;
-import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -35,23 +24,27 @@ public class TeamMachine extends BlockShop<TeamMachineData> implements Unique, D
     @Getter
     private final UUID id = UUID.randomUUID();
 
-    private final Inventory inventory;
+    /*private final Inventory inventory;
 
-    private final Map<Integer, TeamMachineTask> slotMap = new HashMap<>();
+    private final Map<Integer, TeamMachineTask> slotMap = new HashMap<>();*/
 
     public TeamMachine(ZombiesArena zombiesArena, TeamMachineData shopData) {
         super(zombiesArena, shopData);
 
-        this.inventory = prepareInventory();
+        //this.inventory = prepareInventory();
     }
 
-    @Override
+    /*@Override
+
+    we are not must register inventory click listeners
+
     protected void registerArenaEvents() {
         super.registerArenaEvents();
 
         ZombiesArena zombiesArena = getArena();
         zombiesArena.getProxyFor(InventoryClickEvent.class).registerHandler(this::onInventoryClick);
     }
+     */
 
     @Override
     public void display() {
@@ -79,7 +72,8 @@ public class TeamMachine extends BlockShop<TeamMachineData> implements Unique, D
 
                 if (bukkitPlayer != null) {
                     if (!getShopData().isRequiresPower() || isPowered()) {
-                        bukkitPlayer.openInventory(inventory);
+                        new TeamMachineGUI(zombiesPlayer, this).open();
+                        //bukkitPlayer.openInventory(inventory);
                         return true;
                     } else {
                         bukkitPlayer.sendMessage(Component.text("The power is not active yet!",
@@ -102,10 +96,11 @@ public class TeamMachine extends BlockShop<TeamMachineData> implements Unique, D
         Property.removeMappingsFor(this);
     }
 
-    /**
+    /*
+
      * Handler for inventory clicks to handle team machine events
      * @param args The arguments passed to the handler
-     */
+
     private void onInventoryClick(ZombiesArena.ProxyArgs<InventoryClickEvent> args) {
         InventoryClickEvent inventoryClickEvent = args.getEvent();
 
@@ -121,8 +116,7 @@ public class TeamMachine extends BlockShop<TeamMachineData> implements Unique, D
                     inventoryClickEvent.setCancelled(true);
                     TeamMachineTask teamMachineTask = slotMap.get(inventoryClickEvent.getSlot());
 
-                    if (teamMachineTask != null
-                            && teamMachineTask.execute(this, arena, player)) {
+                    if (teamMachineTask != null && teamMachineTask.execute(this, arena, player)) {
                         Sound sound = Sound.sound(Key.key("minecraft:entity.player.levelup"), Sound.Source.MASTER,
                                 1.0F, 1.5F);
                         Component message = TextComponent.ofChildren(
@@ -145,12 +139,19 @@ public class TeamMachine extends BlockShop<TeamMachineData> implements Unique, D
             }
         }
     }
+    */
 
-    /**
+    @Override
+    public void onPurchaseSuccess(ZombiesPlayer zombiesPlayer) {
+        super.onPurchaseSuccess(zombiesPlayer);
+    }
+
+    /*
+
      * Uses magic from TachibanaYui to choose the slots which correspond
      * to team machine tasks within the team machine GUI
      * @return The resulting inventory
-     */
+
     private Inventory prepareInventory() {
         Inventory inventory;
         List<TeamMachineTask> teamMachineTasks = getShopData().getTeamMachineTasks();
@@ -198,5 +199,6 @@ public class TeamMachine extends BlockShop<TeamMachineData> implements Unique, D
 
         return inventory;
     }
+    */
 
 }

@@ -17,6 +17,7 @@ public class PowerUpData {
 
     private ItemStackDescription itemRepresentation;
     private String displayName;
+    private String flashDisplayName;
 
     // In ticks
     private int despawnDuration = 6000;
@@ -27,4 +28,6 @@ public class PowerUpData {
     private float pickupSoundVolume = 1;
 
     private float pickupSoundPitch = 1;
+
+    private long flashCount = 5;
 }

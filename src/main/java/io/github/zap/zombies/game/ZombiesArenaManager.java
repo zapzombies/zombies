@@ -208,7 +208,7 @@ public class ZombiesArenaManager extends ArenaManager<ZombiesArena> {
                                             Hologram hologram2 = new Hologram(hologramLocation2.toLocation(world));
                                             hologram2.addLine(Component.text("December 2021 Event", NamedTextColor.GOLD));
 
-                                            TimesFormatter formatter = TimesFormatter.defaultFormatter();
+                                            TimesFormatter formatter = TimesFormatter.defaultFormatter(NamedTextColor.YELLOW, NamedTextColor.YELLOW);
                                             for (int i = 0; i < bestTimesCount; i++) {
                                                 Map.Entry<UUID, Long> bestTime = bestTimes.get(i);
                                                 Component time = formatter.format(bestTime.getValue());
@@ -361,7 +361,7 @@ public class ZombiesArenaManager extends ArenaManager<ZombiesArena> {
                                             Hologram hologram = new Hologram(hologramLocation.toLocation(world));
                                             hologram.addLine(Component.text("Best Times", NamedTextColor.BLUE));
 
-                                            TimesFormatter formatter = TimesFormatter.defaultFormatter();
+                                            TimesFormatter formatter = TimesFormatter.defaultFormatter(NamedTextColor.YELLOW, NamedTextColor.YELLOW);
                                             for (int i = 0; i < bestTimesCount; i++) {
                                                 Map.Entry<UUID, Long> bestTime = bestTimes.get(i);
                                                 Component time = formatter.format(bestTime.getValue());

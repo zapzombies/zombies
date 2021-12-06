@@ -5,6 +5,7 @@ Recreation of the Hypixel Arcade minigame Zombies. Seeks to fix bugs and add fea
 What you will need
 - [JDK 16](https://www.oracle.com/java/technologies/javase-jdk16-downloads.html)
 - [Gradle](https://gradle.org/install/) version 7 or higher (if you are using gradle bundled with IntelliJ, make sure to update your Environment Variable)
+- [Maven](https://maven.apache.org/download.cgi) (if you are using maven bundled with IntelliJ, make sure to update your Environment Variable)
 - IDE of choice, [IntelliJ](https://www.jetbrains.com/idea/) is recomended
 
 Steps
@@ -28,7 +29,7 @@ Not so important one
 - Setup Maven local: Setup maven packages that doesn't host publicaly (ex: NMS)
 - Setup PAT: Prompt user to provide Personal Access Token
 
-## Interproject manual testing
+## ~~Interproject manual testing~~ (No longer requried with `qs`)
 Since we split our monolithic project into multiple smaller project, editing 2 projects at the same time will be a bit harder, here how we can simplify it a bit
 Suppose you have a project `A` depends on project `B`:
 - Making changes to `A`
