@@ -22,7 +22,7 @@ public class TeamMachineGUI extends GUI {
 
 	public TeamMachineGUI(ZombiesPlayer zombiesPlayer, TeamMachine teamMachine) {
 		//default rows amount is defined as 6.
-		super(zombiesPlayer.getPlayer(), "team-machine-gui", "Team Machine", 1);
+		super(zombiesPlayer.getPlayer(), "team-machine-gui", "Team Machine", 6 /* TODO: obliviate fix */);
 		this.teamMachine = teamMachine;
 		this.zombiesPlayer = zombiesPlayer;
 	}
