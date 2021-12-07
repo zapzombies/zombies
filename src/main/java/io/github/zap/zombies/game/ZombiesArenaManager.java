@@ -215,7 +215,7 @@ public class ZombiesArenaManager extends ArenaManager<ZombiesArena> {
                                 future.complete(leaderboard);
 
                                 ZombiesArena arena = new ZombiesArena(this, world, maps.get(mapName),
-                                        leaderboard, arenaTimeout);
+                                        HiddenPlayerSet.basic(Zombies.getInstance(), world), leaderboard, arenaTimeout);
                                 managedArenas.put(arena.getId(), arena);
 
                                 getArenaCreated().callEvent(arena);

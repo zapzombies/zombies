@@ -616,7 +616,7 @@ public class ZombiesPlayer extends ManagedPlayer<ZombiesPlayer, ZombiesArena> im
             player.setInvulnerable(true);
             player.setInvisible(true);
             player.setGameMode(GameMode.ADVENTURE);
-            getArena().getHiddenPlayers().add(player);
+            getArena().getHiddenPlayers().addPlayer(player.getUniqueId());
         }
     }
 
@@ -632,7 +632,7 @@ public class ZombiesPlayer extends ManagedPlayer<ZombiesPlayer, ZombiesArena> im
             player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, Integer.MAX_VALUE, 0, false, false, false));
             player.setInvulnerable(false);
             player.setGameMode(GameMode.ADVENTURE);
-            arena.getHiddenPlayers().remove(player);
+            arena.getHiddenPlayers().removePlayer(player.getUniqueId());
         }
     }
 
@@ -645,7 +645,7 @@ public class ZombiesPlayer extends ManagedPlayer<ZombiesPlayer, ZombiesArena> im
             player.setCollidable(false);
             player.setInvisible(true);
             player.setGameMode(GameMode.ADVENTURE);
-            arena.getHiddenPlayers().add(player);
+            arena.getHiddenPlayers().addPlayer(player.getUniqueId());
         }
     }
 }

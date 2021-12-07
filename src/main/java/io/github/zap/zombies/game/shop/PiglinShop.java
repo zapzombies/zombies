@@ -18,6 +18,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.Template;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Piglin;
@@ -32,6 +33,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.UUID;
 
 public class PiglinShop extends Shop<PiglinShopData> {
 
@@ -53,7 +55,7 @@ public class PiglinShop extends Shop<PiglinShopData> {
 
     private boolean doneThinking = false;
 
-    private Player roller;
+    private UUID roller;
 
     public PiglinShop(ZombiesArena arena, PiglinShopData shopData) {
         super(arena, shopData);
@@ -153,7 +155,7 @@ public class PiglinShop extends Shop<PiglinShopData> {
                             player.subtractCoins(cost);
 
                             hologram.destroy();
-                            roller = bukkitPlayer;
+                            roller = bukkitPlayer.getUniqueId();
                             doneThinking = false;
 
                             EntityEquipment initialEquipment = dream.getEquipment();
@@ -284,15 +286,16 @@ public class PiglinShop extends Shop<PiglinShopData> {
 
             Component equipmentName = Component.text(equipmentData.getDisplayName(), NamedTextColor.YELLOW);
             Component exclamationPoint = Component.text("!", NamedTextColor.RED);
-            if (roller.isOnline()) {
-                roller.sendMessage(MiniMessage.get().parse("<red>You got a <reset><equipment><reset><red>!",
+            Player bukkit = Bukkit.getPlayer(roller);
+            if (bukkit != null) {
+                bukkit.sendMessage(MiniMessage.get().parse("<red>You got a <reset><equipment><reset><red>!",
                         Template.of("equipment", equipmentName)));
             }
             Component message = MiniMessage.get().parse("<red><roller> <reset><red>got a " +
                             "<reset><equipment><reset><red>!",
                     Template.of("roller", equipmentName), Template.of("equipment", equipmentName));
-            for (Player otherPlayer : roller.getWorld().getPlayers()) {
-                if (!otherPlayer.equals(roller)) {
+            for (Player otherPlayer : player.getArena().getWorld().getPlayers()) {
+                if (!otherPlayer.getUniqueId().equals(roller)) {
                     otherPlayer.sendMessage(message);
                 }
             }

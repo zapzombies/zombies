@@ -40,6 +40,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.UUID;
 
 /**
  * Chest used to randomly generate a weapon from a predefined set of weapons to present to the player
@@ -60,7 +61,7 @@ public class LuckyChest extends Shop<LuckyChestData> {
 
     private boolean doneRolling = false;
 
-    private Player roller;
+    private UUID roller;
 
     public LuckyChest(ZombiesArena zombiesArena, LuckyChestData shopData) {
         super(zombiesArena, shopData);
@@ -184,7 +185,7 @@ public class LuckyChest extends Shop<LuckyChestData> {
                                 player.subtractCoins(cost);
 
                                 hologram.destroy();
-                                roller = bukkitPlayer;
+                                roller = bukkitPlayer.getUniqueId();
                                 doneRolling = false;
 
                                 Jingle.play(getArena(), getShopData().getJingle(),
@@ -359,21 +360,23 @@ public class LuckyChest extends Shop<LuckyChestData> {
 
             Component equipmentName = Component.text(currentEquipment.getDisplayName(), NamedTextColor.YELLOW);
             Component inTheLuckyChest = Component.text(" in the Lucky Chest!", NamedTextColor.RED);
-            if (roller.isOnline()) {
-                roller.sendMessage(TextComponent.ofChildren(
+            Player bukkit = Bukkit.getPlayer(roller);
+            if (bukkit != null) {
+                bukkit.sendMessage(TextComponent.ofChildren(
                         Component.text("You found ", NamedTextColor.RED),
                         equipmentName,
                         inTheLuckyChest
                 ));
             }
+            Component name = (bukkit != null) ? bukkit.displayName() : Component.text(Bukkit.getOfflinePlayer(roller).getName()); // TODO: fix
             Component message = TextComponent.ofChildren(
-                    roller.displayName(),
+                    name,
                     Component.text(" found ", NamedTextColor.RED),
                     equipmentName,
                     inTheLuckyChest
             );
-            for (Player player : roller.getWorld().getPlayers()) {
-                if (!player.equals(roller)) {
+            for (Player player : getArena().getWorld().getPlayers()) {
+                if (!player.getUniqueId().equals(roller)) {
                     player.sendMessage(message);
                 }
             }
