@@ -270,8 +270,10 @@ public class ZombiesArenaManager extends ArenaManager<ZombiesArena> {
 
                                             future2.complete(leaderboard2);
 
-                                            ZombiesArena arena = new ZombiesArena(this, world, maps.get(mapName),
-                                                    leaderboard, leaderboard2, arenaTimeout);
+                                            ZombiesArena arena = new ZombiesArena(this, world,
+                                                    maps.get(mapName),
+                                                    HiddenPlayerSet.basic(Zombies.getInstance(), world), leaderboard,
+                                                    leaderboard2, arenaTimeout);
                                             managedArenas.put(arena.getId(), arena);
 
                                             getArenaCreated().callEvent(arena);
@@ -392,8 +394,10 @@ public class ZombiesArenaManager extends ArenaManager<ZombiesArena> {
 
                                             future.complete(leaderboard);
 
-                                            ZombiesArena arena = new ZombiesArena(this, world, maps.get(mapName),
-                                                    leaderboard, null, arenaTimeout);
+                                            ZombiesArena arena = new ZombiesArena(this, world,
+                                                    maps.get(mapName),
+                                                    HiddenPlayerSet.basic(Zombies.getInstance(), world), leaderboard,
+                                                    null, arenaTimeout);
                                             managedArenas.put(arena.getId(), arena);
 
                                             getArenaCreated().callEvent(arena);

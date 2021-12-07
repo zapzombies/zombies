@@ -19,7 +19,6 @@ import io.github.zap.arenaapi.pathfind.chunk.ChunkCoordinateProviders;
 import io.github.zap.arenaapi.pathfind.util.Utils;
 import io.github.zap.arenaapi.shadow.org.apache.commons.lang3.tuple.Pair;
 import io.github.zap.arenaapi.stats.StatsManager;
-import io.github.zap.arenaapi.util.TimeUtil;
 import io.github.zap.arenaapi.util.WorldUtils;
 import io.github.zap.commons.utils.MetadataHelper;
 import io.github.zap.commons.vectors.Vectors;
@@ -65,7 +64,6 @@ import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
-import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.Template;
 import net.kyori.adventure.title.Title;
@@ -507,34 +505,7 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
     private final ChunkBounds mapBounds;
 
     @Getter
-    private final Set<Player> hiddenPlayers = new HashSet<>() {
-        @Override
-        public boolean add(Player player) {
-            if (super.add(player)) {
-                for (Player otherPlayer : world.getPlayers()) {
-                    otherPlayer.hidePlayer(Zombies.getInstance(), player);
-                }
-
-                return true;
-            }
-
-            return false;
-        }
-
-        @Override
-        public boolean remove(Object o) {
-            if (o instanceof Player player && super.remove(o)) {
-                for (Player otherPlayer : world.getPlayers()) {
-                    otherPlayer.showPlayer(Zombies.getInstance(), player);
-                }
-
-                return true;
-            }
-
-            return false;
-        }
-
-    };
+    private final HiddenPlayerSet hiddenPlayers;
 
     private final Leaderboard timesLeaderboard;
 
@@ -579,8 +550,9 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
      * @param world        The world to use
      * @param emptyTimeout The time it will take the arena to close, if it is empty and in the pregame state
      */
-    public ZombiesArena(ZombiesArenaManager manager, World world, MapData map, @NotNull Leaderboard timesLeaderboard,
-                        @Nullable Leaderboard timesLeaderboard2, long emptyTimeout) {
+    public ZombiesArena(ZombiesArenaManager manager, World world, MapData map, @NotNull HiddenPlayerSet hiddenPlayers,
+                        @NotNull Leaderboard timesLeaderboard, @Nullable Leaderboard timesLeaderboard2,
+                        long emptyTimeout) {
         super(Zombies.getInstance(), manager, world, ZombiesPlayer::new, emptyTimeout);
 
         this.map = map;
@@ -593,6 +565,7 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
         this.damageHandler = new BasicDamageHandler();
         this.gameScoreboard = new GameScoreboard(this);
         gameScoreboard.initialize();
+        this.hiddenPlayers = hiddenPlayers;
         this.timesLeaderboard = timesLeaderboard;
         this.timesLeaderboard2 = timesLeaderboard2;
 
@@ -655,8 +628,11 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
             if (player.isInGame()) {
                 Player bukkitPlayer = player.getPlayer();
                 if (bukkitPlayer != null) {
-                    for (Player hiddenPlayer : hiddenPlayers) {
-                        bukkitPlayer.showPlayer(Zombies.getInstance(), hiddenPlayer);
+                    for (UUID hiddenPlayer : hiddenPlayers) {
+                        Player actual = Bukkit.getPlayer(hiddenPlayer);
+                        if (actual != null) {
+                            bukkitPlayer.showPlayer(Zombies.getInstance(), actual);
+                        }
                     }
                 }
             }
@@ -719,10 +695,13 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
 
         if (state == ZombiesArenaState.STARTED || state == ZombiesArenaState.ENDED) {
             for (Player player : args.getPlayers()) {
-                for (Player hiddenPlayer : hiddenPlayers) {
-                    player.hidePlayer(Zombies.getInstance(), hiddenPlayer);
+                for (UUID hiddenPlayer : hiddenPlayers) {
+                    Player actual = Bukkit.getPlayer(hiddenPlayer);
+                    if (actual != null) {
+                        player.hidePlayer(Zombies.getInstance(), actual);
+                    }
                 }
-                if (hiddenPlayers.contains(player)) {
+                if (hiddenPlayers.hasPlayer(player.getUniqueId())) {
                     for (Player otherPlayer : world.getPlayers()) {
                         otherPlayer.hidePlayer(Zombies.getInstance(), player);
                     }
@@ -738,10 +717,13 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
             if (bukkitPlayer != null) {
                 bukkitPlayer.teleport(WorldUtils.locationFrom(world, map.getSpawn()));
 
-                for (Player hiddenPlayer : hiddenPlayers) {
-                    bukkitPlayer.hidePlayer(Zombies.getInstance(), hiddenPlayer);
+                for (UUID hiddenPlayer : hiddenPlayers) {
+                    Player actual = Bukkit.getPlayer(hiddenPlayer);
+                    if (actual != null) {
+                        bukkitPlayer.hidePlayer(Zombies.getInstance(), actual);
+                    }
                 }
-                if (hiddenPlayers.contains(bukkitPlayer)) {
+                if (hiddenPlayers.hasPlayer(bukkitPlayer.getUniqueId())) {
                     for (Player otherPlayer : world.getPlayers()) {
                         otherPlayer.hidePlayer(Zombies.getInstance(), bukkitPlayer);
                     }
@@ -758,10 +740,13 @@ public class ZombiesArena extends ManagingArena<ZombiesArena, ZombiesPlayer> {
 
             Player bukkitPlayer = player.getPlayer();
             if (bukkitPlayer != null) {
-                for (Player hiddenPlayer : hiddenPlayers) {
-                    bukkitPlayer.showPlayer(Zombies.getInstance(), hiddenPlayer);
+                for (UUID hiddenPlayer : hiddenPlayers) {
+                    Player actual = Bukkit.getPlayer(hiddenPlayer);
+                    if (actual != null) {
+                        bukkitPlayer.showPlayer(Zombies.getInstance(), actual);
+                    }
                 }
-                if (hiddenPlayers.contains(bukkitPlayer)) {
+                if (hiddenPlayers.hasPlayer(bukkitPlayer.getUniqueId())) {
                     for (Player otherPlayer : world.getPlayers()) {
                         otherPlayer.showPlayer(Zombies.getInstance(), bukkitPlayer);
                     }
